@@ -5,7 +5,7 @@ import psycopg2
 # TPMs to use
 tpms = ["tpm-{}".format(i) for i in range(1, 17)]
 
-# Preadu mapping
+# PREADU mapping
 antenna_preadu_mapping = {0: 1, 1: 2, 2: 3, 3: 4,
                           8: 5, 9: 6, 10: 7, 11: 8,
                           15: 9, 14: 10, 13: 11, 12: 12,
@@ -15,9 +15,9 @@ nof_antennas_per_tile = 16
 nof_antennas = 256
 nof_stokes = 4
 
+
 def antenna_coordinates():
     """ Reads antenna base locations from the Google Drive sheet
-    :param save_to_file: Save remapped location and baselines to file
     :return: Re-mapped antenna locations
     """
     import urllib
@@ -55,7 +55,7 @@ def antenna_coordinates():
         # Rotate the antenna and place in placeholder
         antenna_mapping[tpm][rx] = (base, east, north)
 
-    # Create lookup table (uses preadu mapping)
+    # Create lookup table (uses PREADU mapping)
     antenna_positions = np.zeros((nof_antennas, 3))
     for i in range(nof_antennas):
         tile_number = i / nof_antennas_per_tile
@@ -63,6 +63,7 @@ def antenna_coordinates():
         antenna_positions[i] = (antenna_mapping[tile_number][rx_number])
 
     return antenna_positions
+
 
 def get_latest_coefficients():
     """ Read latest coefficients from database """
@@ -95,7 +96,7 @@ def get_latest_coefficients():
     # Index 0 is XX, 3 is YY. Indices 2 and 3 are the cross-pols, which should be initialised to 0
     coeffs = np.ones((nof_antennas, nof_channels, nof_stokes), dtype=np.complex64)
 
-    # Create antenna indicies
+    # Create antenna indices
     base_numbers = antenna_coordinates()[:, 0].tolist()
     base_indices = [base_numbers.index(i) for i in range(1, nof_antennas + 1)]
 
@@ -110,6 +111,7 @@ def get_latest_coefficients():
     # Return values
     return coeffs
 
+
 def check_station():
     """ Check if the station is properly formed """
 
@@ -119,6 +121,7 @@ def check_station():
     station.connect()
 
     return station.properly_formed_station
+
 
 def download_coefficients(coefficients):
     """ Download coefficients to station """
@@ -142,12 +145,14 @@ def download_coefficients(coefficients):
     station.switch_calibration_banks(2048)  # About 0.5 seconds
     logging.info("Switched calibration banks")
 
+
 def update_calibration_coefficients():
     """ Update calibration coefficients in station """
     if check_station():
         download_coefficients(get_latest_coefficients())
     else:
         logging.info("Station not well formed")
+
 
 if __name__ == "__main__":
     from optparse import OptionParser

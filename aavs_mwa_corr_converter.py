@@ -25,7 +25,7 @@ def get_metadata(datafile, show=True):
         print "---- Meta data ----"
         for k, v in metadata.iteritems():
             if k in ['ts_start', 'nof_integrations', 'channel_id']:
-               print "{}:\t{}".format(k, v)
+                print "{}:\t{}".format(k, v)
         print '\n'
 
     return metadata
@@ -62,7 +62,6 @@ def generate_indexing_map():
 
             # Add to mapping
             map[counter] = [baseline, pol_index]
-            #print("Map: prod ind: %d, i,j: %d,%d, AAVS bl: %d, pol_ind: %d" % (counter,i_antenna,j_antenna,baseline,pol_index))
 
             counter += 1
 
@@ -89,18 +88,17 @@ if __name__ == "__main__":
         exit()
 
     n_av = int(conf.n_average)
+
     # Try to process file
     try:
-
         # Open HDF5 file
         datafile = h5py.File(conf.filepath, 'r')
         metadata = get_metadata(datafile)
         data = datafile.get('correlation_matrix').get('data')
 
         # Create output file
-        #output_file = open(conf.output, 'w')
-        output_autos = open(conf.output+'.LACSPC', 'w')
-        output_cross = open(conf.output+'.LCCSPC', 'w')
+        output_autos = open(conf.output + '.LACSPC', 'w')
+        output_cross = open(conf.output + '.LCCSPC', 'w')
 
         # Generate indexing map
         indexing_map = generate_indexing_map()
@@ -111,49 +109,46 @@ if __name__ == "__main__":
         converted_cross = np.zeros((nof_mwa_inputs - 1) * nof_mwa_inputs / 2, dtype=np.complex64)
 
         # Process file one integration at a time
-        for t in range(metadata['nof_integrations']/n_av):
-          converted_autos.fill(0)
-          converted_cross.fill(0)
-          for a in range(n_av):
-            # Read integration
-            #vis = np.array(data[(t*n_av+a) * metadata['n_baselines']: ((t*n_av+a) + 1) * metadata['n_baselines']])
-	    vis = data[(t*n_av+a), 0, :, :]
+        for t in range(metadata['nof_integrations'] / n_av):
+            converted_autos.fill(0)
+            converted_cross.fill(0)
+            for a in range(n_av):
+                # Read integration
+                vis = data[(t * n_av + a), 0, :, :]
 
-            # Empty converted fill
-            converted_vis.fill(0)
+                # Empty converted fill
+                converted_vis.fill(0)
 
-            # Correlation matrix is already in upper triangular form, we just need to interleave polarizations
-            count_autos=0
-            count_cross=0
-            count_mwabl=0
-            for i in range(nof_mwa_inputs):
-                for j in range(i, nof_mwa_inputs):
-                    x, y = indexing_map[count_mwabl]
-                    converted_vis[j] = vis[x, y]
-                    count_mwabl += 1
-                    if i==j and (y==0 or y==3):
-                        # this is an auto-correlation
-                        converted_autos[count_autos] += np.real(converted_vis[j])
-                        count_autos+=1
-                    else:
-                        # this is a cross-correlation
-                        converted_cross[count_cross] += converted_vis[j]
-                        count_cross += 1
-            # Print update
-            sys.stdout.write("Processed %d of %d [%.2f%%]      \r" % (t*n_av+a, metadata['nof_integrations'],
-                                                                      ((t*n_av+a) / float(metadata['nof_integrations'])) * 100))
-            sys.stdout.flush()
+                # Correlation matrix is already in upper triangular form, we just need to interleave polarizations
+                count_autos = 0
+                count_cross = 0
+                count_mwabl = 0
 
-          # Correlation matrix interleave, dump to file
-          #np.save(output_file, vis)
-          #converted_vis.tofile(output_file)
-          # compute averages, and apply empirical renormalisation for gains
-          converted_cross /= (n_av*100)
-          converted_autos /= (n_av*100)
-          converted_cross.tofile(output_cross)
-          converted_autos.tofile(output_autos)
+                for i in range(nof_mwa_inputs):
+                    for j in range(i, nof_mwa_inputs):
+                        x, y = indexing_map[count_mwabl]
+                        converted_vis[j] = vis[x, y]
+                        count_mwabl += 1
+                        if i == j and (y == 0 or y == 3):
+                            # this is an auto-correlation
+                            converted_autos[count_autos] += np.real(converted_vis[j])
+                            count_autos += 1
+                        else:
+                            # this is a cross-correlation
+                            converted_cross[count_cross] += converted_vis[j]
+                            count_cross += 1
+                # Print update
+                sys.stdout.write("Processed %d of %d [%.2f%%]      \r" % (t * n_av + a, metadata['nof_integrations'],
+                                                                          ((t * n_av + a) / float(
+                                                                              metadata['nof_integrations'])) * 100))
+                sys.stdout.flush()
 
+            # Correlation matrix interleave, dump to file
+            # compute averages, and apply empirical renormalisation for gains
+            converted_cross /= (n_av * 100)
+            converted_autos /= (n_av * 100)
+            converted_cross.tofile(output_cross)
+            converted_autos.tofile(output_autos)
 
     except Exception as e:
         print("Something went wrong: {}".format(e.message))
-
