@@ -10,9 +10,6 @@ nof_channels = 512
 start_channel = 64
 code_version = """fit_phase_delay_v1"""
 username = os.getenv('USER')
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-
 
 def zeroBadFreqs(phases):
     """set phases on known bad frequencies to zero so that they are not used in the solution
@@ -78,7 +75,7 @@ def fitDelay(phases):
     sols180 = np.array([np.sum(fitFuncPhase((np.pi, s), xs, ys) ** 2) for s in delay_grid])  # sol with 180 phase
     best_0 = np.argmin(sols0)
     best_180 = np.argmin(sols180)
-    logger.debug('Best sol for 0 phase: %f, best for 180 phase :%f' % (sols0[best_0], sols180[best_180]))
+    logging.debug('Best sol for 0 phase: %f, best for 180 phase :%f' % (sols0[best_0], sols180[best_180]))
     if sols0[best_0] < sols180[best_180]:
         init_delay = delay_grid[np.argmin(sols0)]
         ch0_phase = 0.0
@@ -91,14 +88,17 @@ def fitDelay(phases):
     # print 'Init guess: '+str(x0)
     res_lsq = least_squares(fitFuncPhase, x0, args=(xs, ys), loss='soft_l1', x_scale=[0.001, 0.1], jac='3-point',
                             diff_step=np.array([0.01, 0.001]))
-    logger.info('Ph result: ' + str(res_lsq.cost) + '. Status: ' + str(res_lsq.status) + '. params: ' + str(
+    logging.debug('Ph result: ' + str(res_lsq.cost) + '. Status: ' + str(res_lsq.status) + '. params: ' + str(
         res_lsq.x) + '. nfev: ' + str(res_lsq.nfev) + '. Reason: ' + res_lsq.message)
     return res_lsq.x
 
 
 # main program
 if __name__ == "__main__":
+    logging.basicConfig()
+    logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
+
     ph1 = np.array(
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 134.094, -178.121, 0, 131.658,

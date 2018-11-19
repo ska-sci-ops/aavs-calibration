@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import subprocess
 import time
 from datetime import datetime
@@ -19,6 +20,10 @@ code_version = """run_calibration_v1"""
 username = os.getenv('USER')
 dump_time = 1.9818086  # Correlation matrix dump time (seconds)
 
+# Global objects for use in multiprocessing pool
+show_output = False
+nof_integrations = 1
+directory = '.'
 
 def read_gain_solution_file(filepath):
     """ Read coefficients from filepath """
@@ -59,23 +64,74 @@ def load_coefficients(directory, channel):
     return xx_amp, xx_phase, yy_amp, yy_phase
 
 
+def calibrate_channel(channel):
+    """ Run calibration process on channel"""
+
+    logging.info("Processing channel {}".format(channel))
+    cal_script = "calibration_script.sh"  # This should be in PATH
+    command = [cal_script, "-D", directory, 
+                           "-T", str(dump_time), 
+                           "-N", str(nof_integrations), 
+                           "-k",
+                           str(channel)]
+
+    if show_output:
+        subprocess.check_call(command, stdout=stdout, stderr=subprocess.STDOUT)
+    else:
+        with open(os.devnull, 'w') as output:
+            subprocess.check_call(command, stdout=output, stderr=subprocess.STDOUT) 
+
+
+def run_calibration(directory, nof_integrations, threads, show_output=False):
+    """ Calibrate channels """
+
+    # If more than 1 thread is required, use process pool
+    if threads > 1:
+        from multiprocessing.pool import ThreadPool
+
+        p = ThreadPool(threads)
+        p.map(calibrate_channel, range(start_channel, nof_channels))
+
+    # Otherwise process serially
+    else:
+        for channel in range(start_channel, nof_channels):
+            run_calibration(channel)
+
+    # All done, cleanup up temporary files
+    subprocess.check_call(['cleanup_temp_files.sh', '-D', directory])
+
 # Main program
 if __name__ == "__main__":
     from optparse import OptionParser
-    from sys import argv
+    from sys import argv, stdout
 
     parser = OptionParser(usage="usage: %run_calibration.py [options]")
     parser.add_option("-D", "--data_directory", action="store", dest="directory", default=".",
                       help="Data directory [default: .]")
     parser.add_option("-C", "--skip", action="store_true", dest="skip", default=False,
                       help="Skip the calibration step (useful if there are already solutions) [default: False]")
-
+    parser.add_option("-S", "--show-output", action="store_true", dest="show_output", default=False,
+                      help="Show output from calibration scripts, for debugging [default: False]")
+    parser.add_option("-T", "--threads", action="store", dest="threads", default=4, type=int,
+                      help="Number of thread to use [default: 4]")
     (conf, args) = parser.parse_args(argv[1:])
+
+    # Set logging
+    log = logging.getLogger('')
+    log.setLevel(logging.INFO)
+    format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    ch = logging.StreamHandler(stdout)
+    ch.setFormatter(format)
+    log.addHandler(ch)
 
     # Sanity check, make sure directory exists
     if not os.path.exists(conf.directory) or not os.path.isdir(conf.directory):
         logging.error("Specified directory ({}) does not exist".format(conf.directory))
         exit(-1)
+
+    # Set globals
+    show_output = conf.show_output
+    directory = conf.directory
 
     # Integrations over which to integrate
     nof_integrations = 1
@@ -89,15 +145,12 @@ if __name__ == "__main__":
     x_delay = np.zeros((2, nof_antennas))
     y_delay = np.zeros((2, nof_antennas))
 
+    # If not skipping calibration, generate calibration solutions
     if conf.skip is False:
-        for channel in range(start_channel, nof_channels):
-            logging.info("Processing channel {}".format(channel))
-            cal_script = "calibration_script.sh"  # this should be in PATH
-            subprocess.check_call(
-                [cal_script, "-D", conf.directory, "-T", str(dump_time), "-N", str(nof_integrations), str(channel)])
-
-    for channel in range(start_channel, nof_channels):
-        # At this point calibration solutions should be ready, read files and save locally
+        run_calibration(conf.directory, nof_integrations, conf.threads, conf.show_output)
+    
+    # At this point calibration solutions should be ready, read files and save locally
+    for channel in range(start_channel, nof_channels):       
         try:
             x_amp, x_pha, y_amp, y_pha = load_coefficients(conf.directory, channel)
             xx_amp[channel, :] = x_amp
@@ -110,7 +163,7 @@ if __name__ == "__main__":
     # Start timing
     t1 = time.time()
 
-    # now fit a delay to each pol of each antenna
+    # Now fit a delay to each pol of each antenna
     for a in range(nof_antennas):
         logging.info('Solving delays for ant {}'.format(a))
         delay_model_x = fit_phase_delay.fitDelay(fit_phase_delay.zeroBadFreqs(np.copy(xx_phase[:, a])))
@@ -125,6 +178,8 @@ if __name__ == "__main__":
     # Calibrated all channels of interest
     logging.info("Processed in {}".format(t1 - t0))
 
+    exit(-1)
+
     # Create connection to the calibration database.
     # Do not have to use password here since DB is set up to recognise aavs user
     conn = psycopg2.connect(database='aavs')
@@ -137,8 +192,10 @@ if __name__ == "__main__":
     else:
         currdir = os.path.split(os.getcwd())[-1]  # the local time for the dump is encoded in the directory name for now
 
+    # Get fit time from directory name    
     fit_time = datetime.strptime(currdir, "%Y_%m_%d-%H:%M") - timedelta(hours=8)
-    print 'Creating solutions for fit_time ' + str(fit_time)
+
+    logging.info('Creating solutions for fit_time {}'.format(fit_time))
     create_time = datetime.utcnow()
     cur.execute("""set timezone='UTC'""")  # Just do everything in UTC to avoid problems
     cur.execute('''INSERT INTO calibration_fit(create_time, fit_time, creator, code_version)
