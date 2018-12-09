@@ -95,7 +95,7 @@ def run_calibration(directory, nof_integrations, threads, show_output=False):
     # Otherwise process serially
     else:
         for channel in range(start_channel, nof_channels):
-            run_calibration(channel)
+            calibrate_channel(channel)
 
     # All done, cleanup up temporary files
     subprocess.check_call(['cleanup_temp_files.sh', '-D', directory])
@@ -115,6 +115,7 @@ if __name__ == "__main__":
     parser.add_option("-T", "--threads", action="store", dest="threads", default=4, type=int,
                       help="Number of thread to use [default: 4]")
     (conf, args) = parser.parse_args(argv[1:])
+    print "Conf: "+str(conf)
 
     # Set logging
     log = logging.getLogger('')
@@ -178,7 +179,7 @@ if __name__ == "__main__":
     # Calibrated all channels of interest
     logging.info("Processed in {}".format(t1 - t0))
 
-    exit(-1)
+    #exit(-1)
 
     # Create connection to the calibration database.
     # Do not have to use password here since DB is set up to recognise aavs user
