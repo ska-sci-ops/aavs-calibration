@@ -68,9 +68,9 @@ fi
 echo "channel: $channel. PWD: $PWD"
 
 # Link some configuration files
-ln -s /home/aavs/randall_calibration/instr_config.txt
-ln -s /home/aavs/randall_calibration/antenna_locations.txt
-ln -s /home/aavs/randall_calibration/header_cal.txt header.txt
+ln -s /home/aavs/aavs-calibration/instr_config.txt
+ln -s /home/aavs/aavs-calibration/antenna_locations.txt
+ln -s /home/aavs/aavs-calibration/header_cal.txt header.txt
 
 # Compute the integration time for the given dump time and integration skip (nav)
 int_time=`echo $nav ${dump_time} | awk '{ printf "%.3f\n",$1*$2 }'`
@@ -125,5 +125,8 @@ if [ $keep_intermediate -ne 1 ] ; then
 #  rm -fr *.uvfit
   rm -fr *ts_unix.txt *.uv
 fi
-rm -fr *.LACSPC *.LCCSPC 
+for hdffile in `ls -tr *_${channel}_*.hdf5` ; do
+  bname=`basename $hdffile .hdf5`
+  rm -fr ${bname}.LACSPC ${bname}.LCCSPC 
+done
 rm -r $tmpcal
