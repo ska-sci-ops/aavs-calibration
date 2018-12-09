@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # print RA and DEC of sun given a unix time
 from astropy.time import Time
 import astropy.coordinates
