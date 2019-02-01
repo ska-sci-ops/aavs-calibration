@@ -1,9 +1,8 @@
-from pyaavs.station import *
+from pyaavs import station
 import numpy as np
 import psycopg2
-
-# TPMs to use
-tpms = ["tpm-{}".format(i) for i in range(1, 17)]
+import logging
+import time
 
 # PREADU mapping
 antenna_preadu_mapping = {0: 1, 1: 2, 2: 3, 3: 4,
@@ -65,7 +64,27 @@ def antenna_coordinates():
     return antenna_positions
 
 
-def get_latest_coefficients():
+def normalize_complex_vector(vector):
+    """ Normalise the complex coefficients to between 1 and -1 for both real and imaginary """
+
+    normalised = np.zeros(vector.shape, dtype=np.complex64)
+
+    max_val = 0.0
+    for p in range(vector.shape[0]):
+        for a in range(nof_antennas):
+            if abs(vector[p][a].real) > max_val:
+                max_val = abs(vector[p][a].real)
+            if abs(vector[p][a].imag) > max_val:
+                max_val = abs(vector[p][a].imag)
+
+    for p in range(vector.shape[0]):
+        for a in range(nof_antennas):
+            normalised[p, a] = vector[p][a] / max_val
+
+    return normalised
+
+
+def get_latest_coefficients(obs_start_channel_frequency, obs_bandwidth):
     """ Read latest coefficients from database """
 
     # Create connection to the calibration database.
@@ -74,19 +93,23 @@ def get_latest_coefficients():
 
     # Compute the required delays for the station beam channels
     nof_channels = int(obs_bandwidth / channel_bandwidth)
-    frequencies = np.arange(obs_start_channel_frequency / channel_bandwidth, 
-                           (obs_start_channel_frequency + obs_bandwidth) / channel_bandwidth) * channel_bandwidth
+    frequencies = np.arange(obs_start_channel_frequency / channel_bandwidth,
+                            (obs_start_channel_frequency + obs_bandwidth) / channel_bandwidth) * channel_bandwidth
 
     # Grab antenna coefficients one by one (X pol)
     x_delays = np.zeros((nof_antennas, 2), dtype=np.float)
     for ant_id in range(nof_antennas):
-        cur.execute('''SELECT fit_time, x_delay, x_phase0 from calibration_solution WHERE x_delay IS NOT NULL   AND ant_id={} ORDER BY FIT_TIME LIMIT 1'''.format(ant_id))
+        cur.execute(
+            '''SELECT fit_time, x_delay, x_phase0 from calibration_solution WHERE x_delay IS NOT NULL   AND ant_id={} ORDER BY FIT_TIME LIMIT 1'''.format(
+                ant_id))
         x_delays[ant_id, :] = cur.fetchone()[1:]
 
     # Grab antenna coefficients one by one (Y pol)
     y_delays = np.zeros((nof_antennas, 2), dtype=np.float)
     for ant_id in range(nof_antennas):
-        cur.execute('''SELECT fit_time, y_delay, y_phase0 from calibration_solution WHERE x_delay IS NOT NULL   AND ant_id={} ORDER BY FIT_TIME LIMIT 1'''.format(ant_id))
+        cur.execute(
+            '''SELECT fit_time, y_delay, y_phase0 from calibration_solution WHERE x_delay IS NOT NULL   AND ant_id={} ORDER BY FIT_TIME LIMIT 1'''.format(
+                ant_id))
         y_delays[ant_id, :] = cur.fetchone()[1:]
 
     # Ready from database
@@ -104,52 +127,57 @@ def get_latest_coefficients():
     for i, freq in enumerate(frequencies):
         phase_x = x_delays[:, 1] + 2 * np.pi * freq * x_delays[:, 0]
         phase_y = y_delays[:, 1] + 2 * np.pi * freq * y_delays[:, 0]
-        
+
         coeffs[base_indices, i, 0] = np.cos(phase_x) + np.sin(phase_x) * 1j
         coeffs[base_indices, i, 3] = np.cos(phase_y) + np.sin(phase_y) * 1j
+
+    # Generated coefficients, normalise them
+    coeffs = normalize_complex_vector(coeffs)
 
     # Return values
     return coeffs
 
 
-def check_station():
+def check_station(config):
     """ Check if the station is properly formed """
 
-    # Connect to tiles in station 
-    station = Station(0)
-    [station.add_tile(t) for t in tpms]
-    station.connect()
+    # Connect to tiles in station
+    station.load_configuration_file(config)
+    aavs_station = station.Station(station.configuration)
+    aavs_station.connect()
 
-    return station.properly_formed_station
+    if aavs_station.properly_formed_station:
+        return aavs_station
+    else:
+        return None
 
 
-def download_coefficients(coefficients):
+def download_coefficients(aavs_station, coefficients):
     """ Download coefficients to station """
-
-    # Connect to tiles in station 
-    station = Station(0)
-    [station.add_tile(t) for t in tpms]
-    station.connect()
 
     # Download coefficients
     t0 = time.time()
-    for i, tile in enumerate(station.tiles):
+    for i, tile in enumerate(aavs_station.tiles):
         # Get coefficients range for current tile
         for antenna in range(nof_antennas_per_tile):
-            tile.load_calibration_coefficients(antenna, coefficients[i * nof_antennas_per_tile + antenna, :, :].tolist())
+            tile.load_calibration_coefficients(antenna,
+                                               coefficients[i * nof_antennas_per_tile + antenna, :, :].tolist())
     t1 = time.time()
 
     logging.info("Downloaded coefficients to tiles in {0:.2}s".format(t1 - t0))
 
     # Done downloading coefficient, switch calibration bank
-    station.switch_calibration_banks(2048)  # About 0.5 seconds
+    aavs_station.switch_calibration_banks(2048)  # About 0.5 seconds
     logging.info("Switched calibration banks")
 
 
-def update_calibration_coefficients():
+def update_calibration_coefficients(config):
     """ Update calibration coefficients in station """
-    if check_station():
-        download_coefficients(get_latest_coefficients())
+    aavs_station = check_station(config)
+    if station is not None:
+        start_channel_frequency = aavs_station.configuration['observation']['start_frequency_channel']
+        bandwidth = aavs_station.configuration['observation']['bandwidth']
+        download_coefficients(aavs_station, get_latest_coefficients(start_channel_frequency, bandwidth))
     else:
         logging.info("Station not well formed")
 
@@ -160,6 +188,8 @@ if __name__ == "__main__":
 
     parser = OptionParser(usage="usage: %calibrate_station [options]")
 
+    parser.add_option("--config", action="store", dest="config",
+                      type="str", default=None, help="Configuration file [default: None]")
     parser.add_option("--period", action="store", dest="period",
                       type="int", default="0", help="Duty cycle in s for updating coefficients [default: 0 (once)]")
     (opts, args) = parser.parse_args(argv[1:])
@@ -172,13 +202,17 @@ if __name__ == "__main__":
     ch.setFormatter(line_format)
     log.addHandler(ch)
 
+    # Check if a configuration file was defined
+    if opts.config is None:
+        log.error("A station configuration file is required, exiting")
+        exit()
+
     # Update calibration coefficients
-    update_calibration_coefficients()
+    update_calibration_coefficients(opts.config)
 
     # If period is defined, loop forever with given period
     if opts.period != 0:
         while True:
             logging.info("Waiting for {} seconds".format(opts.period))
             time.sleep(opts.period)
-            update_calibration_coefficients()
-
+            update_calibration_coefficients(opts.config)
