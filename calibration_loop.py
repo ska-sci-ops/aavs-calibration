@@ -1,21 +1,18 @@
-from pydaq import daq_receiver as receiver
-from datetime import datetime, timedelta
-from pyaavs.station import Station
-from time import sleep
-from sys import stdout
-from glob import glob
-import subprocess
-import threading
 import logging
-import sched
-import time
-import sys
 import os
+import sched
+import subprocess
+import sys
+import threading
+import time
+from datetime import datetime, timedelta
+from sys import stdout
+from time import sleep
 
+from pyaavs import station
+from pydaq import daq_receiver as receiver
 
 # Global variables
-bitfile = "/home/aavs/aavs-access-layer/bitfiles/itpm_v1_1_tpm_test_wrap_sbf257.bit"
-tpms = ["tpm-{}".format(i) for i in range(1, 17)]
 daq_config = None
 stop = False
 
@@ -29,23 +26,21 @@ def stop_observation():
     stop = True
 
 
-def run_observation_burst():
+def run_observation_burst(config):
     global stop
 
+    # Load station configuration and change required parameters
+    station.load_configuration_file(config)
+
+    station_config = station.configuration
+    station_config['station']['program'] = opts.program
+    station_config['station']['initialise'] = opts.program
+
     # Create station
-    station = Station(0, lmc_ip=opts.lmc_ip)
+    aavs_station = station.Station(station_config)
+    aavs_station.connect()
 
-    for t in tpms:
-        station.add_tile(t)
-
-    # Program, initialise (if required) and generate station
-    station.connect(initialise=opts.program,
-                    program=opts.program,
-                    bitfile=bitfile,
-                    channel_truncation=2,
-                    use_teng=True)
-
-    if not station.properly_formed_station:
+    if not aavs_station.properly_formed_station:
         logging.error("Station not properly formed, exiting")
         exit()
 
@@ -56,7 +51,7 @@ def run_observation_burst():
     os.mkdir(directory)
 
     # Start DAQ
-    daq_config['nof_tiles'] = len(tpms)
+    daq_config['nof_tiles'] = len(aavs_station.tiles)
     daq_config['directory'] = directory
     receiver.populate_configuration(daq_config)
     receiver.initialise_daq()
@@ -70,8 +65,8 @@ def run_observation_burst():
     timer.start()
 
     # Start sending data
-    station.stop_data_transmission()
-    station.send_channelised_data(daq_config['nof_correlator_samples'])
+    aavs_station.stop_data_transmission()
+    aavs_station.send_channelised_data(daq_config['nof_correlator_samples'])
 
     # Wait for observation to finish
     logging.info("Observation started")
@@ -81,7 +76,7 @@ def run_observation_burst():
 
     # All done, clear everything
     logging.info("Observation ended")
-    station.stop_data_transmission()
+    aavs_station.stop_data_transmission()
 
     try:
         receiver.stop_daq()
@@ -95,15 +90,17 @@ def run_observation_burst():
     cal_script = "/home/aavs/randall_calibration/run_calibration.py"
     subprocess.check_call(["python", cal_script, "-D", directory])
 
+
 if __name__ == "__main__":
     from optparse import OptionParser
-    from sys import argv
 
     # Command line options
     p = OptionParser()
     p.set_usage('best2_process_corr.py [options] INPUT_FILE')
     p.set_description(__doc__)
 
+    p.add_option("--config", action="store", dest="config",
+                  default=None, help="Station configuration file to use")
     p.add_option("--lmc_ip", action="store", dest="lmc_ip",
                  default="10.0.10.200", help="IP [default: 10.0.10.200]")
     p.add_option("-P", "--program", action="store_true", dest="program",
@@ -130,6 +127,11 @@ if __name__ == "__main__":
     ch = logging.StreamHandler(stdout)
     ch.setFormatter(format)
     log.addHandler(ch)
+
+    # Check if a configuration file was defined
+    if opts.config is None:
+        log.error("A station configuration file is required, exiting")
+        exit()
 
     # Check if directory exists
     if not (os.path.exists(opts.directory) and os.path.isdir(opts.directory)):
@@ -166,7 +168,7 @@ if __name__ == "__main__":
         logging.info("Setting scheduler to run at {}".format(start_time))
         s = sched.scheduler(time.time, time.sleep)
         curr_time = datetime.fromtimestamp(int(time.time()))
-        s.enter((start_time - curr_time).total_seconds(), 0, run_observation_burst, [])
+        s.enter((start_time - curr_time).total_seconds(), 0, run_observation_burst, [opts.config, ])
         s.run()
 
         # Schedule next dump

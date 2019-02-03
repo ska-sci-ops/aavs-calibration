@@ -179,8 +179,6 @@ if __name__ == "__main__":
     # Calibrated all channels of interest
     logging.info("Processed in {}".format(t1 - t0))
 
-    #exit(-1)
-
     # Create connection to the calibration database.
     # Do not have to use password here since DB is set up to recognise aavs user
     conn = psycopg2.connect(database='aavs')
