@@ -1,4 +1,4 @@
-from db import Channel, Fit, Antenna, Coefficient
+from db import Channel, Fit, Antenna, Coefficient, connect
 import purge_db
 from datetime import datetime, timedelta
 from random import randint
@@ -8,17 +8,18 @@ from time import sleep
 import sys
 
 COMPLEX_LIST = [complex(randint(0, 5), imag=randint(0, 5)).__str__() for c in range(512)]
+db = connect('aavs_test2', host='localhost', port=27017)
 
 ANTENNAS = 256  # number of antennas
 MONITOR = True  # print status updates
-MONITOR_INTERVAL = 60  # interval of status updates in seconds
+MONITOR_INTERVAL = 10  # interval of status updates in seconds
 PROCESSES = 4  # number of processes to fill the db
-RUNS = 1440  # 1 run generates 1 fit and 1 coefficient / antenna and pol (256 antennas -> 512 fits)
+RUNS = 1  # 1 run generates 1 fit and 1 coefficient / antenna and pol (256 antennas -> 512 fits
 CLEAR = True  # clear db before fill
 
 
 def add_antennas():
-    """ generates """
+    """ adds n antennas to the db. n = ANTENNA """
     for i in range(ANTENNAS):
         Antenna(antenna_nr=i,
                 station_id=1,
@@ -33,6 +34,9 @@ def add_antennas():
 
 
 def add_coefficients(runs):
+    """
+    adds a coefficient calibration to every antenna in the db. number of executions defined by RUNS
+    """
     for r in range(runs):
         now = datetime.now(pytz.utc)
         for a in Antenna.objects:
@@ -48,6 +52,10 @@ def add_coefficients(runs):
 
 
 def add_fit_and_channels(runs):
+    """
+    adds a fit per antenna and pol including the channels to the db.
+    :param runs number of executions
+    """
     for r in range(runs):
         now = datetime.now(pytz.utc)
         for a in Antenna.objects:
@@ -89,10 +97,14 @@ def add_fit_and_channels(runs):
 
 
 def monitor_progress(interval):
+    """
+    :param interval of seconds for status update
+    prints progress of populating the db
+    """
     total_fits = RUNS * ANTENNAS * 2
     fit_count = 0
     coef_count = 0
-    while fit_count <= total_fits or coef_count <= total_fits:
+    while fit_count < total_fits or coef_count < total_fits:
 
         out = 'Antennas ' + str(Antenna.objects.count()).rjust(len(str(ANTENNAS))) + '/' + str(ANTENNAS) +\
               '  Fits ' + str(fit_count).rjust(len(str(total_fits))) + '/' + str(total_fits) +\
@@ -108,16 +120,28 @@ def monitor_progress(interval):
         coef_count = Coefficient.objects.count()
 
 
+def divide_runs():
+    """
+    splits runs into number of processes
+    :returns list of batch sizes
+    """
+    quotient = RUNS / PROCESSES
+    remainder = RUNS % PROCESSES
+    results = []
+    for i in range(RUNS):
+        results.append(quotient + 1 if i < remainder else quotient)
+    return results
+
+
 def main():
     if CLEAR:
-        purge_db.main()
-
+        purge_db.main(db)
     add_antennas()
     p = multiprocessing.Pool(PROCESSES + 1 if MONITOR_INTERVAL else PROCESSES)
     if MONITOR:
         p.map_async(monitor_progress, [MONITOR_INTERVAL])
     p.map_async(add_coefficients, [RUNS])
-    p.map_async(add_fit_and_channels, [RUNS / PROCESSES] * PROCESSES)
+    p.map_async(add_fit_and_channels, divide_runs())
 
     p.close()
     p.join()

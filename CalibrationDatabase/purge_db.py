@@ -1,9 +1,8 @@
-from db import db
-
-
-def main():
-    db.drop_database('aavs_test')
+import sys
+import mongoengine
+def main(args):
+    mo.drop_database('aavs_test2')
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])

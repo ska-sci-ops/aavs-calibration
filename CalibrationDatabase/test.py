@@ -1,13 +1,16 @@
 import unittest
-
+import pymongo
 from db import *
+from datetime import datetime
+
+database = connect('aavs_unit_test', host='localhost', port=27017)
 
 
 class Test(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         for i in range(0, 100):
-            Antenna(antenna_id=i,
+            Antenna(antenna_nr=i,
                     station_id=1,
                     x_pos=i,
                     y_pos=i,
@@ -20,14 +23,32 @@ class Test(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        db.drop_database('aavs_test')
+        database.drop_database('aavs_unit_test')
+
+    def test_connection(self):
+        self.assertIsInstance(database, pymongo.mongo_client.MongoClient, 'Test Connection')
 
     def test_antenna_collection_length(self):
         self.assertEqual(100, len(Antenna.objects), 'Antenna Count')
 
     def test_get_antenna_with_max_id(self):
-        last = Antenna.objects().order_by('-antenna_id').first()
-        self.assertEqual(last.antenna_id, 99, 'Get Max Antenna ID')
+        last = Antenna.objects().order_by('-antenna_nr').first()
+        self.assertEqual(last.antenna_nr, 99, 'Get Max Antenna ID')
 
-    def condition_1(self):
-        pass
+    def test_add_fit(self):
+        fit_x = None
+
+        for a in Antenna.objects():
+            now = datetime.now(pytz.utc)
+
+            fit_x = Fit(acquisition_time=now,
+                        pol=0,
+                        antenna_id=a.id,
+                        fit_time=now,
+                        fit_comment='',
+                        flags='',
+                        phase_0=a.antenna_nr,
+                        delay=a.antenna_nr * 10).save()
+
+        self.assertEqual(100, len(Fit.objects), 'Fit Count')
+        self.assertEqual(990, fit_x.delay, 'Fit example')

@@ -2,9 +2,6 @@ from mongoengine import *
 import pytz
 
 
-db = connect('aavs_test', host='localhost', port=27017)
-
-
 class Antenna(Document):
     """
     stores static data about an antenna and the status for both pols
@@ -21,10 +18,10 @@ class Antenna(Document):
     status_y = StringField()       # status of the y pol
 
     # enums
-    type_1 = 'example_1'
+    SKALA2 = 'SKALA2'
     type_2 = 'example_2'
-    status_x_OK = 'OK'
-    status_y_OFF = 'OFF'
+    ON = 'ON'
+    OFF = 'OFF'
 
     def __str__(self):
         return 'id: ' + str(self.antenna_nr).rjust(2)\
@@ -38,7 +35,7 @@ class Fit(Document):
     """
     stores data of a fit for a pol of an antenna
     """
-    acquisition_time = DateTimeField()          # use function to get_acquisition_time to get datetime with timezone info
+    acquisition_time = DateTimeField()          # use function get_acquisition_time to get datetime with timezone info
     pol = IntField(min_value=0, max_value=1)    # 0 for x. 1 for y
     antenna_id = ObjectIdField()                # internal database id of the antenna
     fit_time = DateTimeField()                  # use function get_fit_time to get datetime with timezone info
@@ -61,9 +58,7 @@ class Fit(Document):
 
 
 class Channel(Document):
-    """
-    stores data of a single channel of a fit
-    """
+    """ stores data of a single channel of a fit """
     frequency = IntField()
     amp = FloatField()
     phase = FloatField()
