@@ -8,7 +8,7 @@ from time import sleep
 import sys
 
 COMPLEX_LIST = [complex(randint(0, 5), imag=randint(0, 5)).__str__() for c in range(512)]
-db = connect('aavs_test2', host='localhost', port=27017)
+db = connect('aavs', host='localhost', port=27017)
 
 ANTENNAS = 256  # number of antennas
 MONITOR = True  # print status updates
@@ -135,7 +135,7 @@ def divide_runs():
 
 def main():
     if CLEAR:
-        purge_db.main(db)
+        purge_db.main()
     add_antennas()
     p = multiprocessing.Pool(PROCESSES + 1 if MONITOR_INTERVAL else PROCESSES)
     if MONITOR:
