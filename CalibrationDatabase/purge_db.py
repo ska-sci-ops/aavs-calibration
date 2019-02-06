@@ -1,12 +1,14 @@
-from db import Fit, Channel, Coefficient, connect
-db = connect('aavs', host='localhost', port=27017)
+from db import Fit, Channel, Coefficient
+from connect import connect_to_db
+
+connect_to_db()
 
 
-def main():
+def purge():
     Fit.drop_collection()
     Channel.drop_collection()
     Coefficient.drop_collection()
 
 
 if __name__ == '__main__':
-    main()
+    purge()

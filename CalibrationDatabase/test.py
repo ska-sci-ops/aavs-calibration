@@ -1,7 +1,11 @@
 import unittest
-import pymongo
-from db import *
+from pymongo.mongo_client import MongoClient
+from mongoengine import connect
+from pytz import UTC
 from datetime import datetime
+
+from db import Antenna, Fit
+
 
 database = connect('aavs_unit_test', host='localhost', port=27017)
 
@@ -26,7 +30,7 @@ class Test(unittest.TestCase):
         database.drop_database('aavs_unit_test')
 
     def test_connection(self):
-        self.assertIsInstance(database, pymongo.mongo_client.MongoClient, 'Test Connection')
+        self.assertIsInstance(database, MongoClient, 'Test Connection')
 
     def test_antenna_collection_length(self):
         self.assertEqual(100, len(Antenna.objects), 'Antenna Count')
@@ -39,7 +43,7 @@ class Test(unittest.TestCase):
         fit_x = None
 
         for a in Antenna.objects():
-            now = datetime.now(pytz.utc)
+            now = datetime.now(UTC)
 
             fit_x = Fit(acquisition_time=now,
                         pol=0,

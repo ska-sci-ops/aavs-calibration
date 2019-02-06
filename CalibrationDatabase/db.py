@@ -1,5 +1,6 @@
-from mongoengine import *
-import pytz
+from pytz import UTC
+from datetime import datetime
+from mongoengine import Document, IntField, FloatField, StringField, DateTimeField, ObjectIdField, ListField
 
 
 class Antenna(Document):
@@ -35,10 +36,10 @@ class Fit(Document):
     """
     stores data of a fit for a pol of an antenna
     """
-    acquisition_time = DateTimeField()          # use function get_acquisition_time to get datetime with timezone info
+    acquisition_time = IntField()          # use function get_acquisition_time to get datetime with timezone info
     pol = IntField(min_value=0, max_value=1)    # 0 for x. 1 for y
     antenna_id = ObjectIdField()                # internal database id of the antenna
-    fit_time = DateTimeField()                  # use function get_fit_time to get datetime with timezone info
+    fit_time = IntField()                  # use function get_fit_time to get datetime with timezone info
     fit_comment = StringField()
     channels = ListField()                      # list of objects of the Channel class
     flags = StringField()
@@ -47,11 +48,17 @@ class Fit(Document):
 
     def get_acquisition_time(self):
         """ returns datetime with timezone """
-        return add_timezone_info(self.acquisition_time)
+        return convert_timestamp_to_datetime(self.acquisition_time)
+
+    def set_acquisition_time(self, dt):
+        self.acquisition_time = convert_datetime_to_timestamp(dt)
 
     def get_fit_time(self):
         """ returns datetime with timezone """
-        return add_timezone_info(self.fit_time)
+        return convert_timestamp_to_datetime(self.fit_time)
+
+    def set_fit_time(self, dt):
+        self.fit_time = convert_datetime_to_timestamp(dt)
 
     def __str__(self):
         return 'id: ' + str(self.antenna_id).rjust(2) + ' fit_time: ' + unicode(self.fit_time)
@@ -78,11 +85,14 @@ class Coefficient(Document):
     antenna_id = ObjectIdField()        # internal database id of the antenna
     pol = IntField()                    # 0 for x. 1 for y
     calibration = ListField()           # list of complex numbers, use set_calibrations to store and get_calibrations to retrieve
-    download_time = DateTimeField()     # use function to get_download_time to get datetime with timezone info
+    download_time = IntField()     # use function to get_download_time to get datetime with timezone info
 
     def get_download_time(self):
         """ returns datetime with timezone """
-        return add_timezone_info(self.download_time)
+        return convert_timestamp_to_datetime(self.download_time)
+
+    def set_download_time(self, dt):
+        self.download_time = convert_datetime_to_timestamp(dt)
 
     def set_calibrations(self, complex_list):
         """ converts list of complex numbers to strings and stores them """
@@ -93,6 +103,12 @@ class Coefficient(Document):
         return map(complex, self.calibration)
 
 
-def add_timezone_info(timestamp):
+def convert_timestamp_to_datetime(timestamp):
     """ adds timezone info to datetime """
-    return timestamp.replace(tzinfo=pytz.UTC)
+    return datetime.utcfromtimestamp(timestamp).replace(tzinfo=UTC)
+
+
+def convert_datetime_to_timestamp(dt):
+    if not dt.tzinfo:
+        dt = dt.replace(tzinfo=UTC)
+    return int((dt - datetime(1970, 1, 1, tzinfo=UTC)).total_seconds())

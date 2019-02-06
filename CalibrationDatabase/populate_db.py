@@ -1,20 +1,24 @@
-from db import Channel, Fit, Antenna, Coefficient, connect
-import purge_db
 from datetime import datetime, timedelta
 from random import randint
-import pytz
-import multiprocessing
+from pytz import UTC
+from multiprocessing import freeze_support, Pool
 from time import sleep
-import sys
+from sys import stdout
+
+from db import Channel, Fit, Antenna, Coefficient, convert_datetime_to_timestamp
+from purge_db import purge
+from connect import connect_to_db
+
 
 COMPLEX_LIST = [complex(randint(0, 5), imag=randint(0, 5)).__str__() for c in range(512)]
-db = connect('aavs', host='localhost', port=27017)
+
+db = connect_to_db()
 
 ANTENNAS = 256  # number of antennas
 MONITOR = True  # print status updates
-MONITOR_INTERVAL = 10  # interval of status updates in seconds
-PROCESSES = 4  # number of processes to fill the db
-RUNS = 1  # 1 run generates 1 fit and 1 coefficient / antenna and pol (256 antennas -> 512 fits
+MONITOR_INTERVAL = 60  # interval of status updates in seconds
+PROCESSES = 2  # number of processes to fill the db
+RUNS = 1440  # 1 run generates 1 fit and 1 coefficient / antenna and pol (256 antennas -> 512 fits
 CLEAR = True  # clear db before fill
 
 
@@ -38,7 +42,7 @@ def add_coefficients(runs):
     adds a coefficient calibration to every antenna in the db. number of executions defined by RUNS
     """
     for r in range(runs):
-        now = datetime.now(pytz.utc)
+        now = convert_datetime_to_timestamp(datetime.now(UTC))
         for a in Antenna.objects:
             Coefficient(antenna_id=a.id,
                         pol=0,
@@ -57,12 +61,12 @@ def add_fit_and_channels(runs):
     :param runs number of executions
     """
     for r in range(runs):
-        now = datetime.now(pytz.utc)
+        now = convert_datetime_to_timestamp(datetime.now(UTC))
         for a in Antenna.objects:
             fit_x = Fit(acquisition_time=now,
                         pol=0,
                         antenna_id=a.id,
-                        fit_time=now + timedelta(minutes=2),
+                        fit_time=now,
                         fit_comment='',
                         flags='',
                         phase_0=r * 3,
@@ -71,7 +75,7 @@ def add_fit_and_channels(runs):
             fit_y = Fit(acquisition_time=now,
                         pol=1,
                         antenna_id=a.id,
-                        fit_time=now + timedelta(minutes=2),
+                        fit_time=now,
                         fit_comment='',
                         flags='',
                         phase_0=r * 4,
@@ -110,10 +114,10 @@ def monitor_progress(interval):
               '  Fits ' + str(fit_count).rjust(len(str(total_fits))) + '/' + str(total_fits) +\
               '  Channels ' + str(Channel.objects.count()).rjust(len(str(total_fits * 512))) + '/' + str(total_fits * 512) + \
               '  Coefficients ' + str(coef_count).rjust(len(str(total_fits))) + '/' + str(total_fits) +\
-              '  fit run # ' + str(fit_count / ANTENNAS / 2).rjust(len(str(RUNS))) + '/' + str(RUNS) +\
-              '  coef run # ' + str(coef_count / ANTENNAS / 2).rjust(len(str(RUNS))) + '/' + str(RUNS)
-        sys.stdout.write('\r' + out)
-        sys.stdout.flush()
+              '  fit run # ' + str(int(fit_count / ANTENNAS / 2)).rjust(len(str(RUNS))) + '/' + str(RUNS) +\
+              '  coef run # ' + str(int(coef_count / ANTENNAS / 2)).rjust(len(str(RUNS))) + '/' + str(RUNS)
+        stdout.write('\r' + out)
+        stdout.flush()
 
         sleep(interval)
         fit_count = Fit.objects.count()
@@ -128,18 +132,19 @@ def divide_runs():
     quotient = RUNS / PROCESSES
     remainder = RUNS % PROCESSES
     results = []
-    for i in range(RUNS):
+    for i in range(PROCESSES):
         results.append(quotient + 1 if i < remainder else quotient)
     return results
 
 
 def main():
     if CLEAR:
-        purge_db.main()
-    add_antennas()
-    p = multiprocessing.Pool(PROCESSES + 1 if MONITOR_INTERVAL else PROCESSES)
+        purge()
+        Antenna.drop_collection()
+    p = Pool(PROCESSES + 1 if MONITOR_INTERVAL else PROCESSES)
     if MONITOR:
         p.map_async(monitor_progress, [MONITOR_INTERVAL])
+    add_antennas()
     p.map_async(add_coefficients, [RUNS])
     p.map_async(add_fit_and_channels, divide_runs())
 
@@ -148,5 +153,5 @@ def main():
 
 
 if __name__ == '__main__':
-    multiprocessing.freeze_support()
+    freeze_support()
     main()

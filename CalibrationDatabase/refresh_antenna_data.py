@@ -1,8 +1,10 @@
-import urllib
-import numpy as np
-from db import Antenna, connect
+from urllib import urlopen
 
-db = connect('aavs_calibration', host='localhost', port=27017)
+from connect import connect_to_db, DB_NAME
+from db import Antenna
+from purge_db import purge
+
+db = connect_to_db()
 
 # This is used to re-map ADC channels index to the RX
 # number going into the TPM
@@ -16,18 +18,19 @@ antenna_preadu_mapping = {0: 1, 1: 2, 2: 3, 3: 4,
 nof_antennas = 256
 
 
-def antenna_coordinates():
+def get_antenna_data():
     """ Reads antenna base locations from the Google Drive sheet
     :param save_to_file: Save remapped location and baselines to file
     :return: Re-mapped antenna locations
     """
 
-    db.drop_database('aavs_calibration')
+    # purge Database
+    purge()
     # Antenna mapping placeholder
 
     # Read antenna location spreadsheet
-    response = urllib.urlopen('https://docs.google.com/spreadsheets/d/e/2PACX-1vRIpaYPims9Qq9JEnZ3AfZtTaYJYWMsq2CWRg'
-                              'B-KKFAQOZoEsV0NV2Gmz1fDfOJm7cjDAEBQWM4FgyP/pub?gid=220529610&single=true&output=tsv')
+    response = urlopen('https://docs.google.com/spreadsheets/d/e/2PACX-1vRIpaYPims9Qq9JEnZ3AfZtTaYJYWMsq2CWRg'
+                       'B-KKFAQOZoEsV0NV2Gmz1fDfOJm7cjDAEBQWM4FgyP/pub?gid=220529610&single=true&output=tsv')
 
     html = response.read().split('\n')
 
@@ -41,7 +44,7 @@ def antenna_coordinates():
         try:
             tpm, rx = int(items[7]), int(items[8])
             east, north, up = float(items[15].replace(',', '.')), float(items[17].replace(',', '.')), 0
-        except:
+        except ValueError:
             if missing == 0:
                 tpm, rx = 1, 9
                 east, north, up = 17.525, -1.123, 0
@@ -61,3 +64,4 @@ def antenna_coordinates():
                 status_x='',
                 status_y='').save()
 
+get_antenna_data()
