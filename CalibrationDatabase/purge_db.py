@@ -5,6 +5,7 @@ connect_to_db()
 
 
 def purge():
+    """ drops all collections except antenna"""
     Fit.drop_collection()
     Channel.drop_collection()
     Coefficient.drop_collection()

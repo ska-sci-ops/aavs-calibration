@@ -5,7 +5,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name='aavscalibrationdatabase',
-    version='0.1',
+    version='1.0',
     install_requires=[
         'mongoengine',
         'pytz',

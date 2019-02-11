@@ -36,10 +36,10 @@ class Fit(Document):
     """
     stores data of a fit for a pol of an antenna
     """
-    acquisition_time = IntField()          # use function get_acquisition_time to get datetime with timezone info
+    acquisition_time = IntField()               # UNIX timestamp, use function get_acquisition_time to get datetime instead of timestamp
     pol = IntField(min_value=0, max_value=1)    # 0 for x. 1 for y
     antenna_id = ObjectIdField()                # internal database id of the antenna
-    fit_time = IntField()                  # use function get_fit_time to get datetime with timezone info
+    fit_time = IntField()                       # UNIX timestamp, use function get_fit_time to get datetime instead of timestamp
     fit_comment = StringField()
     channels = ListField()                      # list of objects of the Channel class
     flags = StringField()
@@ -47,18 +47,22 @@ class Fit(Document):
     delay = FloatField()
 
     def get_acquisition_time(self):
-        """ returns datetime with timezone """
+        """ returns datetime of the timestamp including time zone info """
         return convert_timestamp_to_datetime(self.acquisition_time)
 
     def set_acquisition_time(self, dt):
+        """ converts datetime to timestamp and saves it to the db"""
         self.acquisition_time = convert_datetime_to_timestamp(dt)
+        self.save()
 
     def get_fit_time(self):
-        """ returns datetime with timezone """
+        """ returns datetime of the timestamp including time zone info """
         return convert_timestamp_to_datetime(self.fit_time)
 
     def set_fit_time(self, dt):
+        """ converts datetime to timestamp and saves it to the db"""
         self.fit_time = convert_datetime_to_timestamp(dt)
+        self.save()
 
     def __str__(self):
         return 'id: ' + str(self.antenna_id).rjust(2) + ' fit_time: ' + unicode(self.fit_time)
@@ -85,13 +89,14 @@ class Coefficient(Document):
     antenna_id = ObjectIdField()        # internal database id of the antenna
     pol = IntField()                    # 0 for x. 1 for y
     calibration = ListField()           # list of complex numbers, use set_calibrations to store and get_calibrations to retrieve
-    download_time = IntField()     # use function to get_download_time to get datetime with timezone info
+    download_time = IntField()          # UNIX timestamp, use function to get_download_time to get datetime with timezone info
 
     def get_download_time(self):
-        """ returns datetime with timezone """
+        """ returns datetime of the timestamp including time zone info """
         return convert_timestamp_to_datetime(self.download_time)
 
     def set_download_time(self, dt):
+        """ converts datetime to timestamp and saves it to the db"""
         self.download_time = convert_datetime_to_timestamp(dt)
 
     def set_calibrations(self, complex_list):
@@ -104,11 +109,20 @@ class Coefficient(Document):
 
 
 def convert_timestamp_to_datetime(timestamp):
-    """ adds timezone info to datetime """
+    """
+    converts timestamp to datetime
+    :param timestamp: UNIX timestamp
+    :return: datetime with UTC timezone
+    """
     return datetime.utcfromtimestamp(timestamp).replace(tzinfo=UTC)
 
 
 def convert_datetime_to_timestamp(dt):
+    """
+    converts datetime to timestamp
+    :param dt: datetime, assumed to be UTC
+    :return: UNIX timestamp
+    """
     if not dt.tzinfo:
         dt = dt.replace(tzinfo=UTC)
     return int((dt - datetime(1970, 1, 1, tzinfo=UTC)).total_seconds())

@@ -1,6 +1,6 @@
 from urllib import urlopen
 
-from connect import connect_to_db, DB_NAME
+from connect import connect_to_db
 from db import Antenna
 from purge_db import purge
 
@@ -19,9 +19,8 @@ nof_antennas = 256
 
 
 def get_antenna_data():
-    """ Reads antenna base locations from the Google Drive sheet
+    """ Reads antenna base locations from the Google Drive sheet and fills the data into the database
     :param save_to_file: Save remapped location and baselines to file
-    :return: Re-mapped antenna locations
     """
 
     # purge Database
@@ -52,7 +51,7 @@ def get_antenna_data():
                 tpm, rx = 11, 9
                 east, north, up = 9.701, -14.627, 0
             missing += 1
-
+        # Fill data into database
         Antenna(antenna_nr=(tpm - 1) * 16 + switched_preadu_map[rx],
                 station_id=0,
                 x_pos=east,
@@ -63,5 +62,3 @@ def get_antenna_data():
                 antenna_type=Antenna.SKALA2,
                 status_x='',
                 status_y='').save()
-
-get_antenna_data()
