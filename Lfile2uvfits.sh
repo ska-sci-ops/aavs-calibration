@@ -2,8 +2,8 @@
 # arguments:
 # 1: hdf5 filename
 # 2: integration time in L-file
-# 3: RA hours
-# 4: DEC degs
+# 3: RA hours (optional, default is zenith)
+# 4: DEC degs (optional, default is zenith)
 dump_time=1.9818086	# basic correlator integration time
 #timeinc=59.4925
 la_chunksize=$((512*4))
@@ -11,6 +11,48 @@ lc_chunksize=$((512*511*8/2))
 nchunks=5
 useradec=0
 inttime=9.90903
+
+function print_usage {
+  echo "Usage: "
+  echo "Lfile2uvfits.sh [options] hdf_filename "
+  echo "    -i int_time   Default: $inttime. Basic correlator dump time: $dump_time"
+  echo "    -n n_chunks   Default: $nchunks"
+  echo "    -R ra_hours   Default: use zenith"
+  echo "    -D dec_degs   Default: use zenith"
+  exit
+}
+
+if [ $# -eq 0 ] ; then
+  print_usage
+fi
+
+# parse command-line args
+if [ $# -lt 1 ] ; then print_usage ; fi
+while getopts "hi:R:D:n:" opt; do
+  case $opt in
+    h)
+        print_usage
+        ;;
+    n)
+        nchunks=$OPTARG
+        ;;
+    i)
+        inttime=$OPTARG
+        ;;
+    R)
+        ra_hrs=$OPTARG
+        ;;
+    D)
+        dec_degs=$OPTARG
+        ;;
+    \?)
+      echo "Invalid option: -$OPTARG" 1>&2
+      print_usage
+      ;;
+  esac
+done
+shift $(expr $OPTIND - 1 )
+
 
 lacspc=`mktemp`
 lccspc=`mktemp`
