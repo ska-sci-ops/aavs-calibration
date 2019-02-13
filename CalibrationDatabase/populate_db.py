@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from random import randint
 from pytz import UTC
 from multiprocessing import freeze_support, Pool
@@ -138,6 +138,7 @@ def divide_runs():
 
 
 def main():
+    """ clears the database if CLEAR is set and generates the processes that fill the db """
     if CLEAR:
         purge()
         Antenna.drop_collection()
