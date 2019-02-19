@@ -92,7 +92,7 @@ def run_observation_burst():
     logging.info("Calibrating data")
     integration_time = opts.nof_samples / ((400e6 / 512.0)  * (32.0 / 27.0))
 
-    cal_script = "/home/aavs/randall_calibration/run_calibration.py"
+    cal_script = "/home/aavs/aavs-calibration/run_calibration.py"
     subprocess.check_call(["python", cal_script, "-D", directory])
 
 if __name__ == "__main__":

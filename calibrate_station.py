@@ -65,7 +65,7 @@ def antenna_coordinates():
     return antenna_positions
 
 
-def get_latest_coefficients():
+def get_latest_coefficients(start_channel, nof_channels):
     """ Read latest coefficients from database """
 
     # Create connection to the calibration database.
@@ -73,20 +73,20 @@ def get_latest_coefficients():
     cur = conn.cursor()
 
     # Compute the required delays for the station beam channels
-    nof_channels = int(obs_bandwidth / channel_bandwidth)
-    frequencies = np.arange(obs_start_channel_frequency / channel_bandwidth, 
-                           (obs_start_channel_frequency + obs_bandwidth) / channel_bandwidth) * channel_bandwidth
+    frequencies = np.arange(start_channel * channel_bandwidth, 
+                            (start_channel + nof_channels) * channel_bandwidth,
+                            channel_bandwidth)
 
     # Grab antenna coefficients one by one (X pol)
     x_delays = np.zeros((nof_antennas, 2), dtype=np.float)
     for ant_id in range(nof_antennas):
-        cur.execute('''SELECT fit_time, x_delay, x_phase0 from calibration_solution WHERE x_delay IS NOT NULL   AND ant_id={} ORDER BY FIT_TIME LIMIT 1'''.format(ant_id))
+        cur.execute('''SELECT fit_time, x_delay, x_phase0 from calibration_solution WHERE x_delay IS NOT NULL AND ant_id={} ORDER BY FIT_TIME LIMIT 1'''.format(ant_id))
         x_delays[ant_id, :] = cur.fetchone()[1:]
 
     # Grab antenna coefficients one by one (Y pol)
     y_delays = np.zeros((nof_antennas, 2), dtype=np.float)
     for ant_id in range(nof_antennas):
-        cur.execute('''SELECT fit_time, y_delay, y_phase0 from calibration_solution WHERE x_delay IS NOT NULL   AND ant_id={} ORDER BY FIT_TIME LIMIT 1'''.format(ant_id))
+        cur.execute('''SELECT fit_time, y_delay, y_phase0 from calibration_solution WHERE y_delay IS NOT NULL AND ant_id={} ORDER BY FIT_TIME LIMIT 1'''.format(ant_id))
         y_delays[ant_id, :] = cur.fetchone()[1:]
 
     # Ready from database
@@ -94,19 +94,24 @@ def get_latest_coefficients():
 
     # Create default calibration coefficient array
     # Index 0 is XX, 3 is YY. Indices 2 and 3 are the cross-pols, which should be initialised to 0
-    coeffs = np.ones((nof_antennas, nof_channels, nof_stokes), dtype=np.complex64)
+    coeffs = np.zeros((nof_antennas, nof_channels, nof_stokes), dtype=np.complex64)
+    coeffs[:, :, 1] = 0
+    coeffs[:, :, 2] = 0
 
     # Create antenna indices
-    base_numbers = antenna_coordinates()[:, 0].tolist()
-    base_indices = [base_numbers.index(i) for i in range(1, nof_antennas + 1)]
+    base_numbers = [int(x) - 1 for x in antenna_coordinates()[:, 0].tolist()]
 
     # Compute phase for all channels
     for i, freq in enumerate(frequencies):
         phase_x = x_delays[:, 1] + 2 * np.pi * freq * x_delays[:, 0]
         phase_y = y_delays[:, 1] + 2 * np.pi * freq * y_delays[:, 0]
         
-        coeffs[base_indices, i, 0] = np.cos(phase_x) + np.sin(phase_x) * 1j
-        coeffs[base_indices, i, 3] = np.cos(phase_y) + np.sin(phase_y) * 1j
+        if i % 2 == 0:
+            coeffs[base_numbers, i, 0] = np.cos(phase_x) - np.sin(phase_x) * 1j
+            coeffs[base_numbers, i, 3] = np.cos(phase_y) - np.sin(phase_y) * 1j
+        else:
+            coeffs[base_numbers, i, 0] = np.cos(phase_x) + np.sin(phase_x) * 1j
+            coeffs[base_numbers, i, 3] = np.cos(phase_y) + np.sin(phase_y) * 1j
 
     # Return values
     return coeffs
@@ -138,7 +143,6 @@ def download_coefficients(coefficients):
         for antenna in range(nof_antennas_per_tile):
             tile.load_calibration_coefficients(antenna, coefficients[i * nof_antennas_per_tile + antenna, :, :].tolist())
     t1 = time.time()
-
     logging.info("Downloaded coefficients to tiles in {0:.2}s".format(t1 - t0))
 
     # Done downloading coefficient, switch calibration bank
@@ -146,10 +150,10 @@ def download_coefficients(coefficients):
     logging.info("Switched calibration banks")
 
 
-def update_calibration_coefficients():
+def update_calibration_coefficients(start_channel, nof_channels):
     """ Update calibration coefficients in station """
     if check_station():
-        download_coefficients(get_latest_coefficients())
+        download_coefficients(get_latest_coefficients(start_channel, nof_channels))
     else:
         logging.info("Station not well formed")
 
@@ -162,6 +166,10 @@ if __name__ == "__main__":
 
     parser.add_option("--period", action="store", dest="period",
                       type="int", default="0", help="Duty cycle in s for updating coefficients [default: 0 (once)]")
+    parser.add_option("-s", "--start-channel", action="store", dest="start_channel",
+                      type="int", default=0, help="Start channel [default: 0]")
+    parser.add_option("-c", "--nof-channels", action="store", dest="nof_channels",
+                      type="int", default=384, help="Number of channels [default: 384 (all)]")
     (opts, args) = parser.parse_args(argv[1:])
 
     # Set logging
@@ -173,12 +181,12 @@ if __name__ == "__main__":
     log.addHandler(ch)
 
     # Update calibration coefficients
-    update_calibration_coefficients()
+    update_calibration_coefficients(opts.start_channel, opts.nof_channels)
 
     # If period is defined, loop forever with given period
     if opts.period != 0:
         while True:
             logging.info("Waiting for {} seconds".format(opts.period))
             time.sleep(opts.period)
-            update_calibration_coefficients()
+            update_calibration_coefficients(opts.start_channel, opts.nof_channels)
 
