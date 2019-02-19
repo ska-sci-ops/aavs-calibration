@@ -117,19 +117,23 @@ def get_latest_coefficients(obs_start_channel_frequency, obs_bandwidth):
 
     # Create default calibration coefficient array
     # Index 0 is XX, 3 is YY. Indices 2 and 3 are the cross-pols, which should be initialised to 0
-    coeffs = np.ones((nof_antennas, nof_channels, nof_stokes), dtype=np.complex64)
+    coeffs = np.zeros((nof_antennas, nof_channels, nof_stokes), dtype=np.complex64)
+    coeffs[:, :, 1] = 0
+    coeffs[:, :, 2] = 0
 
     # Create antenna indices
-    base_numbers = antenna_coordinates()[:, 0].tolist()
-    base_indices = [base_numbers.index(i) for i in range(1, nof_antennas + 1)]
+    base_numbers = [int(x) - 1 for x in antenna_coordinates()[:, 0].tolist()]
 
     # Compute phase for all channels
     for i, freq in enumerate(frequencies):
         phase_x = x_delays[:, 1] + 2 * np.pi * freq * x_delays[:, 0]
         phase_y = y_delays[:, 1] + 2 * np.pi * freq * y_delays[:, 0]
 
-        coeffs[base_indices, i, 0] = np.cos(phase_x) + np.sin(phase_x) * 1j
-        coeffs[base_indices, i, 3] = np.cos(phase_y) + np.sin(phase_y) * 1j
+        # coeffs[base_indices, i, 0] = np.cos(phase_x) + np.sin(phase_x) * 1j
+        # coeffs[base_indices, i, 3] = np.cos(phase_y) + np.sin(phase_y) * 1j
+        
+        coeffs[base_indices, i, 0] = 1 + np.sin(phase_x) * 1j
+        coeffs[base_indices, i, 3] = 1 + np.sin(phase_y) * 1j
 
     # Generated coefficients, normalise them
     coeffs = normalize_complex_vector(coeffs)
@@ -163,7 +167,6 @@ def download_coefficients(aavs_station, coefficients):
             tile.load_calibration_coefficients(antenna,
                                                coefficients[i * nof_antennas_per_tile + antenna, :, :].tolist())
     t1 = time.time()
-
     logging.info("Downloaded coefficients to tiles in {0:.2}s".format(t1 - t0))
 
     # Done downloading coefficient, switch calibration bank
@@ -192,6 +195,10 @@ if __name__ == "__main__":
                       type="str", default=None, help="Configuration file [default: None]")
     parser.add_option("--period", action="store", dest="period",
                       type="int", default="0", help="Duty cycle in s for updating coefficients [default: 0 (once)]")
+    parser.add_option("-s", "--start-channel", action="store", dest="start_channel",
+                      type="int", default=0, help="Start channel [default: 0]")
+    parser.add_option("-c", "--nof-channels", action="store", dest="nof_channels",
+                      type="int", default=384, help="Number of channels [default: 384 (all)]")
     (opts, args) = parser.parse_args(argv[1:])
 
     # Set logging
