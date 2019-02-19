@@ -1,6 +1,12 @@
 from pytz import UTC
 from datetime import datetime
-from mongoengine import Document, IntField, FloatField, StringField, DateTimeField, ObjectIdField, ListField
+from mongoengine import Document, IntField, FloatField, StringField, ObjectIdField, ListField
+from mongoengine import connect
+
+
+DB_NAME = 'aavs'    # change name to create another database
+HOST = 'localhost'  # insert IP address or url here
+PORT = 27017        # mongodb standard port
 
 
 class Antenna(Document):
@@ -48,7 +54,7 @@ class Fit(Document):
 
     def get_acquisition_time(self):
         """ returns datetime of the timestamp including time zone info """
-        return convert_timestamp_to_datetime(self.acquisition_time)
+        return _convert_timestamp_to_datetime(self.acquisition_time)
 
     def set_acquisition_time(self, dt):
         """ converts datetime to timestamp and saves it to the db"""
@@ -57,7 +63,7 @@ class Fit(Document):
 
     def get_fit_time(self):
         """ returns datetime of the timestamp including time zone info """
-        return convert_timestamp_to_datetime(self.fit_time)
+        return _convert_timestamp_to_datetime(self.fit_time)
 
     def set_fit_time(self, dt):
         """ converts datetime to timestamp and saves it to the db"""
@@ -93,7 +99,7 @@ class Coefficient(Document):
 
     def get_download_time(self):
         """ returns datetime of the timestamp including time zone info """
-        return convert_timestamp_to_datetime(self.download_time)
+        return _convert_timestamp_to_datetime(self.download_time)
 
     def set_download_time(self, dt):
         """ converts datetime to timestamp and saves it to the db"""
@@ -108,7 +114,18 @@ class Coefficient(Document):
         return map(complex, self.calibration)
 
 
-def convert_timestamp_to_datetime(timestamp):
+def connect_to_db(db_name='', host='', port=''):
+    """ connect to standard db, if not otherwise specified """
+    if not db_name:
+        db_name = DB_NAME
+    if not host:
+        host = HOST
+    if not port:
+        port = PORT
+    return connect(db_name, host=host, port=port)
+
+
+def _convert_timestamp_to_datetime(timestamp):
     """
     converts timestamp to datetime
     :param timestamp: UNIX timestamp
@@ -120,7 +137,7 @@ def convert_timestamp_to_datetime(timestamp):
 def convert_datetime_to_timestamp(dt):
     """
     converts datetime to timestamp
-    :param dt: datetime, assumed to be UTC
+    :param dt: datetime, assumed to be UTC if tz_info is missing
     :return: UNIX timestamp
     """
     if not dt.tzinfo:

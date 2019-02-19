@@ -1,10 +1,8 @@
 from urllib import urlopen
 
-from connect import connect_to_db
-from db import Antenna
-from purge_db import purge
+from db import Antenna, connect_to_db
 
-db = connect_to_db()
+connect_to_db()
 
 # This is used to re-map ADC channels index to the RX
 # number going into the TPM
@@ -19,13 +17,9 @@ nof_antennas = 256
 
 
 def get_antenna_data():
-    """ Reads antenna base locations from the Google Drive sheet and fills the data into the database
-    :param save_to_file: Save remapped location and baselines to file
     """
-
-    # purge Database
-    purge()
-    # Antenna mapping placeholder
+    Reads antenna base locations from the Google Drive sheet and fills the data into the database
+    """
 
     # Read antenna location spreadsheet
     response = urlopen('https://docs.google.com/spreadsheets/d/e/2PACX-1vRIpaYPims9Qq9JEnZ3AfZtTaYJYWMsq2CWRg'
@@ -51,14 +45,22 @@ def get_antenna_data():
                 tpm, rx = 11, 9
                 east, north, up = 9.701, -14.627, 0
             missing += 1
+
         # Fill data into database
-        Antenna(antenna_nr=(tpm - 1) * 16 + switched_preadu_map[rx],
-                station_id=0,
-                x_pos=east,
-                y_pos=north,
-                base_id=int(items[1]),
-                tpm_id=tpm,
-                tpm_rx=rx,
-                antenna_type=Antenna.SKALA2,
-                status_x='',
-                status_y='').save()
+        a = Antenna.objects(antenna_nr=(tpm - 1) * 16 + switched_preadu_map[rx], station_id=0).first()
+        if not a:
+            a = Antenna(antenna_nr=(tpm - 1) * 16 + switched_preadu_map[rx], station_id=0)
+
+        a.x_pos = east
+        a.y_pos = north
+        a.base_id = int(items[1])
+        a.tpm_id = tpm
+        a.tpm_rx = rx
+        a.antenna_type = Antenna.SKALA2
+        a.status_x = ''
+        a.status_y = ''
+        a.save()
+
+
+if __name__ == '__main__':
+    get_antenna_data()

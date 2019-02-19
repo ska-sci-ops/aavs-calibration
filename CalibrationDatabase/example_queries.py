@@ -1,10 +1,10 @@
 import datetime
 
-from db import Fit, Antenna, Channel, convert_datetime_to_timestamp
-from connect import connect_to_db
+from db import Fit, Antenna, Channel, convert_datetime_to_timestamp, connect_to_db
 
 
-db = connect_to_db()
+connect_to_db()
+
 # for more information on queries: http://docs.mongoengine.org/guide/querying.html#filtering-queries
 
 

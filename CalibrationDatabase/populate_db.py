@@ -5,14 +5,13 @@ from multiprocessing import freeze_support, Pool
 from time import sleep
 from sys import stdout
 
-from db import Channel, Fit, Antenna, Coefficient, convert_datetime_to_timestamp
+from db import Channel, Fit, Antenna, Coefficient, convert_datetime_to_timestamp, connect_to_db
 from purge_db import purge
-from connect import connect_to_db
 
 
 COMPLEX_LIST = [complex(randint(0, 5), imag=randint(0, 5)).__str__() for c in range(512)]
 
-db = connect_to_db()
+connect_to_db()
 
 ANTENNAS = 256  # number of antennas
 MONITOR = True  # print status updates

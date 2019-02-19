@@ -3,8 +3,7 @@ from pymongo.mongo_client import MongoClient
 from pytz import UTC
 from datetime import datetime
 
-from db import Antenna, Fit, convert_datetime_to_timestamp
-from connect import connect_to_db
+from db import Antenna, Fit, convert_datetime_to_timestamp, connect_to_db
 
 # connect to test db
 database = connect_to_db('aavs_unit_test')
