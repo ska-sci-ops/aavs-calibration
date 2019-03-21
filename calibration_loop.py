@@ -85,7 +85,6 @@ def run_observation_burst(config):
 
     # Run calibration on dumped data
     logging.info("Calibrating data")
-    integration_time = opts.nof_samples / ((400e6 / 512.0)  * (32.0 / 27.0))
 
     cal_script = "/home/aavs/aavs-calibration/run_calibration.py"
     subprocess.check_call(["python", cal_script, "-D", directory])
@@ -100,7 +99,7 @@ if __name__ == "__main__":
     p.set_description(__doc__)
 
     p.add_option("--config", action="store", dest="config",
-                  default=None, help="Station configuration file to use")
+                 default=None, help="Station configuration file to use")
     p.add_option("--lmc_ip", action="store", dest="lmc_ip",
                  default="10.0.10.200", help="IP [default: 10.0.10.200]")
     p.add_option("-P", "--program", action="store_true", dest="program",

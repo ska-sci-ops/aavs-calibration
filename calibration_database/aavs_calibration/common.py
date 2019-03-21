@@ -36,7 +36,7 @@ def get_antenna_positions(station_id):
     # Create lists with base_id, x and y pos and return
     base, x, y = [], [], []
     for item in db.antenna.find({'station_id': station_id},
-                                {'base_id': 1, 'x_pos': 1, 'y_pos': 1, '_id': 0}):
+                                 {'base_id': 1, 'x_pos': 1, 'y_pos': 1, '_id': 0}):
         base.append(item['base_id'])
         x.append(item['x_pos'])
         y.append(item['y_pos'])
@@ -45,7 +45,7 @@ def get_antenna_positions(station_id):
 
 
 def add_new_calibration_solution(station, acquisition_time, solution, comment="",
-                                 delay_x=0, phase_x=0, delay_y=0, phase_y=0):
+                                 delay_x=None, phase_x=None, delay_y=None, phase_y=None):
     """ Add a new calibration fit to the database.
     :param station: Station identifier
     :param acquisition_time: The time at which the data was acquired
@@ -53,10 +53,10 @@ def add_new_calibration_solution(station, acquisition_time, solution, comment=""
                      in antenna/pol/frequency/(amp/pha), where for the last dimension
                      index 0 is amplitude and index 1 is phase.
     :param comment: Any user-defined comment to add to the fit"
-    :param delay_x: Computed solution gradient for X pol
-    :param phase_x: Computed solution intercept for X pol
-    :param delay_y: Computed solution gradient for Y pol
-    :param phase_y: Computed solution intercept for Y pol"""
+    :param delay_x: Computed solution gradient for X pol, all antennas
+    :param phase_x: Computed solution intercept for X pol, all antennas
+    :param delay_y: Computed solution gradient for Y pol, all antennas
+    :param phase_y: Computed solution intercept for Y pol, all antennas"""
 
     # Convert timestamps
     acquisition_time = convert_timestamp_to_datetime(acquisition_time)
@@ -74,8 +74,18 @@ def add_new_calibration_solution(station, acquisition_time, solution, comment=""
     station_info = station.first()
     antennas = db.antenna.find({'station_id': station_info.id}).sort("antenna_station_id", pymongo.ASCENDING)
 
+    # Sanity checks on delay and phase values
+    if delay_x is not None and len(delay_x) != antennas.count():
+        logging.warning("Number of delay and phase values does not match number of antennas. Ignoring")
+        delay_x = delay_y = phase_x = phase_y = [None] * antennas.count()
+    elif delay_y is None:
+        delay_x = delay_y = phase_x = phase_y = [None] * antennas.count()
+
     # Loop over all antennas and save solutions to database
-    for a, antenna in enumerate(antennas):
+    for antenna in antennas:
+        # Use base index to select correct antenna coefficients
+        base_index = antenna['base_id'] - 1
+
         # Create X and Y fit solutions
         CalibrationSolution(acquisition_time=acquisition_time,
                             fit_time=fit_time,
@@ -83,10 +93,10 @@ def add_new_calibration_solution(station, acquisition_time, solution, comment=""
                             antenna_id=antenna['_id'],
                             fit_comment=comment,
                             flags='',
-                            amplitude=solution[a, 0, :, 0],
-                            phase=solution[a, 0, :, 1],
-                            phase_0=phase_x,
-                            delay=delay_x).save()
+                            amplitude=solution[base_index, 0, :, 0],
+                            phase=solution[base_index, 0, :, 1],
+                            phase_0=phase_x[base_index],
+                            delay=delay_x[base_index]).save()
 
         CalibrationSolution(acquisition_time=acquisition_time,
                             fit_time=fit_time,
@@ -94,10 +104,10 @@ def add_new_calibration_solution(station, acquisition_time, solution, comment=""
                             antenna_id=antenna['_id'],
                             fit_comment=comment,
                             flags='',
-                            amplitude=solution[a, 1, :, 0],
-                            phase=solution[a, 1, :, 1],
-                            phase_0=phase_y,
-                            delay=delay_y).save()
+                            amplitude=solution[base_index, 1, :, 0],
+                            phase=solution[base_index, 1, :, 1],
+                            phase_0=phase_y[base_index],
+                            delay=delay_y[base_index]).save()
 
 
 def add_coefficient_download(station, download_time, coefficients):
@@ -153,30 +163,41 @@ def get_latest_calibration_solution(station):
     antennas = db.antenna.find({'station_id': station_info.id}).sort("antenna_station_id", pymongo.ASCENDING)
 
     # Generate arrays to store amp and phase
-    amplitudes = np.empty((antennas.count(), 2, 512))
-    phases = np.empty((antennas.count(), 2, 512))
+    amplitudes = np.zeros((antennas.count(), 2, 512))
+    phases = np.zeros((antennas.count(), 2, 512))
 
     # Loop over all antennas
     for antenna in antennas:
+
         # Grab values for polarisation X
         results = db.calibration_solution.aggregate([
             {'$sort': {'fit_time': -1}},
             {'$match': {'antenna_id': antenna['_id'], 'pol': 0}},
             {'$limit': 1}])
-        entry = results.next()
 
-        amplitudes[antenna['antenna_station_id'], 0, :] = entry['amplitude']
-        phases[antenna['antenna_station_id'], 0, :] = entry['phase']
+        # If there are no entries for this antenna/pol, set to 0
+        try:
+            entry = results.next()
+
+            amplitudes[antenna['antenna_station_id'], 0, :] = entry['amplitude']
+            phases[antenna['antenna_station_id'], 0, :] = entry['phase']
+        except StopIteration:
+            pass
 
         # Grab values for polarisation Y
         results = db.calibration_solution.aggregate([
             {'$sort': {'fit_time': -1}},
             {'$match': {'antenna_id': antenna['_id'], 'pol': 1}},
             {'$limit': 1}])
-        entry = results.next()
 
-        amplitudes[antenna['antenna_station_id'], 1, :] = entry['amplitude']
-        phases[antenna['antenna_station_id'], 1, :] = entry['phase']
+        # If there are not entries for this antenna/pol, set to 0
+        try:
+            entry = results.next()
+
+            amplitudes[antenna['antenna_station_id'], 1, :] = entry['amplitude']
+            phases[antenna['antenna_station_id'], 1, :] = entry['phase']
+        except StopIteration:
+            pass
 
     return amplitudes, phases
 
@@ -229,12 +250,17 @@ if __name__ == "__main__":
 
     from numpy.random import random
     import time
+    #
+    # add_coefficient_download("AAVS1", time.time(), random((256, 2, 512)) + random((256, 2, 512)) * 1j)
+    # print get_latest_coefficient_download("AAVS1")
+    # exit()
 
-    add_coefficient_download("AAVS1", time.time(), random((256, 2, 512)) + random((256, 2, 512)) * 1j)
-    print get_latest_coefficient_download("AAVS1")
-    exit()
+    solutions = random((256, 2, 512, 2))
 
-    for i in range(1):
-        t0 = time.time()
-        add_new_calibration_solution(time.time(), "AAVS1", random((256, 2, 512, 2)))
-        print "Persisted in {}".format(time.time() - t0)
+    t0 = time.time()
+    add_new_calibration_solution("AAVS1", time.time(), solutions)
+    print("Persisted in {}".format(time.time() - t0))
+
+    amplitude, phases = get_latest_calibration_solution("AAVS1")
+
+    assert np.allclose(solutions[49, :, :, 0], amplitude[0, :, :])

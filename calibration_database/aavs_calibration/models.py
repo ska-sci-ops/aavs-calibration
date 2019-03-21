@@ -2,7 +2,7 @@ from mongoengine import Document, IntField, FloatField, StringField, ObjectIdFie
 from aavs_calibration.definitions import *
 
 
-class  Station(Document):
+class Station(Document):
     """ Stores static data about a station """
 
     # Station name

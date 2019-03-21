@@ -1,6 +1,5 @@
 import logging
 import os
-import sys
 import subprocess
 import time
 from datetime import datetime
@@ -12,10 +11,12 @@ import psycopg2
 
 import fit_phase_delay
 
+from aavs_calibration.common import add_new_calibration_solution
+
 nyquist_freq = 400.0  # MHz
 nof_antennas = 256
 nof_channels = 512
-start_channel = 64
+start_channel = 0
 code_version = """run_calibration_v1"""
 username = os.getenv('USER')
 dump_time = 1.9818086  # Correlation matrix dump time (seconds)
@@ -24,6 +25,7 @@ dump_time = 1.9818086  # Correlation matrix dump time (seconds)
 show_output = False
 nof_integrations = 1
 directory = '.'
+
 
 def read_gain_solution_file(filepath):
     """ Read coefficients from filepath """
@@ -57,7 +59,7 @@ def load_coefficients(directory, channel):
 
     # All files loaded, check that we have all required coefficients
     if not all([xx_amp, xx_phase, yy_amp, yy_phase]):
-        logging.warn("Missing files in specified directory ({})".format(directory))
+        logging.warning("Missing files in specified directory ({})".format(directory))
         exit()
 
     # Return values
@@ -69,20 +71,20 @@ def calibrate_channel(channel):
 
     logging.info("Processing channel {}".format(channel))
     cal_script = "calibration_script.sh"  # This should be in PATH
-    command = [cal_script, "-D", directory, 
-                           "-T", str(dump_time), 
-                           "-N", str(nof_integrations), 
-                           "-k",
-                           str(channel)]
+    command = [cal_script, "-D", directory,
+               "-T", str(dump_time),
+               "-N", str(nof_integrations),
+               "-k",
+               str(channel)]
 
     if show_output:
         subprocess.check_call(command, stdout=stdout, stderr=subprocess.STDOUT)
     else:
         with open(os.devnull, 'w') as output:
-            subprocess.check_call(command, stdout=output, stderr=subprocess.STDOUT) 
+            subprocess.check_call(command, stdout=output, stderr=subprocess.STDOUT)
 
 
-def run_calibration(directory, nof_integrations, threads, show_output=False):
+def run_calibration(directory, threads):
     """ Calibrate channels """
 
     # If more than 1 thread is required, use process pool
@@ -100,6 +102,94 @@ def run_calibration(directory, nof_integrations, threads, show_output=False):
     # All done, cleanup up temporary files
     subprocess.check_call(['cleanup_temp_files.sh', '-D', directory])
 
+
+def save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay):
+    # Create connection to the calibration database.
+    # Do not have to use password here since DB is set up to recognise aavs user
+    conn = psycopg2.connect(database='aavs')
+    cur = conn.cursor()
+
+    # Create solution
+    # the local time for the dump is encoded in the directory name for now
+    if conf.directory != '.':
+        currdir = os.path.split(conf.directory)[-1]
+    else:
+        currdir = os.path.split(os.getcwd())[-1]  # the local time for the dump is encoded in the directory name for now
+
+    # Get fit time from directory name
+    fit_time = datetime.strptime(currdir, "%Y_%m_%d-%H:%M") - timedelta(hours=8)
+
+    logging.info('Creating solutions for fit_time {}'.format(fit_time))
+    create_time = datetime.utcnow()
+    cur.execute("""set timezone='UTC'""")  # Just do everything in UTC to avoid problems
+    cur.execute('''INSERT INTO calibration_fit(create_time, fit_time, creator, code_version)
+                       VALUES (%s, %s, %s, %s)''', (create_time, fit_time, username, code_version))
+
+    # Create calibration solutions for each antenna
+    for antenna in range(nof_antennas):
+        x_amp = '{{{}}}'.format(', '.join([str(i) for i in xx_amp[:, antenna]]))
+        x_pha = '{{{}}}'.format(', '.join([str(i) for i in xx_phase[:, antenna]]))
+        y_amp = '{{{}}}'.format(', '.join([str(i) for i in yy_amp[:, antenna]]))
+        y_pha = '{{{}}}'.format(', '.join([str(i) for i in yy_phase[:, antenna]]))
+
+        q = '''INSERT INTO calibration_solution(fit_time, create_time, ant_id, x_amp, y_amp, x_pha, y_pha,x_delay,x_phase0,y_delay,y_phase0)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) '''
+        cur.execute(q, (fit_time, create_time, antenna, x_amp, y_amp, x_pha, y_pha, x_delay[1, antenna],
+                        x_delay[0, antenna], y_delay[1, antenna], y_delay[0, antenna]))
+
+    # Commit and close connection
+    conn.commit()
+    conn.close()
+
+    logging.info("Persisted calibration coefficients in Postgres database")
+
+
+def save_coefficients_mongo(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay):
+    """ Save calibration coefficients to mongo database
+    :param conf: Configuration dictionary
+    :param xx_amp: XX amplitude in channel/antenna format
+    :param xx_phase: XX phase in channel/antenna format
+    :param yy_amp: YY amplitude in channel/antenna format
+    :param yy_phase:  YY phase in channel/antenna format
+    :param x_delay: XX delay and intercept for all antennas in [delay|intercept]/antennas format
+    :param y_delay: YY delay and intercept for all antennas in [delay|intercept]/antennas format
+    :return:
+    """
+
+    # Create solution
+    # the local time for the dump is encoded in the directory name for now
+    if conf.directory != '.':
+        currdir = os.path.split(conf.directory)[-1]
+    else:
+        currdir = os.path.split(os.getcwd())[-1]  # the local time for the dump is encoded in the directory name for now
+
+    # Get fit time from directory name
+    acquisition_time = datetime.strptime(currdir, "%Y_%m_%d-%H:%M") - timedelta(hours=8)
+
+    # Create empty solution
+    solution = np.zeros((nof_antennas, 2, nof_channels, 2), dtype=np.float)
+
+    # Add values to solution
+    solution[:, 0, :, 0] = xx_amp
+    solution[:, 0, :, 1] = xx_phase
+    solution[:, 1, :, 0] = yy_amp
+    solution[:, 1, :, 1] = yy_phase
+
+    # The antenna calibration coefficients order is the one used by Miriad, which
+    # should relate to the base number.
+
+    # Save coefficients
+    add_new_calibration_solution("AAVS1",
+                                 acquisition_time,
+                                 solution,
+                                 delay_x=x_delay[0, :],
+                                 phase_x=x_delay[1, :],
+                                 delay_y=y_delay[0, :],
+                                 phase_y=y_delay[1, :])
+
+    logging.info("Persisted calibration coefficients in Mongo database")
+
+
 # Main program
 if __name__ == "__main__":
     from optparse import OptionParser
@@ -115,7 +205,6 @@ if __name__ == "__main__":
     parser.add_option("-T", "--threads", action="store", dest="threads", default=4, type=int,
                       help="Number of thread to use [default: 4]")
     (conf, args) = parser.parse_args(argv[1:])
-    print "Conf: "+str(conf)
 
     # Set logging
     log = logging.getLogger('')
@@ -148,10 +237,10 @@ if __name__ == "__main__":
 
     # If not skipping calibration, generate calibration solutions
     if conf.skip is False:
-        run_calibration(conf.directory, nof_integrations, conf.threads, conf.show_output)
-    
+        run_calibration(conf.directory, conf.threads)
+
     # At this point calibration solutions should be ready, read files and save locally
-    for channel in range(start_channel, nof_channels):       
+    for channel in range(start_channel, nof_channels):
         try:
             x_amp, x_pha, y_amp, y_pha = load_coefficients(conf.directory, channel)
             xx_amp[channel, :] = x_amp
@@ -159,7 +248,7 @@ if __name__ == "__main__":
             yy_amp[channel, :] = y_amp
             yy_phase[channel, :] = y_pha
         except Exception as e:
-            logging.warn("Unable to load data for channel {}: {}".format(channel, e.message))
+            logging.warning("Unable to load data for channel {}: {}".format(channel, e.message))
 
     # Start timing
     t1 = time.time()
@@ -170,48 +259,18 @@ if __name__ == "__main__":
         delay_model_x = fit_phase_delay.fitDelay(fit_phase_delay.zeroBadFreqs(np.copy(xx_phase[:, a])))
         delay_model_y = fit_phase_delay.fitDelay(fit_phase_delay.zeroBadFreqs(np.copy(yy_phase[:, a])))
         if delay_model_x is None or delay_model_y is None:
-            logging.warn("No solution for antenna {}".format(a))
+            logging.warning("No solution for antenna {}".format(a))
         else:
             x_delay[:, a] = delay_model_x
             y_delay[:, a] = delay_model_y
-            logging.info("Ph0/Delay x: {:.3f},{:.3f}, y: {:.3f},{:.3f}".format(delay_model_x[0], delay_model_x[1], delay_model_y[0], delay_model_y[1]))
+            logging.info("Ph0/Delay x: {:.3f},{:.3f}, y: {:.3f},{:.3f}".format(delay_model_x[0], delay_model_x[1],
+                                                                               delay_model_y[0], delay_model_y[1]))
 
     # Calibrated all channels of interest
     logging.info("Processed in {}".format(t1 - t0))
 
-    # Create connection to the calibration database.
-    # Do not have to use password here since DB is set up to recognise aavs user
-    conn = psycopg2.connect(database='aavs')
-    cur = conn.cursor()
+    # Save calibration to Postgres database
+    save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay)
 
-    # Create solution
-    # the local time for the dump is encoded in the directory name for now
-    if conf.directory != '.':
-        currdir = os.path.split(conf.directory)[-1]
-    else:
-        currdir = os.path.split(os.getcwd())[-1]  # the local time for the dump is encoded in the directory name for now
-
-    # Get fit time from directory name    
-    fit_time = datetime.strptime(currdir, "%Y_%m_%d-%H:%M") - timedelta(hours=8)
-
-    logging.info('Creating solutions for fit_time {}'.format(fit_time))
-    create_time = datetime.utcnow()
-    cur.execute("""set timezone='UTC'""")  # Just do everything in UTC to avoid problems
-    cur.execute('''INSERT INTO calibration_fit(create_time, fit_time, creator, code_version)
-                   VALUES (%s, %s, %s, %s)''', (create_time, fit_time, username, code_version))
-
-    # Create calibration solutions for each antenna
-    for antenna in range(nof_antennas):
-        x_amp = '{{{}}}'.format(', '.join([str(i) for i in xx_amp[:, antenna]]))
-        x_pha = '{{{}}}'.format(', '.join([str(i) for i in xx_phase[:, antenna]]))
-        y_amp = '{{{}}}'.format(', '.join([str(i) for i in yy_amp[:, antenna]]))
-        y_pha = '{{{}}}'.format(', '.join([str(i) for i in yy_phase[:, antenna]]))
-
-        q = '''INSERT INTO calibration_solution(fit_time, create_time, ant_id, x_amp, y_amp, x_pha, y_pha,x_delay,x_phase0,y_delay,y_phase0)
-               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) '''
-        cur.execute(q, (fit_time, create_time, antenna, x_amp, y_amp, x_pha, y_pha, x_delay[1, antenna],
-                        x_delay[0, antenna], y_delay[1, antenna], y_delay[0, antenna]))
-
-    # Commit and close connection
-    conn.commit()
-    conn.close()
+    # Save calibration to Mongo database
+    save_coefficients_mongo(conf)
