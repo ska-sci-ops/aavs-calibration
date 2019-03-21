@@ -48,13 +48,14 @@ def get_latest_coefficients(start_channel_frequency, bandwidth):
     coefficients = np.cos(np.deg2rad(phase)) + np.sin(np.deg2rad(phase)) * 1j
 
     # Normalise coefficients
-    coefficients = normalize_complex_vector(coefficients)
+    # NOTE: We do not need to normalise coefficients for now, since we're ignoring ampltiude 
+    # coefficients = normalize_complex_vector(coefficients)
 
     # Create default calibration coefficient array
     # Index 0 is XX, 3 is YY. Indices 2 and 3 are the cross-pols, which should be initialised to 0
     coeffs = np.zeros((nof_antennas, nof_channels, nof_stokes), dtype=np.complex64)
     coeffs[:, :, 0] = coefficients[:, 0, :]
-    coeffs[:, :, 3] = coefficients[:, 0, :]
+    coeffs[:, :, 3] = coefficients[:, 1, :]
 
     # Return values
     return coeffs

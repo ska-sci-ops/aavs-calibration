@@ -171,7 +171,7 @@ def get_latest_calibration_solution(station):
 
         # Grab values for polarisation X
         results = db.calibration_solution.aggregate([
-            {'$sort': {'fit_time': -1}},
+            {'$sort': {'acquisition_time': -1, 'fit_time': -1}},
             {'$match': {'antenna_id': antenna['_id'], 'pol': 0}},
             {'$limit': 1}])
 
@@ -186,7 +186,7 @@ def get_latest_calibration_solution(station):
 
         # Grab values for polarisation Y
         results = db.calibration_solution.aggregate([
-            {'$sort': {'fit_time': -1}},
+            {'$sort': {'acquisition_time': -1, 'fit_time': -1}},
             {'$match': {'antenna_id': antenna['_id'], 'pol': 1}},
             {'$limit': 1}])
 
