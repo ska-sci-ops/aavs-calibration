@@ -18,7 +18,6 @@ stop = False
 
 nof_antennas = 256
 nof_channels = 512
-start_channel = 64
 
 
 def stop_observation():
@@ -60,8 +59,8 @@ def run_observation_burst(config):
     # Wait for DAQ to initialise
     sleep(2)
 
-    logging.info("Setting timer to stop observation in %d" % (1.5 * 512 * 1.5))
-    timer = threading.Timer(1.5 * 512 * 1.5, stop_observation)
+    logging.info("Setting timer to stop observation in %d" % (2 * 512))
+    timer = threading.Timer(2 * 512, stop_observation)
     timer.start()
 
     # Start sending data
@@ -107,7 +106,7 @@ if __name__ == "__main__":
     p.add_option('-d', '--directory', dest='directory', action='store', default="/data/data_2/real_time_calibration",
                  help="Data directory (default: '/data/data_2/real_time_calibration')")
     p.add_option("-i", "--receiver_interface", action="store", dest="receiver_interface",
-                 default="eth3", help="Receiver interface [default: eth3]")
+                 default="eth3:1", help="Receiver interface [default: eth3:1]")
     p.add_option("--samples", action="store", dest="nof_samples",
                  default=1835008, type="int", help="Number of samples to correlate. Default: 1835008")
     p.add_option("--period", action="store", dest="period",
