@@ -28,20 +28,39 @@ def change_antenna_status(station_id, base_id, polarisation, status):
     return r
 
 
-def get_antenna_positions(station_id):
+def get_antenna_positions(station):
     """ Get antenna positions for a given station id"""
     # Connect to database
     db = database.connect()
 
+    # Get station info
+    station = get_station_information(station)
+    if station is None:
+        logging.warning("Could not find station {}".format(station))
+
     # Create lists with base_id, x and y pos and return
     base, x, y = [], [], []
-    for item in db.antenna.find({'station_id': station_id},
+    for item in db.antenna.find({'station_id': station.id},
                                  {'base_id': 1, 'x_pos': 1, 'y_pos': 1, '_id': 0}):
         base.append(item['base_id'])
         x.append(item['x_pos'])
         y.append(item['y_pos'])
 
     return base, x, y
+
+
+def get_station_information(station):
+    """ Get station information """
+
+    # Connect to database
+    database.connect()
+
+    # Get station info
+    station = Station.objects(name=station)
+    if len(station) == 0:
+        return None
+
+    return station.first()
 
 
 def add_new_calibration_solution(station, acquisition_time, solution, comment="",
@@ -255,12 +274,14 @@ if __name__ == "__main__":
     # print get_latest_coefficient_download("AAVS1")
     # exit()
 
-    solutions = random((256, 2, 512, 2))
+    # solutions = random((256, 2, 512, 2))
+    #
+    # t0 = time.time()
+    # add_new_calibration_solution("AAVS1", time.time(), solutions)
+    # print("Persisted in {}".format(time.time() - t0))
+    #
+    # amplitude, phases = get_latest_calibration_solution("AAVS1")
+    #
+    # assert np.allclose(solutions[49, :, :, 0], amplitude[0, :, :])
 
-    t0 = time.time()
-    add_new_calibration_solution("AAVS1", time.time(), solutions)
-    print("Persisted in {}".format(time.time() - t0))
-
-    amplitude, phases = get_latest_calibration_solution("AAVS1")
-
-    assert np.allclose(solutions[49, :, :, 0], amplitude[0, :, :])
+    print get_antenna_positions('AAVS1')
