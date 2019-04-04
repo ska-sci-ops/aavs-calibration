@@ -54,6 +54,8 @@ def get_latest_coefficients(start_channel_frequency, bandwidth):
     # Create default calibration coefficient array
     # Index 0 is XX, 3 is YY. Indices 2 and 3 are the cross-pols, which should be initialised to 0
     coeffs = np.zeros((nof_antennas, nof_channels, nof_stokes), dtype=np.complex64)
+
+    # Insert coefficients from database
     coeffs[:, :, 0] = coefficients[:, 0, :]
     coeffs[:, :, 3] = coefficients[:, 1, :]
 
@@ -75,32 +77,16 @@ def check_station(config):
         return None
 
 
-def download_coefficients(aavs_station, coefficients):
-    """ Download coefficients to station """
-
-    t0 = time.time()
-
-    # Download coefficients
-    for i, tile in enumerate(aavs_station.tiles):
-        for antenna in range(nof_antennas_per_tile):
-            tile.load_calibration_coefficients(antenna,
-                                               coefficients[i * nof_antennas_per_tile + antenna, :, :].tolist())
-
-    t1 = time.time()
-    logging.info("Downloaded coefficients to tiles in {0:.2}s".format(t1 - t0))
-
-    # Done downloading coefficient, switch calibration bank
-    aavs_station.switch_calibration_banks(2048)  # About 0.5 seconds
-    logging.info("Switched calibration banks")
-
-
 def update_calibration_coefficients(config):
     """ Update calibration coefficients in station """
     aavs_station = check_station(config)
-    if station is not None:
+    if aavs_station is not None:
         start_channel_frequency = aavs_station.configuration['observation']['start_frequency_channel']
         bandwidth = aavs_station.configuration['observation']['bandwidth']
-        download_coefficients(aavs_station, get_latest_coefficients(start_channel_frequency, bandwidth))
+
+        # Get coefficients and download to the station
+        coeffs = get_latest_coefficients(start_channel_frequency, bandwidth)
+        aavs_station.calibrate_station(coeffs)
     else:
         logging.info("Station not well formed")
 
@@ -143,3 +129,4 @@ if __name__ == "__main__":
             logging.info("Waiting for {} seconds".format(opts.period))
             time.sleep(opts.period)
             update_calibration_coefficients(opts.config)
+

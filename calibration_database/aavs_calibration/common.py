@@ -41,7 +41,7 @@ def get_antenna_positions(station):
     # Create lists with base_id, x and y pos and return
     base, x, y = [], [], []
     for item in db.antenna.find({'station_id': station.id},
-                                 {'base_id': 1, 'x_pos': 1, 'y_pos': 1, '_id': 0}):
+                                {'base_id': 1, 'x_pos': 1, 'y_pos': 1, '_id': 0}).sort("antenna_station_id", pymongo.ASCENDING):
         base.append(item['base_id'])
         x.append(item['x_pos'])
         y.append(item['y_pos'])
