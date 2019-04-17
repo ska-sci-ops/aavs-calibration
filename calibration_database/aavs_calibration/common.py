@@ -208,7 +208,7 @@ def get_latest_calibration_solution(station):
     return amplitudes, phases
 
 
-def get_calibration_coefficients(station, timestamp):
+def get_calibration_solution(station, timestamp):
     """ Get the calibration coefficients closest to the provided timestamp
     :param station: The station identifier
     :param timestamp: Timestamp closest to which coefficients are required"""
@@ -227,7 +227,9 @@ def get_calibration_coefficients(station, timestamp):
     phases = np.zeros((antennas.count(), 2, 512))
 
     # Create datetime object from timestamp
+    print timestamp
     timestamp = convert_timestamp_to_datetime(timestamp)
+    print timestamp
 
     # Get the acquisition time closest to the provided timestamp and
     # latest fit time for that acquisition
@@ -236,14 +238,9 @@ def get_calibration_coefficients(station, timestamp):
             '$project': {
                 'acquisition_time': 1,
                 'fit_time': 1,
-                'difference': {
-                    '$abs': {
-                        '$subtract': [timestamp, "$acquisition_time"]
-                    }
-                }
-            }
+                'difference': {'$abs': {'$subtract': [timestamp, "$acquisition_time"]}} }
         },
-        {'$sort': {'difference': 1, 'fit_time': -1}},
+        {'$sort': {'difference': 1}},
         {'$limit': 1}
     ])
 
@@ -351,5 +348,5 @@ if __name__ == "__main__":
     # assert np.allclose(solutions[49, :, :, 0], amplitude[0, :, :])
 
     t0 = time.time()
-    get_calibration_coefficients('AAVS1', time.time())
+    get_calibration_solution('AAVS1', time.time())
     print(time.time() - t0)
