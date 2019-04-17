@@ -10,6 +10,7 @@ import pymongo
 # Connect to database (once for thread safety)
 db = database.connect()
 
+
 def change_antenna_status(station_id, base_id, polarisation, status):
     """ Change the status of an antenna """
 
@@ -38,7 +39,8 @@ def get_antenna_positions(station):
     # Create lists with base_id, x and y pos and return
     base, x, y = [], [], []
     for item in db.antenna.find({'station_id': station.id},
-                                {'base_id': 1, 'x_pos': 1, 'y_pos': 1, '_id': 0}).sort("antenna_station_id", pymongo.ASCENDING):
+                                {'base_id': 1, 'x_pos': 1, 'y_pos': 1, '_id': 0}).sort("antenna_station_id",
+                                                                                       pymongo.ASCENDING):
         base.append(item['base_id'])
         x.append(item['x_pos'])
         y.append(item['y_pos'])
@@ -161,7 +163,7 @@ def get_latest_calibration_solution(station):
     station = Station.objects(name=station)
 
     if len(station) == 0:
-        logging.warning("Station {} not found in calibration database, not adding new calibration solutions")
+        logging.warning("Station {} not found in calibration database, not grabbing calibration solutions")
 
     station_info = station.first()
     antennas = db.antenna.find({'station_id': station_info.id}).sort("antenna_station_id", pymongo.ASCENDING)
@@ -206,6 +208,86 @@ def get_latest_calibration_solution(station):
     return amplitudes, phases
 
 
+def get_calibration_coefficients(station, timestamp):
+    """ Get the calibration coefficients closest to the provided timestamp
+    :param station: The station identifier
+    :param timestamp: Timestamp closest to which coefficients are required"""
+
+    # Grab all antenna for station and sort in order in which firs are provided
+    station = Station.objects(name=station)
+
+    if len(station) == 0:
+        logging.warning("Station {} not found in calibration database, not grabbing calibration solutions")
+
+    station_info = station.first()
+    antennas = db.antenna.find({'station_id': station_info.id}).sort("antenna_station_id", pymongo.ASCENDING)
+
+    # Generate arrays to store amp and phase
+    amplitudes = np.zeros((antennas.count(), 2, 512))
+    phases = np.zeros((antennas.count(), 2, 512))
+
+    # Create datetime object from timestamp
+    timestamp = convert_timestamp_to_datetime(timestamp)
+
+    # Get the acquisition time closest to the provided timestamp and
+    # latest fit time for that acquisition
+    result = db.calibration_solution.aggregate([
+        {
+            '$project': {
+                'acquisition_time': 1,
+                'fit_time': 1,
+                'difference': {
+                    '$abs': {
+                        '$subtract': [timestamp, "$acquisition_time"]
+                    }
+                }
+            }
+        },
+        {'$sort': {'difference': 1, 'fit_time': -1}},
+        {'$limit': 1}
+    ])
+
+    try:
+        entry = result.next()
+        acquisition_time = entry['acquisition_time']
+        fit_time = entry['fit_time']
+        logging.info("Using calibration solution acquired at {}, fitted on {}".format(acquisition_time, fit_time))
+    except StopIteration:
+        logging.error("No solutions found in database")
+        return None, None
+
+    # Loop over antennas
+    for antenna in antennas:
+
+        # Grab solution for current antenna for pol X
+        solution = CalibrationSolution.objects(acquisition_time=acquisition_time,
+                                               fit_time=fit_time,
+                                               antenna_id=antenna['_id'],
+                                               pol=0)
+
+        if len(solution) != 1:
+            continue
+
+        entry = solution.first()
+        amplitudes[antenna['antenna_station_id'], 0, :] = entry.amplitude
+        phases[antenna['antenna_station_id'], 0, :] = entry.phase
+
+        # Grab solution for current antenna for pol Y
+        solution = CalibrationSolution.objects(acquisition_time=acquisition_time,
+                                               fit_time=fit_time,
+                                               antenna_id=antenna['_id'],
+                                               pol=1)
+
+        if len(solution) != 1:
+            continue
+
+        entry = solution.first()
+        amplitudes[antenna['antenna_station_id'], 1, :] = entry.amplitude
+        phases[antenna['antenna_station_id'], 1, :] = entry.phase
+
+    return amplitudes, phases
+
+
 def get_latest_coefficient_download(station):
     """ Get the latest downloaded calibration coefficients to the station
     :param station: The station identifier  """
@@ -231,7 +313,8 @@ def get_latest_coefficient_download(station):
             {'$limit': 1}])
         entry = results.next()
 
-        values = np.array(entry['calibration_coefficients_real']) + np.array(entry['calibration_coefficients_real'])*1j
+        values = np.array(entry['calibration_coefficients_real']) + np.array(
+            entry['calibration_coefficients_real']) * 1j
         coefficients[antenna['antenna_station_id'], 0, :] = values
 
         # Grab values for polarisation Y
@@ -241,16 +324,17 @@ def get_latest_coefficient_download(station):
             {'$limit': 1}])
         entry = results.next()
 
-        values = np.array(entry['calibration_coefficients_real']) + np.array(entry['calibration_coefficients_real']) * 1j
+        values = np.array(entry['calibration_coefficients_real']) + np.array(
+            entry['calibration_coefficients_real']) * 1j
         coefficients[antenna['antenna_station_id'], 0, :] = values
 
     return coefficients
 
 
 if __name__ == "__main__":
-
     from numpy.random import random
     import time
+
     #
     # add_coefficient_download("AAVS1", time.time(), random((256, 2, 512)) + random((256, 2, 512)) * 1j)
     # print get_latest_coefficient_download("AAVS1")
@@ -266,4 +350,6 @@ if __name__ == "__main__":
     #
     # assert np.allclose(solutions[49, :, :, 0], amplitude[0, :, :])
 
-    print get_antenna_positions('AAVS1')
+    t0 = time.time()
+    get_calibration_coefficients('AAVS1', time.time())
+    print(time.time() - t0)
