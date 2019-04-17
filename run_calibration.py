@@ -297,8 +297,11 @@ if __name__ == "__main__":
         else:
             x_delay[:, a] = delay_model_x
             y_delay[:, a] = delay_model_y
-            logging.info("Ph0/Delay x: {:.3f},{:.3f}, y: {:.3f},{:.3f}".format(delay_model_x[0], delay_model_x[1],
-                                                                               delay_model_y[0], delay_model_y[1]))
+
+    # Sanity check. If all coefficients are 0 then do not save to database
+    if np.all(x_delay == 0) and np.all(y_delay) == 0:
+        logging.warning("Calculated delays are all zero, not saving to database")
+        exit()
 
     # Save calibration to Postgres database
     if not conf.skip_postgres:

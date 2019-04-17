@@ -7,12 +7,11 @@ from aavs_calibration.models import CalibrationSolution, Station, CalibrationCoe
 import numpy as np
 import pymongo
 
+# Connect to database (once for thread safety)
+db = database.connect()
 
 def change_antenna_status(station_id, base_id, polarisation, status):
     """ Change the status of an antenna """
-
-    # Connect to database
-    db = database.connect()
 
     # Query to find and update depends on polarisation
     if polarisation == Polarisation.X:
@@ -30,8 +29,6 @@ def change_antenna_status(station_id, base_id, polarisation, status):
 
 def get_antenna_positions(station):
     """ Get antenna positions for a given station id"""
-    # Connect to database
-    db = database.connect()
 
     # Get station info
     station = get_station_information(station)
@@ -51,9 +48,6 @@ def get_antenna_positions(station):
 
 def get_station_information(station):
     """ Get station information """
-
-    # Connect to database
-    database.connect()
 
     # Get station info
     station = Station.objects(name=station)
@@ -80,9 +74,6 @@ def add_new_calibration_solution(station, acquisition_time, solution, comment=""
     # Convert timestamps
     acquisition_time = convert_timestamp_to_datetime(acquisition_time)
     fit_time = datetime.utcnow()
-
-    # Connect to database
-    db = database.connect()
 
     # Grab all antenna for station and sort in order in which fits are provided
     station = Station.objects(name=station)
@@ -139,9 +130,6 @@ def add_coefficient_download(station, download_time, coefficients):
     # Convert timestamps
     download_time = convert_timestamp_to_datetime(download_time)
 
-    # Connect to database
-    db = database.connect()
-
     # Grab all antenna for station and sort in order in which fits are provided
     station = Station.objects(name=station)
 
@@ -168,9 +156,6 @@ def add_coefficient_download(station, download_time, coefficients):
 def get_latest_calibration_solution(station):
     """ Get the latest calibration solution
     :param station: Station identifier"""
-
-    # Connect to database
-    db = database.connect()
 
     # Grab all antenna for station and sort in order in which fits are provided
     station = Station.objects(name=station)
@@ -224,9 +209,6 @@ def get_latest_calibration_solution(station):
 def get_latest_coefficient_download(station):
     """ Get the latest downloaded calibration coefficients to the station
     :param station: The station identifier  """
-
-    # Connect to database
-    db = database.connect()
 
     # Grab all antenna for station and sort in order in which fits are provided
     station = Station.objects(name=station)

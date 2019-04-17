@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     # Command line options
     p = OptionParser()
-    p.set_usage('best2_process_corr.py [options] INPUT_FILE')
+    p.set_usage('calibration_loop.py [options] INPUT_FILE')
     p.set_description(__doc__)
 
     p.add_option("--config", action="store", dest="config",
