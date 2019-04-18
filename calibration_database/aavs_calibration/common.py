@@ -28,6 +28,15 @@ def change_antenna_status(station_id, base_id, polarisation, status):
     return r
 
 
+def get_station_list():
+    """ Get the list of station stored in the database """
+    station = Station.objects()
+    station_names = []
+    for s in station:
+        station_names.append(s.name)
+    return station_names
+
+
 def get_antenna_positions(station):
     """ Get antenna positions for a given station id"""
 
@@ -347,6 +356,8 @@ if __name__ == "__main__":
     #
     # assert np.allclose(solutions[49, :, :, 0], amplitude[0, :, :])
 
-    t0 = time.time()
-    get_calibration_solution('AAVS1', time.time())
-    print(time.time() - t0)
+    # t0 = time.time()
+    # get_calibration_solution('AAVS1', time.time())
+    # print(time.time() - t0)
+
+    print get_station_list()
