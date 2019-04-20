@@ -164,9 +164,10 @@ def add_coefficient_download(station, download_time, coefficients):
                                download_time=download_time).save()
 
 
-def get_latest_calibration_solution(station):
+def get_latest_calibration_solution(station, include_delays=False):
     """ Get the latest calibration solution
-    :param station: Station identifier"""
+    :param station: Station identifier
+    :param include_delays: Include phase delays in return"""
 
     # Grab all antenna for station and sort in order in which fits are provided
     station = Station.objects(name=station)
@@ -180,6 +181,11 @@ def get_latest_calibration_solution(station):
     # Generate arrays to store amp and phase
     amplitudes = np.zeros((antennas.count(), 2, 512))
     phases = np.zeros((antennas.count(), 2, 512))
+
+    phase0, delays = None, None
+    if include_delays:
+        phase0 = np.zeros((antennas.count(), 2))
+        delays = np.zeros((antennas.count(), 2))
 
     # Loop over all antennas
     for antenna in antennas:
@@ -196,6 +202,11 @@ def get_latest_calibration_solution(station):
 
             amplitudes[antenna['antenna_station_id'], 0, :] = entry['amplitude']
             phases[antenna['antenna_station_id'], 0, :] = entry['phase']
+
+            if include_delays:
+                delays[antenna['antenna_station_id'], 0] = entry['delay']
+                phase0[antenna['antenna_station_id'], 0] = entry['phase_0']
+
         except StopIteration:
             pass
 
@@ -211,10 +222,17 @@ def get_latest_calibration_solution(station):
 
             amplitudes[antenna['antenna_station_id'], 1, :] = entry['amplitude']
             phases[antenna['antenna_station_id'], 1, :] = entry['phase']
+
+            if include_delays:
+                delays[antenna['antenna_station_id'], 1] = entry['delay']
+                phase0[antenna['antenna_station_id'], 1] = entry['phase_0']
         except StopIteration:
             pass
 
-    return amplitudes, phases
+    if include_delays:
+        return amplitudes, phases, phase0, delays
+    else:
+        return amplitudes, phases
 
 
 def get_calibration_solution(station, timestamp):
@@ -346,18 +364,19 @@ if __name__ == "__main__":
     # print get_latest_coefficient_download("AAVS1")
     # exit()
 
-    # solutions = random((256, 2, 512, 2))
+    # solutions = random((256, 2, 512, 2)) * 360 - 180
+    # delay = random(256) * 180
+    # phase = np.zeros(256)
     #
     # t0 = time.time()
-    # add_new_calibration_solution("AAVS1", time.time(), solutions)
+    # add_new_calibration_solution("AAVS1", time.time(), solutions, delay_x=delay, delay_y=delay,
+    #                              phase_x=phase, phase_y=phase)
     # print("Persisted in {}".format(time.time() - t0))
-    #
-    # amplitude, phases = get_latest_calibration_solution("AAVS1")
-    #
-    # assert np.allclose(solutions[49, :, :, 0], amplitude[0, :, :])
+
+    print get_latest_calibration_solution("AAVS1", True)
 
     # t0 = time.time()
     # get_calibration_solution('AAVS1', time.time())
     # print(time.time() - t0)
 
-    print get_station_list()
+    # print get_station_list()
