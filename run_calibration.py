@@ -215,10 +215,10 @@ def save_coefficients_mongo(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y
     add_new_calibration_solution("AAVS1",
                                  acquisition_time,
                                  solution,
-                                 delay_x=x_delay[0, :],
-                                 phase_x=x_delay[1, :],
-                                 delay_y=y_delay[0, :],
-                                 phase_y=y_delay[1, :])
+                                 delay_x=x_delay[1, :],
+                                 phase_x=x_delay[0, :],
+                                 delay_y=y_delay[1, :],
+                                 phase_y=y_delay[0, :])
 
     logging.info("Persisted calibration coefficients in Mongo database")
 
