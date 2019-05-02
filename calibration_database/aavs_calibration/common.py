@@ -254,9 +254,7 @@ def get_calibration_solution(station, timestamp):
     phases = np.zeros((antennas.count(), 2, 512))
 
     # Create datetime object from timestamp
-    print timestamp
     timestamp = convert_timestamp_to_datetime(timestamp)
-    print timestamp
 
     # Get the acquisition time closest to the provided timestamp and
     # latest fit time for that acquisition
