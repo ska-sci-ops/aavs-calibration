@@ -11,6 +11,7 @@ start_channel = 64
 code_version = """fit_phase_delay_v1"""
 username = os.getenv('USER')
 
+
 def zeroBadFreqs(phases):
     """set phases on known bad frequencies to zero so that they are not used in the solution
   """
@@ -30,9 +31,9 @@ def zeroBadFreqs(phases):
 def modelFuncPhase(params, x):
     """model function with parameters
   ph0: radian
-  delay: (microsec)
+  delay: (microseconds)
   Phase diff = 2*pi*freq*delay
-  where freq and delay should be in equivalent units, like MHz and microsec
+  where freq and delay should be in equivalent units, like MHz and microseconds
   """
     d_nu = (nyquist_freq / nof_channels)  # spacing of frequency points
     # print "x: "+str(x)
@@ -44,7 +45,7 @@ def modelFuncPhase(params, x):
 
 
 def fitFuncPhase(params, x, y):
-    """function to return the pentaly or distance between model and data
+    """function to return the penalty or distance between model and data
   Both model and data are normalised complex numbers, so the difference in phase can be computed
   by multiplying one with the conj of the other. This is safe for the case of phase wraps etc.
   params: the model fits params [ph0,delay]

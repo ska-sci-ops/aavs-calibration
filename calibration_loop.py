@@ -18,7 +18,6 @@ stop = False
 
 nof_antennas = 256
 nof_channels = 512
-start_channel = 64
 
 
 def stop_observation():
@@ -60,8 +59,8 @@ def run_observation_burst(config):
     # Wait for DAQ to initialise
     sleep(2)
 
-    logging.info("Setting timer to stop observation in %d" % (1.5 * 512 * 1.5))
-    timer = threading.Timer(1.5 * 512 * 1.5, stop_observation)
+    logging.info("Setting timer to stop observation in %d" % (2 * 512))
+    timer = threading.Timer(2 * 512, stop_observation)
     timer.start()
 
     # Start sending data
@@ -85,9 +84,8 @@ def run_observation_burst(config):
 
     # Run calibration on dumped data
     logging.info("Calibrating data")
-    integration_time = opts.nof_samples / ((400e6 / 512.0)  * (32.0 / 27.0))
 
-    cal_script = "/home/aavs/randall_calibration/run_calibration.py"
+    cal_script = "/home/aavs/aavs-calibration/run_calibration.py"
     subprocess.check_call(["python", cal_script, "-D", directory])
 
 
@@ -96,11 +94,11 @@ if __name__ == "__main__":
 
     # Command line options
     p = OptionParser()
-    p.set_usage('best2_process_corr.py [options] INPUT_FILE')
+    p.set_usage('calibration_loop.py [options] INPUT_FILE')
     p.set_description(__doc__)
 
     p.add_option("--config", action="store", dest="config",
-                  default=None, help="Station configuration file to use")
+                 default=None, help="Station configuration file to use")
     p.add_option("--lmc_ip", action="store", dest="lmc_ip",
                  default="10.0.10.200", help="IP [default: 10.0.10.200]")
     p.add_option("-P", "--program", action="store_true", dest="program",
@@ -108,7 +106,7 @@ if __name__ == "__main__":
     p.add_option('-d', '--directory', dest='directory', action='store', default="/data/data_2/real_time_calibration",
                  help="Data directory (default: '/data/data_2/real_time_calibration')")
     p.add_option("-i", "--receiver_interface", action="store", dest="receiver_interface",
-                 default="eth3", help="Receiver interface [default: eth3]")
+                 default="eth3:1", help="Receiver interface [default: eth3:1]")
     p.add_option("--samples", action="store", dest="nof_samples",
                  default=1835008, type="int", help="Number of samples to correlate. Default: 1835008")
     p.add_option("--period", action="store", dest="period",
