@@ -52,7 +52,7 @@ def purge_station(station_name):
 
     # Delete station antennas
     for antenna in antennas:
-        db.antenna.remove({'_id': antenna._id})
+        db.antenna.remove({'_id': antenna['_id']})
 
     # Delete station
     station.delete()
@@ -64,4 +64,4 @@ if __name__ == "__main__":
     # connect()
     # purge_fits()
 
-    purge_station("UKPhase0")
+    purge_station("UKPHASE0")
