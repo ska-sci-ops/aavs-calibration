@@ -1,5 +1,7 @@
 from aavs_calibration.models import CalibrationSolution, CalibrationCoefficient, Antenna, Station
 import mongoengine
+import logging
+import pymongo
 
 DB_NAME = 'aavs'    # change name to create another database
 HOST = 'localhost'  # insert IP address or url here
@@ -32,11 +34,34 @@ def purge_fits():
     CalibrationCoefficient.drop_collection()
 
 
-def purge_antennas():
+def purge_station(station_name):
     """ Drops antenna collection"""
-    Antenna.drop_collection()
+
+    # Connect to database
+    db = connect()
+
+    # Grab all antenna for station and sort in order in which fits are provided
+    station = Station.objects(name=station_name)
+
+    if len(station) == 0:
+        logging.warning("Station {} not found in calibration database".format(station_name))
+        return False
+
+    station_info = station.first()
+    antennas = db.antenna.find({'station_id': station_info.id})
+
+    # Delete station antennas
+    for antenna in antennas:
+        db.antenna.remove({'_id': antenna['_id']})
+
+    # Delete station
+    station.delete()
+
+    return True
 
 
 if __name__ == "__main__":
-    connect()
-    purge_fits()
+    # connect()
+    # purge_fits()
+
+    purge_station("UKPHASE0")

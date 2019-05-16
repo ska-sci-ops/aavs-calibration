@@ -2,7 +2,7 @@ from aavs_calibration.definitions import AntennaType
 from aavs_calibration.database import *
 from urllib import urlopen
 
-
+# Connect to database
 db = connect()
 
 # This is used to re-map ADC channels index to the RX
