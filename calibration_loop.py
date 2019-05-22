@@ -104,7 +104,7 @@ if __name__ == "__main__":
     p.add_option("-P", "--program", action="store_true", dest="program",
                  default=False, help="Program and initialise station")
     p.add_option('-d', '--directory', dest='directory', action='store', default="/data/data_2/real_time_calibration",
-                 help="Data directory (default: '/data/data_2/real_time_calibration')")
+                 help="Data directory (default: '/storage/aavs1/real_time_calibration')")
     p.add_option("-i", "--receiver_interface", action="store", dest="receiver_interface",
                  default="eth3:1", help="Receiver interface [default: eth3:1]")
     p.add_option("--samples", action="store", dest="nof_samples",

@@ -39,16 +39,19 @@ def get_latest_coefficients(start_channel_frequency, bandwidth):
 
     # Grab the latest calibration solution
     # Amplitude and phase are in antenna/pol/channel order. Phases are in degrees
-    _, phase = get_latest_calibration_solution("AAVS1")
+    amplitude, phase = get_latest_calibration_solution("AAVS1")
+
+    # Remove spurious ampltidues
+    amplitude[np.where(amplitude > 2)] = 1
 
     # Select required coefficient subset
     phase = phase[:, :, start_channel: start_channel + nof_channels]
+    amplitude = amplitude[:, :, start_channel: start_channel + nof_channels]
 
     # Transform into complex numbers
-    coefficients = np.cos(np.deg2rad(phase)) + np.sin(np.deg2rad(phase)) * 1j
+    coefficients = amplitude * (np.cos(np.deg2rad(phase)) + np.sin(np.deg2rad(phase)) * 1j)
 
-    # Normalise coefficients
-    # NOTE: We do not need to normalise coefficients for now, since we're ignoring ampltiude 
+    # Normalise coefficients (not required for now)
     # coefficients = normalize_complex_vector(coefficients)
 
     # Create default calibration coefficient array
