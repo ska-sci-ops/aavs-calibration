@@ -18,14 +18,14 @@ nof_antennas = 256
 
 # Station name and location
 station_name = "AAVS1"
-lat, lon = -26.70408005, 116.6702313527777778
+lat, lon = -26.7040800497666666, 116.6702313536527778
 
 
 def populate_station():
     """ Reads antenna base locations from the Google Drive sheet and fills the data into the database """
 
     # Purge antennas from database
-    purge_antennas()
+    purge_station(station_name)
 
     # Antenna mapping placeholder
 

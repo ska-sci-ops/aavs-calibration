@@ -13,7 +13,7 @@ nof_antennas = 48
 
 # Station name and location
 station_name = "AAVS1.5"
-lat, lon = -26.70408005, 116.6702313527777778
+lat, lon = -26.7047960061194444, 116.6707690211333333
 
 # This is used to re-map ADC channels index to the RX
 # number going into the TPM

@@ -132,3 +132,19 @@ class CalibrationCoefficient(Document):
     def set_download_time(self, dt):
         """ Converts datetime to timestamp and saves it to the db"""
         self.download_time = convert_datetime_to_timestamp(dt)
+
+
+class FibreDelay(Document):
+    """ Store fibre delay measurements through fibre loopback """
+
+    # Fibre identifier
+    fibre_id = IntField(required=True, unique=True)
+
+    # Frequency at which signal was generated
+    frequency = FloatField(required=True)
+
+    # Delay between reference and test signal
+    delay = FloatField(required=True)
+
+    # Time at which measurement was taken
+    measurement_time = DateTimeField(required=True)

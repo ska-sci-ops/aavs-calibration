@@ -14,7 +14,7 @@ nof_antennas = 48
 
 # Station name and location
 station_name = "EDA2"
-lat, lon = -26.70408005, 116.6702313527777778
+lat, lon = -26.7047565370444444, 116.6724377923805556
 
 # This is used to re-map ADC channels index to the RX
 # number going into the TPM
