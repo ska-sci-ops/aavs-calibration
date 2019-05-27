@@ -245,6 +245,7 @@ def get_calibration_solution(station, timestamp):
 
     if len(station) == 0:
         logging.warning("Station {} not found in calibration database, not grabbing calibration solutions")
+        return
 
     station_info = station.first()
     antennas = db.antenna.find({'station_id': station_info.id}).sort("antenna_station_id", pymongo.ASCENDING)
@@ -254,7 +255,11 @@ def get_calibration_solution(station, timestamp):
     phases = np.zeros((antennas.count(), 2, 512))
 
     # Create datetime object from timestamp
-    timestamp = convert_timestamp_to_datetime(timestamp)
+    if type(timestamp) is float:
+        timestamp = datetime.utcfromtimestamp(timestamp)
+    elif type(timestamp) is not datetime:
+        logging.warning("Invalid timestamp type, not grabbing calibration solutions")
+        return
 
     # Get the acquisition time closest to the provided timestamp and
     # latest fit time for that acquisition
@@ -371,10 +376,10 @@ if __name__ == "__main__":
     #                              phase_x=phase, phase_y=phase)
     # print("Persisted in {}".format(time.time() - t0))
 
-    print get_latest_calibration_solution("AAVS1", True)
+    # print get_latest_calibration_solution("AAVS1", True)
 
     # t0 = time.time()
-    # get_calibration_solution('AAVS1', time.time())
+    get_calibration_solution('AAVS1', datetime.now())
     # print(time.time() - t0)
 
     # print get_station_list()
