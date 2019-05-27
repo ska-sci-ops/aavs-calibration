@@ -25,14 +25,14 @@ antenna_preadu_mapping = {0: 1, 1: 2, 2: 3, 3: 4,
                           7: 13, 6: 14, 5: 15, 4: 16}
 
 # TPM order in configuration file
-tpm_order = [21, 22, 24]
+tpm_order = [21, 22, 23]
 
 
 def populate_station():
     """ Reads antenna base locations from the Google Drive sheet and fills the data into the database """
 
     # Purge antennas from database
-    purge_station(station_name)
+    # purge_station(station_name)
 
     # Read antenna location spreadsheet
     response = urlopen(url)
@@ -49,8 +49,8 @@ def populate_station():
         # Go through rows in spreadsheet and process antennas connected to current tpm
         for i in range(1, len(html)):
             items = html[i].split('\t')
-            if items[11] != '-' and int(items[11]) == tpm:
-                base, rx = int(items[0]), int(items[12])
+            if items[12] != '-' and int(items[12]) == tpm:
+                base, rx = int(items[0]), int(items[13])
                 north, east, up = float(items[1].replace(',', '.')), float(items[2].replace(',', '.')), 0
                 antenna_information.append({'base': base, 'tpm': tpm, 'rx': rx, 'east': east, 'north': north})
 
@@ -58,13 +58,14 @@ def populate_station():
     Station(name=station_name,
             nof_antennas=nof_antennas,
             antenna_type=AntennaType.EDA2.name,
+            tpms=tpm_order,
             latitude=lat,
             longitude=lon).save()
 
     # Grab station information
     station = Station.objects(name=station_name).first()
 
-    for antenna in antenna_information:
+    for i, antenna in enumerate(antenna_information):
         # Fill data into database
         Antenna(antenna_station_id=(antenna['tpm'] - 1) * 16 + switched_preadu_map[antenna['rx']],
                 station_id=station.id,
@@ -72,6 +73,7 @@ def populate_station():
                 y_pos=antenna['north'],
                 base_id=antenna['base'],
                 tpm_id=antenna['tpm'],
+                tpm_name="TPM-{}".format(tpm_order[i / 16]),
                 tpm_rx=antenna['rx'],
                 status_x='',
                 status_y='').save()

@@ -14,6 +14,9 @@ class Station(Document):
     # Antenna type
     antenna_type = StringField(required=True)
 
+    # List of TPM pertaining to station
+    tpms = ListField(required=True)
+
     # Longitude and Latitude of station center
     longitude = FloatField()
     latitude = FloatField()
@@ -39,6 +42,9 @@ class Antenna(Document):
 
     # TPM identifier to which antenna is connected
     tpm_id = IntField(required=True)
+
+    # Name of TPM to which antenna is connected
+    tpm_name = StringField()
 
     # PREADU RX input
     tpm_rx = IntField()
