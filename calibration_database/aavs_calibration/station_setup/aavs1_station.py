@@ -72,7 +72,7 @@ def populate_station():
     # Grab station information
     station = Station.objects(name=station_name).first()
 
-    for antenna in antenna_information:
+    for i, antenna in enumerate(antenna_information):
         # Fill data into database
         Antenna(antenna_station_id=(antenna['tpm'] - 1) * 16 + switched_preadu_map[antenna['rx']],
                 station_id=station.id,
