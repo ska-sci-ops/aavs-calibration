@@ -36,6 +36,21 @@ def get_station_list():
         station_names.append(s.name)
     return station_names
 
+def get_antenna_tile_names(station):
+    """ Get the names of the tiles to which antennas are connected """
+    
+    # Get station info
+    station = get_station_information(station)
+    if station is None:
+        logging.warning("Could not find station {}".format(station))
+
+    # Get info
+    tile_names = []
+    for item in db.antenna.find({'station_id': station.id},
+                                {'tpm_name': 1, '_id': 0}).sort("antenna_station_id", pymongo.ASCENDING):
+        tile_names.append(item['tpm_name'])
+
+    return tile_names
 
 def get_antenna_positions(station):
     """ Get antenna positions for a given station id"""

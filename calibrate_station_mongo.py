@@ -104,10 +104,6 @@ if __name__ == "__main__":
                       type="str", default=None, help="Configuration file [default: None]")
     parser.add_option("--period", action="store", dest="period",
                       type="int", default="0", help="Duty cycle in s for updating coefficients [default: 0 (once)]")
-    parser.add_option("-s", "--start-channel", action="store", dest="start_channel",
-                      type="int", default=0, help="Start channel [default: 0]")
-    parser.add_option("-c", "--nof-channels", action="store", dest="nof_channels",
-                      type="int", default=384, help="Number of channels [default: 384 (all)]")
     (opts, args) = parser.parse_args(argv[1:])
 
     # Set logging
