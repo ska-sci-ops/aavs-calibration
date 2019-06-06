@@ -39,16 +39,19 @@ def get_latest_coefficients(start_channel_frequency, bandwidth):
 
     # Grab the latest calibration solution
     # Amplitude and phase are in antenna/pol/channel order. Phases are in degrees
-    _, phase = get_latest_calibration_solution("AAVS1")
+    amplitude, phase = get_latest_calibration_solution("AAVS1")
+
+    # Remove spurious ampltidues
+    amplitude[np.where(amplitude > 2)] = 1
 
     # Select required coefficient subset
     phase = phase[:, :, start_channel: start_channel + nof_channels]
+    amplitude = amplitude[:, :, start_channel: start_channel + nof_channels]
 
     # Transform into complex numbers
-    coefficients = np.cos(np.deg2rad(phase)) + np.sin(np.deg2rad(phase)) * 1j
+    coefficients = amplitude * (np.cos(np.deg2rad(phase)) + np.sin(np.deg2rad(phase)) * 1j)
 
-    # Normalise coefficients
-    # NOTE: We do not need to normalise coefficients for now, since we're ignoring ampltiude 
+    # Normalise coefficients (not required for now)
     # coefficients = normalize_complex_vector(coefficients)
 
     # Create default calibration coefficient array
@@ -101,10 +104,6 @@ if __name__ == "__main__":
                       type="str", default=None, help="Configuration file [default: None]")
     parser.add_option("--period", action="store", dest="period",
                       type="int", default="0", help="Duty cycle in s for updating coefficients [default: 0 (once)]")
-    parser.add_option("-s", "--start-channel", action="store", dest="start_channel",
-                      type="int", default=0, help="Start channel [default: 0]")
-    parser.add_option("-c", "--nof-channels", action="store", dest="nof_channels",
-                      type="int", default=384, help="Number of channels [default: 384 (all)]")
     (opts, args) = parser.parse_args(argv[1:])
 
     # Set logging

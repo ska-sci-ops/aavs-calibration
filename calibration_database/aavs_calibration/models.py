@@ -14,6 +14,9 @@ class Station(Document):
     # Antenna type
     antenna_type = StringField(required=True)
 
+    # List of TPM pertaining to station
+    tpms = ListField(required=True)
+
     # Longitude and Latitude of station center
     longitude = FloatField()
     latitude = FloatField()
@@ -39,6 +42,9 @@ class Antenna(Document):
 
     # TPM identifier to which antenna is connected
     tpm_id = IntField(required=True)
+
+    # Name of TPM to which antenna is connected
+    tpm_name = StringField()
 
     # PREADU RX input
     tpm_rx = IntField()
@@ -132,3 +138,19 @@ class CalibrationCoefficient(Document):
     def set_download_time(self, dt):
         """ Converts datetime to timestamp and saves it to the db"""
         self.download_time = convert_datetime_to_timestamp(dt)
+
+
+class FibreDelay(Document):
+    """ Store fibre delay measurements through fibre loopback """
+
+    # Fibre identifier
+    fibre_id = IntField(required=True, unique=True)
+
+    # Frequency at which signal was generated
+    frequency = FloatField(required=True)
+
+    # Delay between reference and test signal
+    delay = FloatField(required=True)
+
+    # Time at which measurement was taken
+    measurement_time = DateTimeField(required=True)

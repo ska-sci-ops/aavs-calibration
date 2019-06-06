@@ -11,17 +11,22 @@ nof_antennas = 256
 station_name = "UKPHASE0"
 lat, lon = -26.70408005, 116.6702313527777778
 
+# TPM order in configuration file
+tpm_order = [24]
+
 
 def populate_station():
     """ Create database entries for UK phase 0 setup """
 
     # Purge existent station (to be removed)
+    # purge_station(station_name)
 
     # Check if station entry already exists and if not create it
     if len(Station.objects(name=station_name)) == 0:
         Station(name=station_name,
                 nof_antennas=1,
                 antenna_type=AntennaType.SKALA4.name,
+                tpms=tpm_order,
                 latitude=lat,
                 longitude=lon).save()
 
@@ -32,6 +37,7 @@ def populate_station():
     for i in range(16):
         Antenna(antenna_station_id=i,
                 station_id=station.id,
+                tpm_name="TPM-{}".format(tpm_order[i / 16]),
                 x_pos=0,
                 y_pos=0,
                 base_id=0,

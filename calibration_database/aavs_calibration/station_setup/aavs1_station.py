@@ -18,14 +18,18 @@ nof_antennas = 256
 
 # Station name and location
 station_name = "AAVS1"
-lat, lon = -26.70408005, 116.6702313527777778
+lat, lon = -26.7040800497666666, 116.6702313536527778
+
+# Order of TPMs
+tpm_order = range(1, 17)
+tpm_names = ["TPM {}".format(x) for x in tpm_order]
 
 
 def populate_station():
     """ Reads antenna base locations from the Google Drive sheet and fills the data into the database """
 
     # Purge antennas from database
-    purge_antennas()
+    # purge_station(station_name)
 
     # Antenna mapping placeholder
 
@@ -61,13 +65,14 @@ def populate_station():
         Station(name=station_name,
                 nof_antennas=256,
                 antenna_type=AntennaType.SKALA2.name,
+                tpms=tpm_order,
                 latitude=lat,
                 longitude=lon).save()
 
     # Grab station information
     station = Station.objects(name=station_name).first()
 
-    for antenna in antenna_information:
+    for i, antenna in enumerate(antenna_information):
         # Fill data into database
         Antenna(antenna_station_id=(antenna['tpm'] - 1) * 16 + switched_preadu_map[antenna['rx']],
                 station_id=station.id,
@@ -76,6 +81,7 @@ def populate_station():
                 base_id=antenna['base'],
                 tpm_id=antenna['tpm'],
                 tpm_rx=antenna['rx'],
+                tpm_name=tpm_names[i / 16],
                 status_x='',
                 status_y='').save()
 
