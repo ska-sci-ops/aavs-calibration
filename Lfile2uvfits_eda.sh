@@ -4,21 +4,24 @@
 # 2: integration time in L-file
 # 3: RA hours (optional, default is zenith)
 # 4: DEC degs (optional, default is zenith)
-dump_time=1.9818086	# basic correlator integration time
-#timeinc=59.4925
-la_chunksize=$((512*4))
-lc_chunksize=$((512*511*8/2))
-nchunks=5
+dump_time=1.38240	# basic correlator integration time for 40000 averages
+dump_time=2.00016	# basic correlator integration time for 57875 averages
+ninp=96
+nchan=32
+nchunks=90
 useradec=0
-inttime=9.90903
+inttime=${dump_time}
+chan=204
 
 function print_usage {
   echo "Usage: "
-  echo "Lfile2uvfits.sh [options] hdf_filename "
+  echo "Lfile2uvfits.sh [options] L_filebasename "
   echo "    -i int_time   Default: $inttime. Basic correlator dump time: $dump_time"
   echo "    -n n_chunks   Default: $nchunks"
   echo "    -R ra_hours   Default: use zenith"
   echo "    -D dec_degs   Default: use zenith"
+  echo "    -N n_inputs   Default: $ninp"
+  echo "    -C n_chan     Defatul: $nchan"
   exit
 }
 
@@ -41,6 +44,7 @@ while getopts "hi:R:D:n:" opt; do
         ;;
     R)
         ra_hrs=$OPTARG
+        useradec=1
         ;;
     D)
         dec_degs=$OPTARG
@@ -54,16 +58,14 @@ done
 shift $(expr $OPTIND - 1 )
 
 
+la_chunksize=$((ninp*nchan*4))
+lc_chunksize=$((ninp*(ninp-1)*nchan*8/2))
+
 lacspc=`mktemp`
 lccspc=`mktemp`
 header=`mktemp`
 
-hdffile="$1"
-chan=`echo $hdffile | cut -f 3 -d _`
-if [ $chan -lt 1 ] ; then
-  echo "Unable to find channel index from hdf file name" 1>&2
-  exit 1
-fi
+Lfilebase="$1"
 cent_freq=`echo $chan |  awk '{ printf "%f\n",$1*0.781250 }'`
 
 if [ $# -gt 1 ] ; then
@@ -77,17 +79,19 @@ fi
 
 timeinc=`echo $nchunks ${inttime} | awk '{ printf "%f\n",$1*$2 }'`
 
-bname=`basename $hdffile .hdf5`
+bname=$Lfilebase
 # extract start unix time for data:
-startunix=`cat ${bname}_ts_unix.txt`
+dt=`echo $bname | awk '{print substr($1,1,4)"-"substr($1,5,2)"-"substr($1,7,2);}'`
+tm=`echo $bname | awk '{print substr($1,10,2)":"substr($1,12,2)":"substr($1,14,2)}'`
+startunix=`date -u -d "$dt $tm" +%s`
 oname="chan_${chan}"
 lacsize=` stat --printf="%s" $bname.LACSPC`
 ntimes=$((lacsize/la_chunksize/nchunks))
 if [ $ntimes -lt 1 ] ; then ntimes=1 ; fi
-echo "Processing file $hdffile. There are $ntimes times"
+echo "Processing file $Lfilebase. There are $ntimes times"
 for t in `seq 0 $((ntimes-1))` ; do
     # create a temporary header file for this dataset
-    cp header.txt $header 
+    cp header_eda2_ph1.txt $header 
     offset=`echo $t $timeinc | awk '{ printf "%.0f\n",$1*$2 }'`
     start=$((startunix + offset))
     tstart=`date -u --date="@$start" +"%H%M%S"`
@@ -97,11 +101,13 @@ for t in `seq 0 $((ntimes-1))` ; do
     echo "DATE    $dstart" >> $header
     echo "FREQCENT ${cent_freq}" >> $header
     echo "INT_TIME $inttime" >> $header
+    echo "N_SCANS $nchunks" >> $header
     # update the number of scans in file
-    sed -i 's/^N_SCANS/#N_SCANS/ $header'
+#    sed -i 's/^N_SCANS/\#N_SCANS/ $header'
     if [ $useradec -ne 0 ] ; then
       # remove any existing default HA setting
       sed -i 's/^HA_HRS/#&/' $header
+      sed -i 's/^DEC_DEGS/#&/' $header
       # insert new coords for phase centre
       echo "RA_HRS $ra_hrs" >> $header
       echo "DEC_DEGS $dec_degs" >> $header
@@ -116,4 +122,4 @@ done
 
 rm $lacspc
 rm $lccspc
-rm $header
+#rm $header
