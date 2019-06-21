@@ -91,7 +91,7 @@ if [ $ntimes -lt 1 ] ; then ntimes=1 ; fi
 echo "Processing file $Lfilebase. There are $ntimes times"
 for t in `seq 0 $((ntimes-1))` ; do
     # create a temporary header file for this dataset
-    cp header_eda2_ph1.txt $header 
+    cp header_ph1.txt $header 
     offset=`echo $t $timeinc | awk '{ printf "%.0f\n",$1*$2 }'`
     start=$((startunix + offset))
     tstart=`date -u --date="@$start" +"%H%M%S"`
