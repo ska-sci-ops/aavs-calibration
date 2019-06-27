@@ -4,17 +4,18 @@
 freq_mhz=159.375
 lst=-1
 unixtime=-1
-
+beamtype="SKALA2"
 
 function print_usage {
   echo "Usage:"
   echo "$0 [options] chan_index"
   echo -e "\t-f freq\tFrequency in MHz. Default: ${freq_mhz}"
   echo -e "\t-T time\tunix time. No default"
+  echo -e "\t-B type\tBeam type: EDA, SKALA2 or SKALA4. Default: $beamtype" 
 }
 
 # parse command-line options
-while getopts ":f:L:T:" opt; do
+while getopts ":f:L:T:B:" opt; do
   case ${opt} in
     f)
       freq_mhz=${OPTARG}
@@ -22,6 +23,10 @@ while getopts ":f:L:T:" opt; do
       ;;
     T)
       unixtime=${OPTARG}
+      ;;
+    B)
+      beamtype=${OPTARG}
+      echo "Using beam type $beamtype"
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -101,10 +106,23 @@ fi
 
 # apply beam average power pattern
 nearest_MHz=`echo ${freq_mhz} | awk '{printf "%.0f",$1 }'`
+# note pols in file names are swapped for SKALA2
+beamyfits=${skymodel_basedir}/../BeamModels/SKALA2/SKALA2_Xpol_ortho_${nearest_MHz}.fits
+beamxfits=${skymodel_basedir}/../BeamModels/SKALA2/SKALA2_Ypol_ortho_${nearest_MHz}.fits
+if [ "$beamtype" = "EDA" ] ; then
+  beamxfits="${skymodel_basedir}/../BeamModels/EDA/Xpol_EDA_ortho_${nearest_MHz}.fits"
+  beamyfits="${skymodel_basedir}/../BeamModels/EDA/Ypol_EDA_ortho_${nearest_MHz}.fits"
+fi
+if [ "$beamtype" = "SKALA4" ] ; then
+  beamxfits="${skymodel_basedir}/../BeamModels/SKALA4/SKALA4_Xpol_ortho_${nearest_MHz}.fits"
+  beamyfits="${skymodel_basedir}/../BeamModels/SKALA4/SKALA4_Ypol_ortho_${nearest_MHz}.fits"
+fi
 echo "Applying beam patterns"
+echo "Beam X: $beamxfits"
+echo "Beam Y: $beamyfits"
 fits op=xyin in=skywt_sun.fits out=skywt_sun.xy
-fits op=xyin in=${skymodel_basedir}/../BeamModels/SKALA2/SKALA2_Ypol_ortho_${nearest_MHz}.fits out=beamy.xy
-fits op=xyin in=${skymodel_basedir}/../BeamModels/SKALA2/SKALA2_Xpol_ortho_${nearest_MHz}.fits out=beamx.xy
+fits op=xyin in="$beamyfits" out=beamy.xy
+fits op=xyin in="$beamxfits" out=beamx.xy
 maths exp="skywt_sun.xy*beamx.xy" out=Xsky.xy
 maths exp="skywt_sun.xy*beamy.xy" out=Ysky.xy
 
