@@ -46,5 +46,6 @@ startunix=`od -A none -t f8 $tsfile | head -1 | cut -f1 -d .`
 startunixfixed=$((startunix + offset_hours*3600))
 echo "Start unix time of data: $startunixfixed"
 echo "$startunixfixed" > ${bname}_ts_unix.txt
+od -A none -t f8 $tsfile | head -1 | awk '{printf "Estimated integration time: %f\n",$2-$1}'
 
 rm $tsfile
