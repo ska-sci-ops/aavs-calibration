@@ -64,7 +64,7 @@ if [ $chan -lt 1 ] ; then
   echo "Unable to find channel index from hdf file name" 1>&2
   exit 1
 fi
-cent_freq=`echo $chan |  awk '{ printf "%.f\n",$1*0.781250 }'`
+cent_freq=`echo $chan |  awk '{ printf "%f\n",$1*0.781250 }'`
 
 if [ $# -gt 1 ] ; then
   inttime=$2
@@ -97,6 +97,8 @@ for t in `seq 0 $((ntimes-1))` ; do
     echo "DATE    $dstart" >> $header
     echo "FREQCENT ${cent_freq}" >> $header
     echo "INT_TIME $inttime" >> $header
+    # update the number of scans in file
+    sed -i 's/^N_SCANS/#N_SCANS/ $header'
     if [ $useradec -ne 0 ] ; then
       # remove any existing default HA setting
       sed -i 's/^HA_HRS/#&/' $header

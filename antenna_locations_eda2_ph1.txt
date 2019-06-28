@@ -1,0 +1,55 @@
+# EDA2 (phase 1 subset) antenna locations.
+# lines beginning with '#' and blank lines are ignored. Do not leave spaces in empty lines.
+# locations of antennas relative to the centre of the array in local topocentric
+# "east". "north". "height". Units are meters.
+# Format: Antenna_name east north height
+# antenna names must be 8 chars or less
+# fields are separated by white space
+Ant092	4.352	17.054	0
+Ant093	2.495	15.334	0
+Ant094	2.889	12.925	0
+Ant125	0.6	9.509	0
+Ant130	-0.316	16.08	0
+Ant131	-0.727	13.72	0
+Ant132	-0.137	10.905	0
+Ant133	-0.861	9.515	0
+Ant126	1.387	11.821	0
+Ant127	-0.01	12.536	0
+Ant128	1.283	13.583	0
+Ant129	1.646	16.931	0
+Ant159	-2.128	13.196	0
+Ant160	-3.636	14.274	0
+Ant161	-2.165	15.282	0
+Ant162	-2.859	17.405	0
+Ant205	-8.348	-5.613	0
+Ant206	-8.909	-7.645	0
+Ant212	-11.725	-10.768	0
+Ant213	-10.808	-9.328	0
+Ant233	-12.903	-7.197	0
+Ant234	-12.584	-8.743	0
+Ant235	-13.914	-10.645	0
+Ant236	-12.365	-12.505	0
+Ant214	-10.658	-6.94	0
+Ant215	-11.922	-5.501	0
+Ant216	-10.025	-3.676	0
+Ant232	-13.023	-4.381	0
+Ant237	-14.229	-8.962	0
+Ant238	-14.817	-7.644	0
+Ant239	-14.17	-5.84	0
+Ant256	-16.353	-5.907	0
+Ant002	16.448	-3.671	0
+Ant003	17.517	-1.114	0
+Ant004	16.81	0.961	0
+Ant005	16.658	3.036	0
+Ant019	12.608	0.097	0
+Ant020	13.901	0.835	0
+Ant022	13.759	3.242	0
+Ant033	10.136	1.94	0
+Ant009	14.096	-0.643	0
+Ant010	15.053	-1.837	0
+Ant011	14.706	-3.576	0
+Ant018	12.66	-1.845	0
+Ant034	11.507	1.024	0
+Ant035	10.64	-0.779	0
+Ant049	9.155	-0.467	0
+Ant050	8.131	1.038	0

@@ -37,6 +37,9 @@ class Antenna(Document):
     # Meters from the station center in y direction
     y_pos = FloatField(required=True)
 
+    # Meters from the station center in y direction
+    z_pos = FloatField()
+
     # Base id where antenna is located
     base_id = IntField()
 
