@@ -32,7 +32,7 @@ def populate_station():
     """ Reads antenna base locations from the Google Drive sheet and fills the data into the database """
 
     # Purge antennas from database
-#    purge_station(station_name)
+    purge_station(station_name)
 
     # Read antenna location spreadsheet
     response = urlopen(url)
@@ -74,7 +74,7 @@ def populate_station():
                 base_id=antenna['base'],
                 tpm_id=antenna['tpm'],
                 tpm_rx=antenna['rx'],
-                tpm_name=tpm_names[i / 16],
+                tpm_name="Tile {}".format(tpm_order[i / 16]),
                 status_x='',
                 status_y='').save()
 

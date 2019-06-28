@@ -143,9 +143,6 @@ class CalibrationCoefficient(Document):
 class FibreDelay(Document):
     """ Store fibre delay measurements through fibre loopback """
 
-    # Fibre identifier
-    fibre_id = IntField(required=True, unique=True)
-
     # Frequency at which signal was generated
     frequency = FloatField(required=True)
 
