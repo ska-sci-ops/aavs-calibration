@@ -379,7 +379,13 @@ if __name__ == "__main__":
     # print get_latest_calibration_solution("AAVS1", True)
 
     # t0 = time.time()
-    get_calibration_solution('AAVS1', datetime.now())
+    # get_calibration_solution('AAVS1', datetime.now())
     # print(time.time() - t0)
 
     # print get_station_list()
+
+    base, x, y = get_antenna_positions("EDA2_FULL")
+
+    from matplotlib import pyplot as plt
+    plt.scatter(x, y)
+    plt.show()
