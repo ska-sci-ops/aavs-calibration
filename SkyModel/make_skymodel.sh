@@ -110,8 +110,8 @@ nearest_MHz=`echo ${freq_mhz} | awk '{printf "%.0f",$1 }'`
 beamyfits=${skymodel_basedir}/../BeamModels/SKALA2/SKALA2_Xpol_ortho_${nearest_MHz}.fits
 beamxfits=${skymodel_basedir}/../BeamModels/SKALA2/SKALA2_Ypol_ortho_${nearest_MHz}.fits
 if [ "$beamtype" = "EDA" ] ; then
-  beamxfits="${skymodel_basedir}/../BeamModels/EDA/Xpol_EDA_ortho_${nearest_MHz}.fits"
-  beamyfits="${skymodel_basedir}/../BeamModels/EDA/Ypol_EDA_ortho_${nearest_MHz}.fits"
+  beamxfits="${skymodel_basedir}/../BeamModels/EDA/EDA_Xpol_ortho_${nearest_MHz}.fits"
+  beamyfits="${skymodel_basedir}/../BeamModels/EDA/EDA_Ypol_ortho_${nearest_MHz}.fits"
 fi
 if [ "$beamtype" = "SKALA4" ] ; then
   beamxfits="${skymodel_basedir}/../BeamModels/SKALA4/SKALA4_Xpol_ortho_${nearest_MHz}.fits"
