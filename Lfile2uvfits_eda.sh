@@ -31,13 +31,19 @@ fi
 
 # parse command-line args
 if [ $# -lt 1 ] ; then print_usage ; fi
-while getopts "hi:R:D:n:" opt; do
+while getopts "hi:R:D:n:N:C:" opt; do
   case $opt in
     h)
         print_usage
         ;;
     n)
         nchunks=$OPTARG
+        ;;
+    N)
+        ninp=$OPTARG
+        ;;
+    C)
+        nchan=$OPTARG
         ;;
     i)
         inttime=$OPTARG
