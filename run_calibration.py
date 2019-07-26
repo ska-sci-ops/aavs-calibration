@@ -149,7 +149,7 @@ def get_acquisition_time(conf):
     # Failed to get acquisition time, return current time
     return datetime.utcnow()
 
-def save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay):
+def save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_id ):
     # Create connection to the calibration database.
     # Do not have to use password here since DB is set up to recognise aavs user
     conn = psycopg2.connect(database='aavs')
@@ -171,10 +171,10 @@ def save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay
         y_amp = '{{{}}}'.format(', '.join([str(i) for i in yy_amp[:, antenna]]))
         y_pha = '{{{}}}'.format(', '.join([str(i) for i in yy_phase[:, antenna]]))
 
-        q = '''INSERT INTO calibration_solution(fit_time, create_time, ant_id, x_amp, y_amp, x_pha, y_pha,x_delay,x_phase0,y_delay,y_phase0)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) '''
+        q = '''INSERT INTO calibration_solution(fit_time, create_time, ant_id, x_amp, y_amp, x_pha, y_pha,x_delay,x_phase0,y_delay,y_phase0,station_id)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) '''
         cur.execute(q, (fit_time, create_time, antenna, x_amp, y_amp, x_pha, y_pha, x_delay[1, antenna],
-                        x_delay[0, antenna], y_delay[1, antenna], y_delay[0, antenna]))
+                        x_delay[0, antenna], y_delay[1, antenna], y_delay[0, antenna], station_id ))
 
     # Commit and close connection
     conn.commit()
@@ -183,7 +183,7 @@ def save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay
     logging.info("Persisted calibration coefficients in Postgres database")
 
 
-def save_coefficients_mongo(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay):
+def save_coefficients_mongo(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_name="AAVS1" ): # was AAVS1
     """ Save calibration coefficients to mongo database
     :param conf: Configuration dictionary
     :param xx_amp: XX amplitude in channel/antenna format
@@ -212,7 +212,7 @@ def save_coefficients_mongo(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y
     # should relate to the base number.
 
     # Save coefficients
-    add_new_calibration_solution("AAVS1",
+    add_new_calibration_solution(station_name,
                                  acquisition_time,
                                  solution,
                                  delay_x=x_delay[1, :],
@@ -239,6 +239,10 @@ if __name__ == "__main__":
                       help="Number of thread to use [default: 4]")
     parser.add_option("--skip-postgres", action="store_true", dest="skip_postgres",
                       help="Skip saving coefficients to postgres database [default: False]")
+    parser.add_option("--station_id", '--station', dest="station_id", default=0,
+                      help="Station ID (as in the station configuratio file) [default: %]", type=int )                      
+    parser.add_option("--station_name", dest="station_name", default="EDA2", # was AAVS1
+                      help="Station ID (as in the station configuratio file) [default: %]" )                      
     (conf, args) = parser.parse_args(argv[1:])
 
     # Set logging
@@ -305,8 +309,8 @@ if __name__ == "__main__":
 
     # Save calibration to Postgres database
     if not conf.skip_postgres:
-        save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay)
+        save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_id=conf.station_id )
 
     # Save calibration to Mongo database
-    save_coefficients_mongo(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay)
+    save_coefficients_mongo(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_name=conf.station_name )
 
