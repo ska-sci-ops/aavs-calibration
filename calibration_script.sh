@@ -24,7 +24,7 @@ function print_usage {
 #echo "Command line: $@"
 
 # parse command-line options
-while getopts ":D:T:N:k" opt; do
+while getopts ":D:T:N:ks" opt; do
   case ${opt} in
     D)
       data_dir=${OPTARG}
