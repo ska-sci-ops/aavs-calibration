@@ -21,7 +21,8 @@ function print_usage {
   echo "    -R ra_hours   Default: use zenith"
   echo "    -D dec_degs   Default: use zenith"
   echo "    -N n_inputs   Default: $ninp"
-  echo "    -C n_chan     Defatul: $nchan"
+  echo "    -C n_chan     Default: $nchan"
+  echo "    -f freq_chan  Default: $chan"
   exit
 }
 
@@ -31,13 +32,16 @@ fi
 
 # parse command-line args
 if [ $# -lt 1 ] ; then print_usage ; fi
-while getopts "hi:R:D:n:N:C:" opt; do
+while getopts "hi:R:D:n:N:C:f:" opt; do
   case $opt in
     h)
         print_usage
         ;;
     n)
         nchunks=$OPTARG
+        ;;
+    f)
+        chan=$OPTARG
         ;;
     N)
         ninp=$OPTARG
