@@ -30,6 +30,7 @@ if [ $# -eq 0 ] ; then
   print_usage
 fi
 
+used_options=0
 # parse command-line args
 if [ $# -lt 1 ] ; then print_usage ; fi
 while getopts "hi:R:D:n:N:C:f:" opt; do
@@ -39,25 +40,32 @@ while getopts "hi:R:D:n:N:C:f:" opt; do
         ;;
     n)
         nchunks=$OPTARG
+        used_options=1
         ;;
     f)
         chan=$OPTARG
+        used_options=1
         ;;
     N)
         ninp=$OPTARG
+        used_options=1
         ;;
     C)
         nchan=$OPTARG
+        used_options=1
         ;;
     i)
         inttime=$OPTARG
+        used_options=1
         ;;
     R)
         ra_hrs=$OPTARG
         useradec=1
+        used_options=1
         ;;
     D)
         dec_degs=$OPTARG
+        used_options=1
         ;;
     \?)
       echo "Invalid option: -$OPTARG" 1>&2
@@ -78,10 +86,10 @@ header=`mktemp`
 Lfilebase="$1"
 cent_freq=`echo $chan |  awk '{ printf "%f\n",$1*0.781250 }'`
 
-if [ $# -gt 1 ] ; then
+if [[ $# -gt 1 && $used_options -le 0 ]]; then
   inttime=$2
 fi
-if [ $# -gt 3 ] ; then
+if [[ $# -gt 3 && $used_options -le 0 ]] ; then
   ra_hrs=$3
   dec_degs=$4
   useradec=1
