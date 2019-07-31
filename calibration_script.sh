@@ -7,6 +7,7 @@ dump_time=${default_dump_time}
 nav=${default_nav}
 data_dir=${default_data_dir}
 keep_intermediate=0
+convert_hdf5_files=1
 
 # Include binaries in calibration directory
 #export PATH=$PATH:/home/aavs/randall_calibration
@@ -17,12 +18,13 @@ function print_usage {
   echo -e "\t-T dumptime\tcorrelator integration time. Default: ${default_dump_time}"
   echo -e "\t-N n_av \tpost correlator averaging that has been applied to data. Default: ${default_nav}"
   echo -e "\t-k  \tkeep intermediate data products for debugging"
+  echo -e "\t-s  \tskip conversion from hdf5 files to uvfits (just calibrate using exisitng uvfits files). Default: ${convert_hdf5_files}"
 }
 
 #echo "Command line: $@"
 
 # parse command-line options
-while getopts ":D:T:N:k" opt; do
+while getopts ":D:T:N:ks" opt; do
   case ${opt} in
     D)
       data_dir=${OPTARG}
@@ -37,6 +39,9 @@ while getopts ":D:T:N:k" opt; do
       ;;
     k)
       keep_intermediate=1
+      ;;
+    s)
+      convert_hdf5_files=0
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -76,13 +81,19 @@ ln -s /home/aavs/aavs-calibration/header_cal.txt header.txt
 int_time=`echo $nav ${dump_time} | awk '{ printf "%.3f\n",$1*$2 }'`
 
 # Convert all HDF files  for required channel to uvfits files with visibilities phased towards the sun
-for hdffile in `ls -tr *_${channel}_*.hdf5` ; do
-  bname=`basename $hdffile .hdf5`
-  hdf2Lfile.sh "$hdffile" $nav
-  unixtime=`cat ${bname}_ts_unix.txt`
-  radec=`python ~aavsuser/rwayth/sunpos.py $unixtime`
-  Lfile2uvfits.sh "$hdffile" $int_time $radec
-done
+if [[ $convert_hdf5_files -gt 0 ]]; then
+   echo "Executing conversion from hdf5 files to uvfits"
+         
+   for hdffile in `ls -tr *_${channel}_*.hdf5` ; do
+      bname=`basename $hdffile .hdf5`
+      hdf2Lfile.sh "$hdffile" $nav
+      unixtime=`cat ${bname}_ts_unix.txt`
+      radec=`python ~aavsuser/rwayth/sunpos.py $unixtime`
+      Lfile2uvfits.sh "$hdffile" $int_time $radec
+   done
+else
+   echo "WARNING : convert_hdf5_files=$convert_hdf5_files -> not executing conversion from hdf5 files to uvfits"
+fi
 
 # Unpack and flag
 for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do

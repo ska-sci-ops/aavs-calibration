@@ -33,6 +33,8 @@ def run_observation_burst(config):
     station_config = station.configuration
     station_config['station']['program'] = opts.program
     station_config['station']['initialise'] = opts.program
+    station_id = station_config['station']['id']
+    station_name = station_config['station']['name']
 
     # Create station
     aavs_station = station.Station(station_config)
@@ -85,7 +87,7 @@ def run_observation_burst(config):
     logging.info("Calibrating data")
 
     cal_script = "/home/aavs/aavs-calibration/run_calibration.py"
-    subprocess.check_call(["python", cal_script, "-D", directory])
+    subprocess.check_call(["python", cal_script, "-D", directory, "--station_id", station_id, "--station_name", station_name ])
 
 
 if __name__ == "__main__":
