@@ -87,7 +87,7 @@ def run_observation_burst(config):
     logging.info("Calibrating data")
 
     cal_script = "/home/aavs/aavs-calibration/run_calibration.py"
-    subprocess.check_call(["python", cal_script, "-D", directory, "--station_id", station_id, "--station_name", station_name ])
+    subprocess.check_call(["python", cal_script, "-D", directory, "--station_id", str(station_id), "--station_name", station_name ])
 
 
 if __name__ == "__main__":
