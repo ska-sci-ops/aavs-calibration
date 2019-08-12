@@ -119,7 +119,7 @@ def get_acquisition_time(conf):
     """ Get acqusition time from directory """
 
     # Grab directory
-    if conf.directory != '.' and conf.directory != './':
+    if conf.directory != '.' and conf.directory != './' and len(conf.directory) >= 15 : # minimum length to contain format "%Y_%m_%d-%H:%M"
         currdir = os.path.split(conf.directory)[-1]
     else:
         currdir = os.path.split(os.getcwd())[-1]  
