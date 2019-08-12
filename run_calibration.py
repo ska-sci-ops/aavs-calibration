@@ -145,9 +145,12 @@ def get_acquisition_time(conf):
             sec  = sec - 8*3600 # 20190812 - bugfix by MS as these seconds are in LOCAL TIME NOT UTC -> have to subtract 8 hours 
             date = datetime.strptime(parts[0], '%Y%m%d') + sec
             date = time.mktime(date.timetuple())
+            logging.info('Returning date %s parsed from filename = %s' % (date,filename))
             return datetime.fromtimestamp(date)
         except:
             continue
+
+    logging.warning('get_acquisition_time returning current date/time instead of acquisition date/time')
 
     # Failed to get acquisition time, return current time
     return datetime.utcnow()
