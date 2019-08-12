@@ -126,6 +126,7 @@ def get_acquisition_time(conf):
 
     # Try to get fit time from directory name
     try:
+        logging.info('Trying to parse acquisition time from currdir = %s' % (currdir))
         return datetime.strptime(currdir, "%Y_%m_%d-%H:%M") - timedelta(hours=8)
     except:
         pass
@@ -136,10 +137,12 @@ def get_acquisition_time(conf):
         # Check whether we can grab date time from filename
         try:
             filename = os.path.basename(os.path.abspath(f))
+            logging.info('Trying to parse acquisition time from filename = %s' % (filename))            
             pattern = r"correlation_burst_(?P<channel>\d+)_(?P<timestamp>\d+_\d+)_(?P<part>\d+).hdf5"
             parts = re.match(pattern, filename).groupdict()
             parts = parts['timestamp'].split('_')
             sec = timedelta(seconds=int(parts[1]))
+            sec  = sec - 8*3600 # 20190812 - bugfix by MS as these seconds are in LOCAL TIME NOT UTC -> have to subtract 8 hours 
             date = datetime.strptime(parts[0], '%Y%m%d') + sec
             date = time.mktime(date.timetuple())
             return datetime.fromtimestamp(date)
