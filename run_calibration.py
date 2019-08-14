@@ -79,7 +79,7 @@ def load_coefficients(directory, channel):
     return xx_amp, xx_phase, yy_amp, yy_phase
 
 
-def calibrate_channel(channel):
+def calibrate_channel(channel,station_name="EDA2"):
     """ Run calibration process on channel"""
 
     logging.info("Processing channel {}".format(channel))
@@ -87,8 +87,9 @@ def calibrate_channel(channel):
     command = [cal_script, "-D", directory,
                "-T", str(dump_time),
                "-N", str(nof_integrations),
-               "-k",
-               str(channel)]
+               "-k", str(channel),
+               "-S", station_name
+              ]
 
     if show_output:
         subprocess.check_call(command, stdout=stdout, stderr=subprocess.STDOUT)
@@ -97,11 +98,12 @@ def calibrate_channel(channel):
             subprocess.check_call(command, stdout=output, stderr=subprocess.STDOUT)
 
 
-def run_calibration(directory, nof_channels, threads):
+def run_calibration(directory, nof_channels, threads, station_name="EDA2" ):
     """ Calibrate channels """
 
     # If more than 1 thread is required, use process pool
     if threads > 1:
+        logging.info('Multithreaded processing of channels')
         from multiprocessing.pool import ThreadPool
 
         p = ThreadPool(threads)
@@ -109,8 +111,9 @@ def run_calibration(directory, nof_channels, threads):
 
     # Otherwise process serially
     else:
+        logging.info('Serial processing of channels')
         for channel in range(start_channel, nof_channels):
-            calibrate_channel(channel)
+            calibrate_channel(channel,station_name=station_name)
 
     # All done, cleanup up temporary files
     subprocess.check_call(['cleanup_temp_files.sh', '-D', directory])
@@ -284,7 +287,7 @@ if __name__ == "__main__":
 
     # If not skipping calibration, generate calibration solutions
     if conf.skip is False:
-        run_calibration(conf.directory, nof_channels, conf.threads)
+        run_calibration(conf.directory, nof_channels, conf.threads, station_name=options.station_name )
 
     # At this point calibration solutions should be ready, read files and save locally
     for channel in range(start_channel, nof_channels):
