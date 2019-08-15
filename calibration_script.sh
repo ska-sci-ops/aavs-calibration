@@ -8,6 +8,8 @@ nav=${default_nav}
 data_dir=${default_data_dir}
 keep_intermediate=0
 convert_hdf5_files=1
+station_name=eda2
+reference_antenna=2 # there might be some issue with EDA2 antenna 2 (index based from 1) or 1 (index based 0), So I might need to test another one
 
 # Include binaries in calibration directory
 #export PATH=$PATH:/home/aavs/randall_calibration
@@ -19,12 +21,14 @@ function print_usage {
   echo -e "\t-N n_av \tpost correlator averaging that has been applied to data. Default: ${default_nav}"
   echo -e "\t-k  \tkeep intermediate data products for debugging"
   echo -e "\t-s  \tskip conversion from hdf5 files to uvfits (just calibrate using exisitng uvfits files). Default: ${convert_hdf5_files}"
+  echo -e "\t-S STATION_NAME , name of the station the data was collected with. Default: ${station_name}"
+  echo -e "\t-R REFERENCE ANTENNA , default = ${reference_antenna} (miriad index is 1-based)"
 }
 
 #echo "Command line: $@"
 
 # parse command-line options
-while getopts ":D:T:N:ks" opt; do
+while getopts ":D:T:N:ksS:R:" opt; do
   case ${opt} in
     D)
       data_dir=${OPTARG}
@@ -42,6 +46,12 @@ while getopts ":D:T:N:ks" opt; do
       ;;
     s)
       convert_hdf5_files=0
+      ;;
+    S)
+      station_name=${OPTARG}
+      ;;
+    R)
+      reference_antenna=${OPTARG}
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -72,10 +82,28 @@ if [ $? -ne 0 ] ; then
 fi
 echo "channel: $channel. PWD: $PWD"
 
+echo "######################################################################################################"
+echo "PARAMETERS :"
+echo "######################################################################################################"
+echo "reference_antenna = $reference_antenna"
+echo "station_name      = $station_name"
+echo "######################################################################################################"
+
+
 # Link some configuration files
-ln -s /home/aavs/aavs-calibration/instr_config.txt
-ln -s /home/aavs/aavs-calibration/antenna_locations.txt
-ln -s /home/aavs/aavs-calibration/header_cal.txt header.txt
+if [[ $station_name == "eda2" || $station_name == "EDA2" ]]; then
+   echo "Creating links to config files for station $station_name"
+      
+   ln -sf /home/aavs/aavs-calibration/instr_config_eda2.txt instr_config.txt
+   ln -sf /home/aavs/aavs-calibration/antenna_locations_eda2.txt antenna_locations.txt
+   ln -sf /home/aavs/aavs-calibration/header_eda2_cal.txt header.txt
+else
+   echo "Creating links to config files for a default station (station name = $station_name)"
+
+   ln -s /home/aavs/aavs-calibration/instr_config.txt
+   ln -s /home/aavs/aavs-calibration/antenna_locations.txt
+   ln -s /home/aavs/aavs-calibration/header_cal.txt header.txt
+fi   
 
 # Compute the integration time for the given dump time and integration skip (nav)
 int_time=`echo $nav ${dump_time} | awk '{ printf "%.3f\n",$1*$2 }'`
@@ -111,8 +139,8 @@ done
 for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
     src=`basename $uvfitsfile .uvfits`
     echo "Processing $uvfitsfile to ${src}.uv"
-    selfcal vis=${src}_XX.uv select='uvrange(0.005,10)' options=amplitude,noscale refant=2 flux=100000
-    selfcal vis=${src}_YY.uv select='uvrange(0.005,10)' options=amplitude,noscale refant=2 flux=100000
+    selfcal vis=${src}_XX.uv select='uvrange(0.005,10)' options=amplitude,noscale refant=${reference_antenna} flux=100000
+    selfcal vis=${src}_YY.uv select='uvrange(0.005,10)' options=amplitude,noscale refant=${reference_antenna} flux=100000
 done
 
 # Extract calibration solutions
