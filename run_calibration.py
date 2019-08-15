@@ -287,7 +287,7 @@ if __name__ == "__main__":
 
     # If not skipping calibration, generate calibration solutions
     if conf.skip is False:
-        run_calibration(conf.directory, nof_channels, conf.threads, station_name=options.station_name )
+        run_calibration(conf.directory, nof_channels, conf.threads, station_name=conf.station_name )
 
     # At this point calibration solutions should be ready, read files and save locally
     for channel in range(start_channel, nof_channels):
