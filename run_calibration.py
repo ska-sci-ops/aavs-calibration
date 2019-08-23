@@ -250,7 +250,7 @@ if __name__ == "__main__":
                       help="Number of thread to use [default: 4]")
     parser.add_option("--skip-postgres", action="store_true", dest="skip_postgres",
                       help="Skip saving coefficients to postgres database [default: False]")
-    parser.add_option("--skip-db", '--no-db', '--nodb', action="store_true", dest="no_db",
+    parser.add_option("--skip-db", '--no-db', '--nodb', action="store_true", dest="no_db", default=False,
                       help="Skip saving coefficients to any database [default: False]")                      
     parser.add_option("--station_id", '--station', dest="station_id", default=0,
                       help="Station ID (as in the station configuratio file) [default: %]", type=int )                      

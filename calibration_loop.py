@@ -88,7 +88,10 @@ def run_observation_burst(config):
 
     cal_script = "/home/aavs/aavs-calibration/run_calibration.py"
     # # MS : testing call instead of check_call to avoid crash of the whole script due to crash on a single channel :
-    subprocess.call(["python", cal_script, "-D", directory, "--station_id", str(station_id), "--station_name", station_name ])
+    param_list = ["python", cal_script, "-D", directory, "--station_id", str(station_id), "--station_name", station_name ]
+    if conf.no_db :
+        param_list.append( "--nodb" )
+    subprocess.call( param_list )
 
 
 if __name__ == "__main__":
@@ -117,6 +120,8 @@ if __name__ == "__main__":
                  default="now",
                  help="Time at which to start observation. For multi-channel observations, each channel will start"
                       "at the specified on subsequent days. Format: dd/mm/yyyy_hh:mm. Default: now")
+    p.add_option("--skip-db", '--no-db', '--nodb', action="store_true", dest="no_db", default=False,
+                 help="Skip saving coefficients to any database [default: False]")                      
 
     opts, args = p.parse_args(sys.argv[1:])
 
