@@ -87,7 +87,8 @@ def run_observation_burst(config):
     logging.info("Calibrating data")
 
     cal_script = "/home/aavs/aavs-calibration/run_calibration.py"
-    subprocess.check_call(["python", cal_script, "-D", directory, "--station_id", str(station_id), "--station_name", station_name ])
+    # # MS : testing call instead of check_call to avoid crash of the whole script due to crash on a single channel :
+    subprocess.call(["python", cal_script, "-D", directory, "--station_id", str(station_id), "--station_name", station_name ])
 
 
 if __name__ == "__main__":
