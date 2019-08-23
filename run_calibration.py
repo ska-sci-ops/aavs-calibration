@@ -92,10 +92,12 @@ def calibrate_channel(channel,station_name="EDA2"):
               ]
 
     if show_output:
-        subprocess.check_call(command, stdout=stdout, stderr=subprocess.STDOUT)
+        # # MS : testing call instead of check_call to avoid crash of the whole script due to crash on a single channel :
+        subprocess.call(command, stdout=stdout, stderr=subprocess.STDOUT)
     else:
         with open(os.devnull, 'w') as output:
-            subprocess.check_call(command, stdout=output, stderr=subprocess.STDOUT)
+            # # MS : testing call instead of check_call to avoid crash of the whole script due to crash on a single channel :
+            subprocess.call(command, stdout=output, stderr=subprocess.STDOUT)
 
 
 def run_calibration(directory, nof_channels, threads, station_name="EDA2" ):
