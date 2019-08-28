@@ -83,6 +83,7 @@ startunix=`cat ${bname}_ts_unix.txt`
 oname="chan_${chan}"
 lacsize=` stat --printf="%s" $bname.LACSPC`
 ntimes=$((lacsize/la_chunksize/nchunks))
+echo "INFO : ntimes = $ntimes, lacsize = $lacsize , la_chunksize = $la_chunksize , nchunks = $nchunks , inttime = $inttime , timeinc = $timeinc"
 if [ $ntimes -lt 1 ] ; then ntimes=1 ; fi
 echo "Processing file $hdffile. There are $ntimes times"
 for t in `seq 0 $((ntimes-1))` ; do
