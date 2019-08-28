@@ -83,7 +83,8 @@ def calibrate_channel(channel,station_name="EDA2"):
     """ Run calibration process on channel"""
 
     logging.info("Processing channel {}".format(channel))
-    cal_script = "calibration_script.sh"  # This should be in PATH
+    # test if with full path it will work :
+    cal_script = "/home/aavs/aavs-calibration/calibration_script.sh"  # This should be in PATH
     command = [cal_script, "-D", directory,
                "-T", str(dump_time),
                "-N", str(nof_integrations),
@@ -91,6 +92,12 @@ def calibrate_channel(channel,station_name="EDA2"):
                "-S", station_name
               ]
 
+    cmdline=""
+    for i in range(0,len(command)):
+        cmdline += command[i]
+        cmdline += " "
+
+    logging.info("Command : {}".format(cmdline))
     if show_output:
         # # MS : testing call instead of check_call to avoid crash of the whole script due to crash on a single channel :
         subprocess.call(command, stdout=stdout, stderr=subprocess.STDOUT)
