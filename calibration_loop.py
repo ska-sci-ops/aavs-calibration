@@ -88,7 +88,7 @@ def run_observation_burst(config):
 
     cal_script = "/home/aavs/aavs-calibration/run_calibration.py"
     # # MS : testing call instead of check_call to avoid crash of the whole script due to crash on a single channel :
-    param_list = ["python", cal_script, "-D", directory, "--station_id", str(station_id), "--station_name", station_name ]
+    param_list = ["python", cal_script, "-D", directory, "--station_id", str(station_id), "--station_name", station_name , "--show-output" ]
     if opts.no_db :
         param_list.append( "--nodb" )
     subprocess.call( param_list )
