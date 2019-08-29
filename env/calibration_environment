@@ -1,0 +1,8 @@
+# script with settings of standard calibration environment for aavs1-server to be able to execute 
+# all calibration scripts (calibration loop in particular) :
+
+export PATH=/home/aavs/aavs-calibration/:${PATH}
+
+# defined as alias mir in ~/.bashrc on aavs1-server :
+source /home/aavsuser/rwayth/miriad/MIRRC.sh
+export PATH=${PATH}:${MIRBIN}
