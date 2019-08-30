@@ -130,8 +130,7 @@ for t in `seq 0 $((ntimes-1))` ; do
     
     if [[ -s ${oname}_${startutc}.uvfits ]]; then
         # TODO : can we fix the time to have fractional seconds ?
-        count=`ls ${oname}_${startutc}*.uvfits | wc -l`
-        next=$(($count+1))
+        next=`ls ${oname}_${startutc}*.uvfits | wc -l`
         next_str=`echo $next | awk '{printf("%03d",$1);}'`
         
         echo "nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}_${next_str}.uvfits"
