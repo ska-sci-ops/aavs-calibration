@@ -127,18 +127,18 @@ for t in `seq 0 $((ntimes-1))` ; do
     dd bs=${lc_chunksize} skip=$((nchunks*t)) count=$nchunks if=$bname.LCCSPC > $lccspc
     # convert to uvfits
     startutc=`date -u --date=@${start} "+%Y%m%dT%H%M%S"`
-    
-    if [[ -s ${oname}_${startutc}.uvfits ]]; then
-        # TODO : can we fix the time to have fractional seconds ?
-        next=`ls ${oname}_${startutc}*.uvfits | wc -l`
-        next_str=`echo $next | awk '{printf("%03d",$1);}'`
+
+# TODO : can we fix the time to have fractional seconds ?    
+#    if [[ -s ${oname}_${startutc}.uvfits ]]; then
+#        next=`ls ${oname}_${startutc}*.uvfits | wc -l`
+#        next_str=`echo $next | awk '{printf("%03d",$1);}'`
         
-        echo "nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}_${next_str}.uvfits"
-        nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}_${next_str}.uvfits
-    else
+#        echo "nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}_${next_str}.uvfits"
+#        nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}_${next_str}.uvfits
+#    else
         echo "nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits"
         nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits
-    fi 
+#    fi 
 done
 
 rm $lacspc
