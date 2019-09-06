@@ -99,7 +99,8 @@ for t in `seq 0 $((ntimes-1))` ; do
     echo "FREQCENT ${cent_freq}" >> $header
     echo "INT_TIME $inttime" >> $header
     # update the number of scans in file
-    sed -i 's/^N_SCANS/#N_SCANS/ $header'
+    sed -i 's/^N_SCANS/#N_SCANS/' $header
+    echo "N_SCANS $nchunks" >> $header
     if [ $useradec -ne 0 ] ; then
       # remove any existing default HA setting
       sed -i 's/^HA_HRS/#&/' $header
