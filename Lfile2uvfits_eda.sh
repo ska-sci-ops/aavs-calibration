@@ -91,17 +91,25 @@ timeinc=`echo $nchunks ${inttime} | awk '{ printf "%f\n",$1*$2 }'`
 
 bname=$Lfilebase
 # extract start unix time for data:
-dt=`echo $bname | awk '{print substr($1,1,4)"-"substr($1,5,2)"-"substr($1,7,2);}'`
-tm=`echo $bname | awk '{print substr($1,10,2)":"substr($1,12,2)":"substr($1,14,2)}'`
-startunix=`date -u -d "$dt $tm" +%s`
+if [ -e "${bname}_ts_unix.txt" ] ; then
+  startunix=`cat ${bname}_ts_unix.txt`
+else
+  dt=`echo $bname | awk '{print substr($1,1,4)"-"substr($1,5,2)"-"substr($1,7,2);}'`
+  tm=`echo $bname | awk '{print substr($1,10,2)":"substr($1,12,2)":"substr($1,14,2)}'`
+  startunix=`date -u -d "$dt $tm" +%s`
+fi
 oname="chan_${chan}"
 lacsize=` stat --printf="%s" $bname.LACSPC`
 ntimes=$((lacsize/la_chunksize/nchunks))
 if [ $ntimes -lt 1 ] ; then ntimes=1 ; fi
-echo "Processing file $Lfilebase. There are $ntimes times"
+echo "Processing file $Lfilebase. There are $ntimes times. Start unix time: $startunix"
 for t in `seq 0 $((ntimes-1))` ; do
     # create a temporary header file for this dataset
-    cp header_ph1.txt $header 
+    if [ -e header.txt ] ; then
+      cp header.txt $header
+    else
+      cp header_ph1.txt $header 
+    fi
     offset=`echo $t $timeinc | awk '{ printf "%.0f\n",$1*$2 }'`
     start=$((startunix + offset))
     tstart=`date -u --date="@$start" +"%H%M%S"`
@@ -115,6 +123,7 @@ for t in `seq 0 $((ntimes-1))` ; do
     # update the number of scans in file
     sed -i 's/^N_SCANS/#N_SCANS/' $header
     echo "N_SCANS $nchunks" >> $header
+    echo "N_CHANS $nchan" >> $header
     if [ $useradec -ne 0 ] ; then
       # remove any existing default HA setting
       sed -i 's/^HA_HRS/#&/' $header
