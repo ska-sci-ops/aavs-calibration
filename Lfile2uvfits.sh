@@ -44,6 +44,7 @@ while getopts "hi:R:D:n:" opt; do
         ;;
     D)
         dec_degs=$OPTARG
+        useradec=1
         ;;
     \?)
       echo "Invalid option: -$OPTARG" 1>&2
