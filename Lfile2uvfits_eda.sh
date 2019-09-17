@@ -119,7 +119,6 @@ for t in `seq 0 $((ntimes-1))` ; do
     echo "DATE    $dstart" >> $header
     echo "FREQCENT ${cent_freq}" >> $header
     echo "INT_TIME $inttime" >> $header
-    echo "N_SCANS $nchunks" >> $header
     # update the number of scans in file
     sed -i 's/^N_SCANS/#N_SCANS/' $header
     echo "N_SCANS $nchunks" >> $header
