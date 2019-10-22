@@ -15,7 +15,7 @@ chan=204
 
 function print_usage {
   echo "Usage: "
-  echo "Lfile2uvfits.sh [options] L_filebasename "
+  echo "Lfile2uvfits_eda.sh [options] L_filebasename "
   echo "    -i int_time   Default: $inttime. Basic correlator dump time: $dump_time"
   echo "    -n n_chunks   Default: $nchunks"
   echo "    -R ra_hours   Default: use zenith"

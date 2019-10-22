@@ -37,6 +37,12 @@ while getopts ":f:L:T:B:" opt; do
 done
 shift $((OPTIND-1))
 
+# check if output files exist and skip if so
+if [ -e ${unixtime}_Xsky.xy ] ; then
+  echo "Output file ${unixtime}_Xsky.xy already exists. Skipping..."
+  exit 1
+fi
+
 # check that miriad environment is set up
 if [[ -z "${MIR}" ]]; then
   echo "ERROR: miriad environment is not set up"
@@ -105,7 +111,7 @@ if [ $result -ne 0 ] ; then
 fi
 
 # apply beam average power pattern
-nearest_MHz=`echo ${freq_mhz} | awk '{printf "%.0f",$1 }'`
+nearest_MHz=`echo ${freq_mhz} | awk '{printf "%03.0f",$1 }'`
 # note pols in file names are swapped for SKALA2
 beamyfits=${skymodel_basedir}/../BeamModels/SKALA2/SKALA2_Xpol_ortho_${nearest_MHz}.fits
 beamxfits=${skymodel_basedir}/../BeamModels/SKALA2/SKALA2_Ypol_ortho_${nearest_MHz}.fits
