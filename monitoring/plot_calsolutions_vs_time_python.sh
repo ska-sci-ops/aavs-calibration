@@ -38,6 +38,27 @@ fi
 start_date="2000-01-01 00:00:00"
 if [[ -n "$8" && "$8" != "-" ]]; then
    start_date=$8
+   
+   first_word=`echo $start_date | awk '{print $1;}'`
+   if [[ $first_word -lt 0 ]];  then
+      echo "First word in start date = $first_word"
+      n_back_days=$first_word
+      ux_now=`date +%s`
+      start_ux=`echo $ux_now $n_back_days | awk '{print ($1+$2*86400);}'`
+      start_date_tmp=`date -d "1970-01-01 UTC $start_ux seconds" +"%Y-%m-%d 00:00:00"`
+      start_date="$start_date_tmp"
+      echo "Start date = |$start_date| ($start_date_tmp)"
+   fi
+fi
+
+out_subdir=""
+if [[ -n "$9" && "$9" != "-" ]]; then
+   out_subdir="$9"
+   mkdir -p ${www_dir}/${out_subdir}
+   if [[ ! -s ${www_dir}/${out_subdir}/index.html ]]; then
+      echo "cp ${www_dir}/index.html ${www_dir}/${out_subdir}/"
+      cp ${www_dir}/index.html ${www_dir}/${out_subdir}/
+   fi
 fi
 
 
@@ -120,8 +141,8 @@ do
        echo "montage -mode concatenate -tile 4x4 $list -resize 1024x1024 calsol_delays_${all_str}.png"
        montage -mode concatenate -tile 4x4 $list -resize 1024x1024 calsol_delays_${all_str}.png
        
-       echo "cp calsol_delays_${all_str}.png ${www_dir}/"
-       cp calsol_delays_${all_str}.png ${www_dir}/
+       echo "cp calsol_delays_${all_str}.png ${www_dir}/${out_subdir}/"
+       cp calsol_delays_${all_str}.png ${www_dir}/${out_subdir}/
        
        list=""
        all=$(($all+1))
@@ -134,8 +155,8 @@ python $scripts_path/plot_calsolutions_vs_time.py --last_calibration_file="last_
 
 echo "python $scripts_path/plot_delay.py eda2_mean_stddev_delay.txt --delay_unit=\"[ns]\" --multiplier=1000.00 --comment=\"ErrorBar is STDDEV\" --mean_stddev --y_min=-10 --y_max=10 --outdir=\"./\""
 python $scripts_path/plot_delay.py eda2_mean_stddev_delay.txt --delay_unit="[ns]" --multiplier=1000.00 --comment="ErrorBar is STDDEV" --mean_stddev --y_min=-10 --y_max=10 --outdir="./"
-echo "cp eda2_mean_stddev_delay.png ${www_dir}/"
-cp eda2_mean_stddev_delay.png ${www_dir}/
+echo "cp eda2_mean_stddev_delay.png ${www_dir}/${out_subdir}/"
+cp eda2_mean_stddev_delay.png ${www_dir}/${out_subdir}/
 
 month=`date +%Y%m`
 first_of_month=`date +"%Y-%m-01 00:00:00"`
@@ -145,8 +166,8 @@ python $scripts_path/plot_calsolutions_vs_time.py --last_calibration_file="last_
 echo "python $scripts_path/plot_delay.py ${month}_eda2_mean_stddev_delay.txt --delay_unit=\"[ns]\" --multiplier=1000.00 --comment=\"ErrorBar is STDDEV\" --mean_stddev --y_min=-10 --y_max=10 --outdir=\"./\""
 python $scripts_path/plot_delay.py ${month}_eda2_mean_stddev_delay.txt --delay_unit="[ns]" --multiplier=1000.00 --comment="ErrorBar is STDDEV" --mean_stddev --y_min=-10 --y_max=10 --outdir="./"
 
-echo "cp ${month}_eda2_mean_stddev_delay.png ${www_dir}/"
-cp ${month}_eda2_mean_stddev_delay.png ${www_dir}/
+echo "cp ${month}_eda2_mean_stddev_delay.png ${www_dir}/${out_subdir}/"
+cp ${month}_eda2_mean_stddev_delay.png ${www_dir}/${out_subdir}/
 
-echo "cp ${month}_eda2_mean_stddev_delay.png ${www_dir}/current_month_eda2_mean_stddev_delay.png"
-cp ${month}_eda2_mean_stddev_delay.png ${www_dir}/current_month_eda2_mean_stddev_delay.png
+echo "cp ${month}_eda2_mean_stddev_delay.png ${www_dir}/${out_subdir}/current_month_eda2_mean_stddev_delay.png"
+cp ${month}_eda2_mean_stddev_delay.png ${www_dir}/${out_subdir}/current_month_eda2_mean_stddev_delay.png
