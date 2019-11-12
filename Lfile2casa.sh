@@ -5,7 +5,7 @@
 # 3: RA hours (optional, default is zenith)
 # 4: DEC degs (optional, default is zenith)
 
-# requires cotter_tiny to be compiled on the system : github.com/marcinsokolowski/cotter_tiny - in preparation ...
+# requires cotter_tiny to be compiled on the system : github.com/marcinsokolowski/cotter_tiny - it is a private repository at the moment, but might be changed if needed.
 
 dump_time=1.38240	# basic correlator integration time for 40000 averages
 dump_time=2.00016	# basic correlator integration time for 57875 averages
