@@ -74,7 +74,7 @@ def populate_station():
                 z_pos=antenna['up'],
                 base_id=antenna['base'],
                 tpm_id=antenna['tpm'],
-                tpm_name="TPM-{}".format(tpm_order[i / 16]),
+                tpm_name="Tile {}".format(tpm_order[i / 16]),
                 tpm_rx=antenna['rx'],
                 status_x='',
                 status_y='').save()

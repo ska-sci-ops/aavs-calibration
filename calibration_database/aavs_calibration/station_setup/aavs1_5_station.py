@@ -25,7 +25,7 @@ antenna_preadu_mapping = {0: 1, 1: 2, 2: 3, 3: 4,
 
 # TPM order in configuration file
 tpm_order = [17, 18, 19]
-tpm_names = ["TPM 7", "TPM 11", "TPM 16"]
+tpm_names = ["Tile 7", "Tile 11", "Tile 16"]
 
 
 def populate_station():
@@ -74,7 +74,7 @@ def populate_station():
                 base_id=antenna['base'],
                 tpm_id=antenna['tpm'],
                 tpm_rx=antenna['rx'],
-                tpm_name="Tile {}".format(tpm_order[i / 16]),
+                tpm_name=tpm_names[i / 16],
                 status_x='',
                 status_y='').save()
 
