@@ -4,6 +4,9 @@
 # 2: integration time in L-file
 # 3: RA hours (optional, default is zenith)
 # 4: DEC degs (optional, default is zenith)
+
+# requires cotter_tiny to be compiled on the system : github.com/marcinsokolowski/cotter_tiny - it is a private repository at the moment, but might be changed if needed.
+
 dump_time=1.38240	# basic correlator integration time for 40000 averages
 dump_time=2.00016	# basic correlator integration time for 57875 averages
 ninp=96
@@ -12,10 +15,13 @@ nchunks=90
 useradec=0
 inttime=${dump_time}
 chan=204
+antenna_locations_path=~/aavs-calibration/antenna_locations_eda2.txt
+instr_path=~/aavs-calibration/instr_config_eda2.txt
+
 
 function print_usage {
   echo "Usage: "
-  echo "Lfile2uvfits_eda.sh [options] L_filebasename "
+  echo "Lfile2casa.sh [options] L_filebasename "
   echo "    -i int_time   Default: $inttime. Basic correlator dump time: $dump_time"
   echo "    -n n_chunks   Default: $nchunks"
   echo "    -R ra_hours   Default: use zenith"
@@ -23,6 +29,8 @@ function print_usage {
   echo "    -N n_inputs   Default: $ninp"
   echo "    -C n_chan     Default: $nchan"
   echo "    -f freq_chan  Default: $chan"
+  echo "    -A antenna_location file Default: $antenna_locations_path"
+  echo "    -I instr_config.txt file Default: $instr_path"
   exit
 }
 
@@ -32,7 +40,7 @@ fi
 
 # parse command-line args
 if [ $# -lt 1 ] ; then print_usage ; fi
-while getopts "hi:R:D:n:N:C:f:" opt; do
+while getopts "hi:R:D:n:N:C:f:A:I:" opt; do
   case $opt in
     h)
         print_usage
@@ -59,6 +67,13 @@ while getopts "hi:R:D:n:N:C:f:" opt; do
     D)
         dec_degs=$OPTARG
         ;;
+
+    A)
+        antenna_locations_path=$OPTARG
+        ;;
+    I)
+        instr_path=$OPTARG
+        ;;
     \?)
       echo "Invalid option: -$OPTARG" 1>&2
       print_usage
@@ -70,10 +85,6 @@ shift $(expr $OPTIND - 1 )
 
 la_chunksize=$((ninp*nchan*4))
 lc_chunksize=$((ninp*(ninp-1)*nchan*8/2))
-
-lacspc=`mktemp`
-lccspc=`mktemp`
-header=`mktemp`
 
 Lfilebase="$1"
 cent_freq=`echo $chan |  awk '{ printf "%f\n",$1*0.781250 }'`
@@ -103,53 +114,6 @@ lacsize=` stat --printf="%s" $bname.LACSPC`
 ntimes=$((lacsize/la_chunksize/nchunks))
 if [ $ntimes -lt 1 ] ; then ntimes=1 ; fi
 echo "Processing file $Lfilebase. There are $ntimes times. Start unix time: $startunix"
-for t in `seq 0 $((ntimes-1))` ; do
-    # create a temporary header file for this dataset
-    if [ -e header.txt ] ; then
-      cp header.txt $header
-    else
-      cp header_ph1.txt $header 
-    fi
-    offset=`echo $t $timeinc | awk '{ printf "%.0f\n",$1*$2 }'`
-    start=$((startunix + offset))
-    tstart=`date -u --date="@$start" +"%H%M%S"`
-    dstart=`date -u --date="@$start" +"%Y%m%d"`
-    echo "Making header for chunk $t. Time offset: $offset. Start time: $dstart $tstart"
-    echo -e "\nTIME    $tstart" >> $header
-    echo "DATE    $dstart" >> $header
-    echo "FREQCENT ${cent_freq}" >> $header
-    echo "INT_TIME $inttime" >> $header
-    # update the number of scans in file
-    sed -i 's/^N_SCANS/#N_SCANS/' $header
-    echo "N_SCANS $nchunks" >> $header
-    echo "N_CHANS $nchan" >> $header
-    if [ $useradec -ne 0 ] ; then
-      # remove any existing default HA setting
-      sed -i 's/^HA_HRS/#&/' $header
-      sed -i 's/^DEC_DEGS/#&/' $header
-      # insert new coords for phase centre
-      echo "RA_HRS $ra_hrs" >> $header
-      echo "DEC_DEGS $dec_degs" >> $header
-    fi
-    # chop out relevant section of L-files
-    dd bs=${la_chunksize} skip=$((nchunks*t)) count=$nchunks if=$bname.LACSPC > $lacspc
-    dd bs=${lc_chunksize} skip=$((nchunks*t)) count=$nchunks if=$bname.LCCSPC > $lccspc
-    # convert to uvfits
-    startutc=`date -u --date=@${start} "+%Y%m%dT%H%M%S"`
 
-# TODO : can we fix the time to have fractional seconds ?    
-#    if [[ -s ${oname}_${startutc}.uvfits ]]; then
-#        next=`ls ${oname}_${startutc}*.uvfits | wc -l`
-#        next_str=`echo $next | awk '{printf("%03d",$1);}'`
-        
-#        echo "nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}_${next_str}.uvfits"
-#        nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}_${next_str}.uvfits
-#    else
-        echo "nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits"
-        nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits
-#    fi 
-done
-
-rm $lacspc
-rm $lccspc
-#rm $header
+echo "cotter_tiny $Lfilebase ${Lfilebase}.ms -a ${antenna_locations_path} -i ${instr_path} -c ${chan}"
+cotter_tiny $Lfilebase ${Lfilebase}.ms -a ${antenna_locations_path} -i ${instr_path} -c ${chan}
