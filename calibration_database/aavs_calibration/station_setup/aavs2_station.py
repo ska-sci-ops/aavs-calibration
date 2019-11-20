@@ -9,10 +9,10 @@ db = connect()
 url = r"https://docs.google.com/spreadsheets/d/e/2PACX-1vQqOhkIgUBtIHBFOVRd34potpDGND7mIQ66hF97f4zwoMt30Jgko5tdNer_TsW" \
       r"OPZgYooA0UjR2KhrB/pub?gid=0&single=true&output=tsv"
 # Some global params
-nof_antennas = 48
+nof_antennas = 256
 
 # Station name and location
-station_name = "AAVS1.5"
+station_name = "AAVS2"
 lat, lon = -26.7047960061194444, 116.6707690211333333
 
 # This is used to re-map ADC channels index to the RX
@@ -24,8 +24,8 @@ antenna_preadu_mapping = {0: 1, 1: 2, 2: 3, 3: 4,
                           7: 13, 6: 14, 5: 15, 4: 16}
 
 # TPM order in configuration file
-tpm_order = [17, 18, 19]
-tpm_names = ["Tile 7", "Tile 11", "Tile 16"]
+tpm_order = list(range(17, 33))
+tpm_names = ["Tile {}".format(i) for i in range(1, 17)]
 
 
 def populate_station():
@@ -49,9 +49,9 @@ def populate_station():
         # Go through rows in spreadsheet and process antennas connected to current tpm
         for i in range(1, len(html)):
             items = html[i].split('\t')
-            if items[12] != '-' and int(items[12]) == tpm:
-                base, rx = int(items[0]), int(items[13])
-                north, east, up = float(items[1].replace(',', '.')), float(items[2].replace(',', '.')), 0
+            if items[13] != '-' and int(items[13]) == tpm:
+                base, rx = int(items[0]), int(items[14])
+                north, east, up = float(items[1].replace(',', '.')), float(items[2].replace(',', '.')), float(items[3].replace(',', '.'))
                 antenna_information.append({'base': base, 'tpm': tpm, 'rx': rx, 'east': east, 'north': north})
 
     # Create station entry
