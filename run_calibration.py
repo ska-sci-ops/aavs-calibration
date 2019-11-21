@@ -167,10 +167,10 @@ def get_acquisition_time(conf):
     # Failed to get acquisition time, return current time
     return datetime.utcnow()
 
-def save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_id ):
+def save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_id, db_host_ip="10.0.10.200" ):
     # Create connection to the calibration database.
     # Do not have to use password here since DB is set up to recognise aavs user
-    conn = psycopg2.connect(database='aavs')
+    conn = psycopg2.connect(database='aavs' , host=db_host_ip, user='aavs' )
     cur = conn.cursor()
 
     # Get acqusition time
