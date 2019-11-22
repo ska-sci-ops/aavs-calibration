@@ -116,7 +116,8 @@ if [[ $convert_hdf5_files -gt 0 ]]; then
       bname=`basename $hdffile .hdf5`
       hdf2Lfile.sh "$hdffile" $nav
       unixtime=`cat ${bname}_ts_unix.txt`
-      radec=`python ~aavsuser/rwayth/sunpos.py $unixtime`
+      echo "python ~/aavs-calibration/sunpos.py $unixtime"
+      radec=`python ~/aavs-calibration/sunpos.py $unixtime`
       Lfile2uvfits.sh "$hdffile" $int_time $radec
    done
 else
