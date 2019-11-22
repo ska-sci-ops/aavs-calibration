@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import numpy as np
 import h5py
 import sys

@@ -38,7 +38,9 @@ fi
 echo "Processing file $hdffile with naverage $naverage"
 bname=`basename $hdffile .hdf5`
 if [ ! -f "${bname}.LACSPC" ] ; then
-  nice aavs_mwa_corr_converter.py -f $hdffile -o "$bname" -a $naverage
+  converter_path=`which aavs_mwa_corr_converter.py`
+  echo "nice python $converter_path -f $hdffile -o "$bname" -a $naverage"
+  nice python $converter_path -f $hdffile -o "$bname" -a $naverage
 fi
 # extract start unix time for data:
 h5dump -g sample_timestamps -b -o $tsfile "$hdffile"
