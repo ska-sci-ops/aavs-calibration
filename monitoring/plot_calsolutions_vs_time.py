@@ -56,7 +56,7 @@ def get_mean_stddev_delay_per_ant( outname="eda2_mean_stddev_delay.txt", max_tim
 #      szWhere += " and fit_time >= '%s' " % (start_date)
            
    # excluding some wrong solutions in SQL :
-   szSQL = "select (ant_id+1) as ant,avg(x_delay) as mean_x_delay_ns,stddev(x_delay) as stddev_mean_x_delay_ns,avg(y_delay) as mean_y_delay_ns,stddev(y_delay) as stddev_mean_y_delay_ns from calibration_solution where fit_time >= '%s' AND station_id=%d group by ant_id order by ant_id" % (start_date,station_id)
+   szSQL = "select (ant_id+1) as ant,COALESCE(avg(x_delay),0) as mean_x_delay_ns,COALESCE(stddev(x_delay),0) as stddev_mean_x_delay_ns,COALESCE(avg(y_delay),0) as mean_y_delay_ns,COALESCE(stddev(y_delay),0) as stddev_mean_y_delay_ns from calibration_solution where fit_time >= '%s' AND station_id=%d group by ant_id order by ant_id" % (start_date,station_id)
    print "Execurting SQL : %s" % szSQL
 
    # conn = db_connect()   
