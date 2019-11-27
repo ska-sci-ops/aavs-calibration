@@ -68,6 +68,9 @@ def parse_options(idx):
 
    # --mean_stddev
    parser.add_option('--mean_stddev',dest="mean_stddev",default=False,action="store_true", help="Plot mean/stddev delay in txt file [default %]")
+   
+   # publication version :
+   parser.add_option('--publication',dest="publication",default=False,action="store_true", help="Publication quality [default %s]")
 
    (options, args) = parser.parse_args(sys.argv[idx:])
 
@@ -88,7 +91,8 @@ def plotfile( filename,
               multiplier   = None,
               comment      = None,
               y_auto_median = False,
-              y_auto_median_range = 1.00
+              y_auto_median_range = 1.00,
+              publication = False
             ) :
               
    if y_axis_title is None :
@@ -149,9 +153,16 @@ def plotfile( filename,
       fig=plt.figure()
       ax = fig.add_subplot(1,1,1) # create axes within the figure : we have 1 plot in X direction, 1 plot in Y direction and we select plot 1
       plt.ylim([y_min,y_max])
-      line_x, = plt.plot(uttime,x_delay_m, linestyle='None', marker='x', color='blue', markersize=10, label='X pol.')
-      line_y, = plt.plot(uttime,y_delay_m, linestyle='None', marker='x', color='red', markersize=10, label='Y pol.')
-      plt.legend(bbox_to_anchor=(0.85, 0.95),loc=3,handles=[line_x, line_y])
+#      line_x, = plt.plot(uttime,x_delay_m, linestyle='None', marker='x', color='blue', markersize=10, label='X pol.')
+#      line_y, = plt.plot(uttime,y_delay_m, linestyle='None', marker='x', color='red', markersize=10, label='Y pol.')
+      if publication :
+         line_x, = plt.plot(uttime,x_delay_m, linestyle='None', marker='x', color='blue', markersize=10, label='X polarisation')
+         line_y, = plt.plot(uttime,y_delay_m, linestyle='None', marker='x', color='red', markersize=10, label='Y polarisation')
+         plt.legend(bbox_to_anchor=(0.68, 0.82),loc=3,handles=[line_x, line_y])
+      else :
+         line_x, = plt.plot(uttime,x_delay_m, linestyle='None', marker='x', color='blue', markersize=10, label='X pol.')
+         line_y, = plt.plot(uttime,y_delay_m, linestyle='None', marker='x', color='red', markersize=10, label='Y pol.')
+         plt.legend(bbox_to_anchor=(0.85, 0.95),loc=3,handles=[line_x, line_y])
 #      plt.legend([line_x, line_y], ['X pol.', 'Y pol.'])
 #      plt.legend(handles=[line_x])
       # beautify the x-labels
@@ -165,6 +176,10 @@ def plotfile( filename,
          title = title + " , "
          title = title + comment 
          
+      if publication :
+         # Just antenna :
+         title = comment   
+         
       ax.set_title( title )
    
 
@@ -176,7 +191,8 @@ def plotfile( filename,
 
       # X-pol :
       desc_x="Fitted X-pol delay = %.2f %s" % (B_x,delay_unit)
-      plt.text((x_min), y_max-(y_max-y_min)*0.05, desc_x, fontsize=15, color='blue')   
+      if not publication :
+         plt.text((x_min), y_max-(y_max-y_min)*0.05, desc_x, fontsize=15, color='blue')   
       x_delay_last=x_delay_m[-1]
       if len(x_delay_m) < mean_last_n :
          mean_last_n = len(x_delay_m)
@@ -184,12 +200,14 @@ def plotfile( filename,
       x_delay_last=np.mean(x_delay_m[-mean_last_n:])         
       print "TEST %s -> mean(last 5)=%.4f last value = %.4f" % (x_delay_m[-16:],x_delay_last,x_delay_m[-1])
       desc_x="Mean last %d X delays = %.2f (last delay = %.2f)" % (mean_last_n,x_delay_last,x_delay_m[-1])
-      plt.text((x_min), y_max-(y_max-y_min)*0.1, desc_x, fontsize=15, color='blue')
+      if not publication :
+         plt.text((x_min), y_max-(y_max-y_min)*0.1, desc_x, fontsize=15, color='blue')
          
 
       # Y-pol :
       desc_y="Fitted Y-pol delay = %.2f %s" % (B_y,delay_unit)
-      plt.text((x_min), y_max-(y_max-y_min)*0.15, desc_y, fontsize=15, color='red')      
+      if not publication :
+         plt.text((x_min), y_max-(y_max-y_min)*0.15, desc_y, fontsize=15, color='red')      
       y_delay_last=y_delay_m[-1]
       if len(y_delay_m) < mean_last_n :
          mean_last_n = len(y_delay_m)
@@ -197,7 +215,8 @@ def plotfile( filename,
       y_delay_last=np.mean(y_delay_m[-mean_last_n:])         
       print "TEST %s -> mean(last 5)=%.4f last value = %.4f" % (y_delay_m[-16:],y_delay_last,y_delay_m[-1])
       desc_y="Mean last %d X delays = %.2f (last delay = %.2f)" % (mean_last_n,y_delay_last,y_delay_m[-1])
-      plt.text((x_min), y_max-(y_max-y_min)*0.2, desc_y, fontsize=15, color='red')
+      if not publication :
+         plt.text((x_min), y_max-(y_max-y_min)*0.2, desc_y, fontsize=15, color='red')
 
 
       rcv_id = "-1"
@@ -413,7 +432,8 @@ def main() :
                 comment      = options.comment,
                 outdir       = options.outdir,
                 y_auto_median = options.y_auto_median,
-                y_auto_median_range = options.y_auto_median_range
+                y_auto_median_range = options.y_auto_median_range,
+                publication = options.publication
               )
 #   else :
 #      print "ERROR : file %s is empty !" % filename
