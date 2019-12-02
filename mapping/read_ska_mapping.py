@@ -89,6 +89,8 @@ reversed_tpm_input_mapping = {
                                 16: 9
                              }
 
+g_ribbon_column_name = "Ribbon"
+
 Excel_Columns_Map = {
                        "antenna"     : 0,
                        "north_south" : 1,
@@ -160,7 +162,9 @@ def parse_options():
    parser = OptionParser(usage=usage,version=1.00)
    parser.add_option('--infile',dest="infile",default="20190621_BRIDGING.csv", help="Input file can either be csv or xlsx (Excel) [default %default]") # 20190621_BRIDGING.xlsx
    parser.add_option('--outfile','--out_file','--out',dest="outfile",default="antenna_locations_auto.txt", help="Output file [default %default]") # antenna_locations_auto.txt
+   parser.add_option('--decimal',dest="decimal",default=".", help="Decimal point floating numbers [default %default]")
    parser.add_option('--non_reversed','--top_down_order',dest="tpm_input_reversed",default=False,action="store_false",help="Reversed order on TPM input lower half of inputs other way around [default %default]")
+   parser.add_option('--reversed','--down_top_order',dest="tpm_input_reversed",default=False,action="store_true",help="Reversed order on TPM input lower half of inputs other way around [default %default]")
    parser.add_option('--tpm_list','--tpms',dest="tpm_list",default=None, help="TPM list - to only include these TPMs [default %default - empty means use all]") 
    parser.add_option('--print_tpm','--add_tpm',dest="print_tpm",default=False,action="store_true",help="Add TPM to output [default %default]")
 #   parser.add_option('-d','--device_id','--device',dest="device_id",default=None, help="Device ID [default %default]")
@@ -179,6 +183,8 @@ def print_options(options,args,tpm_list) :
    print "Output file = %s" % (options.outfile)
    print "TPM list    = %s (%s)" % (options.tpm_list,tpm_list)
    print "print_tpm   = %s" % (options.print_tpm)
+   print "Reversed    = %s" % (options.tpm_input_reversed)
+   print "Decimal     = %s" % (options.decimal)
    print "####################################################"
 
    
@@ -253,13 +259,16 @@ def excel2csv( xls_file = "20190621_BRIDGING.xlsx" , csv_file="20190621_BRIDGING
 
 def read_mapping( file="20190621_BRIDGING.csv",
                   tpm_input_reversed = True,
-                  tpm_list           = None
+                  tpm_list           = None,
+                  decimal            = "."
                 ) : 
+    global g_ribbon_column_name 
+                     
     print "Reading file %s" % (file)
    
-    mapping_data = pd.read_csv(file,low_memory=False)
+    mapping_data = pd.read_csv(file,low_memory=False,decimal=decimal) or ","
 
-    connected_antennas = mapping_data[(mapping_data["ribbon"] != "-")]
+    connected_antennas = mapping_data[(mapping_data[ g_ribbon_column_name ] != "-")]
     connected_count = connected_antennas.shape[0]
     
     print "connected_antennas count = %d" % (len(connected_antennas))
@@ -333,7 +342,7 @@ def antenna2dataindex( csv_file="20190621_BRIDGING.csv",
                        options           = None
                      ) : 
                          
-    (connected_antennas,tpms_unique,antenna_list,data_index) = read_mapping( file=csv_file, tpm_input_reversed=tpm_input_reversed, tpm_list=tpm_list )
+    (connected_antennas,tpms_unique,antenna_list,data_index) = read_mapping( file=csv_file, tpm_input_reversed=tpm_input_reversed, tpm_list=tpm_list, decimal=options.decimal )
     n_ant_connected = connected_antennas.shape[0]
 
     out_f = open( outfile, "w" )    
