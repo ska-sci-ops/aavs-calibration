@@ -167,6 +167,7 @@ def parse_options():
    parser.add_option('--reversed','--down_top_order',dest="tpm_input_reversed",default=False,action="store_true",help="Reversed order on TPM input lower half of inputs other way around [default %default]")
    parser.add_option('--tpm_list','--tpms',dest="tpm_list",default=None, help="TPM list - to only include these TPMs [default %default - empty means use all]") 
    parser.add_option('--print_tpm','--add_tpm',dest="print_tpm",default=False,action="store_true",help="Add TPM to output [default %default]")
+   parser.add_option('--use_all_ants','--use_all',dest='use_all_ants',default=False,action="store_true",help="Use all antennas (ignore Ribbon column as indicator if antenna is connected) [default %default]")
 #   parser.add_option('-d','--device_id','--device',dest="device_id",default=None, help="Device ID [default %default]")
 #   parser.add_option('-t','-c','--crop_type',dest="crop_type",default="Wheat", help="Plant type [default %default]")
 #   parser.add_option('-o','--outfile','--outf',dest="output_file",default="results.txt", help="Results outputfile [default %default]")
@@ -185,6 +186,7 @@ def print_options(options,args,tpm_list) :
    print "print_tpm   = %s" % (options.print_tpm)
    print "Reversed    = %s" % (options.tpm_input_reversed)
    print "Decimal     = %s" % (options.decimal)
+   print "Use all ANTs = %s" % (options.use_all_ants)
    print "####################################################"
 
    
@@ -260,15 +262,20 @@ def excel2csv( xls_file = "20190621_BRIDGING.xlsx" , csv_file="20190621_BRIDGING
 def read_mapping( file="20190621_BRIDGING.csv",
                   tpm_input_reversed = True,
                   tpm_list           = None,
-                  decimal            = "."
+                  decimal            = ".",
+                  use_all_ants       = False
                 ) : 
     global g_ribbon_column_name 
                      
     print "Reading file %s" % (file)
    
-    mapping_data = pd.read_csv(file,low_memory=False,decimal=decimal) or ","
+    mapping_data = pd.read_csv(file,low_memory=False,decimal=decimal) # or ","
 
-    connected_antennas = mapping_data[(mapping_data[ g_ribbon_column_name ] != "-")]
+    connected_antennas = None
+    if use_all_ants :
+       connected_antennas = mapping_data.copy()
+    else :
+       connected_antennas = mapping_data[(mapping_data[ g_ribbon_column_name ] != "-")]
     connected_count = connected_antennas.shape[0]
     
     print "connected_antennas count = %d" % (len(connected_antennas))
@@ -342,7 +349,7 @@ def antenna2dataindex( csv_file="20190621_BRIDGING.csv",
                        options           = None
                      ) : 
                          
-    (connected_antennas,tpms_unique,antenna_list,data_index) = read_mapping( file=csv_file, tpm_input_reversed=tpm_input_reversed, tpm_list=tpm_list, decimal=options.decimal )
+    (connected_antennas,tpms_unique,antenna_list,data_index) = read_mapping( file=csv_file, tpm_input_reversed=tpm_input_reversed, tpm_list=tpm_list, decimal=options.decimal, use_all_ants=options.use_all_ants )
     n_ant_connected = connected_antennas.shape[0]
 
     out_f = open( outfile, "w" )    
