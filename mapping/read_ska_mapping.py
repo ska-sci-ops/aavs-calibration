@@ -1,7 +1,7 @@
 # Based on westf/read_data_asd.py
 # 
 # Usage :
-#    Save Excel Sheet (EDA2) , the google doc used is : see SVN version for details of the googledoc spreadsheet 
+#    Save Excel Sheet (EDA2) , the google doc used is : 
 #    to csv file and use "," as delimiter and nothing as string delimiter :
 #    cd /home/msok/Desktop/EDA2/doc/hardware/setup
 #    EDA2 with "reversed" lower inputs of TPMs      :     python ~/bighorns/software/analysis/scripts/python/read_ska_mapping.py --infile=20190621_BRIDGING_EDA2.csv
@@ -27,7 +27,7 @@ from optparse import OptionParser,OptionGroup
 
 
 # mapping from TPM antennas to RX (see document ~/Desktop/EDA2/logbook/eda2_pointing.odt where I have details of mapping explanations ) 
-# also see SVN version for details of the googledoc spreadsheet
+# also ...
 
 # RX -> DATA_INDEX 
 preadu_tpm_input_mapping = { 1: 0, 
@@ -162,6 +162,7 @@ def parse_options():
    parser.add_option('--outfile','--out_file','--out',dest="outfile",default="antenna_locations_auto.txt", help="Output file [default %default]") # antenna_locations_auto.txt
    parser.add_option('--non_reversed','--top_down_order',dest="tpm_input_reversed",default=False,action="store_false",help="Reversed order on TPM input lower half of inputs other way around [default %default]")
    parser.add_option('--tpm_list','--tpms',dest="tpm_list",default=None, help="TPM list - to only include these TPMs [default %default - empty means use all]") 
+   parser.add_option('--print_tpm','--add_tpm',dest="print_tpm",default=False,action="store_true",help="Add TPM to output [default %default]")
 #   parser.add_option('-d','--device_id','--device',dest="device_id",default=None, help="Device ID [default %default]")
 #   parser.add_option('-t','-c','--crop_type',dest="crop_type",default="Wheat", help="Plant type [default %default]")
 #   parser.add_option('-o','--outfile','--outf',dest="output_file",default="results.txt", help="Results outputfile [default %default]")
@@ -177,6 +178,7 @@ def print_options(options,args,tpm_list) :
    print "Input file  = %s" % (options.infile)
    print "Output file = %s" % (options.outfile)
    print "TPM list    = %s (%s)" % (options.tpm_list,tpm_list)
+   print "print_tpm   = %s" % (options.print_tpm)
    print "####################################################"
 
    
@@ -327,7 +329,8 @@ def read_mapping( file="20190621_BRIDGING.csv",
 def antenna2dataindex( csv_file="20190621_BRIDGING.csv",
                        tpm_input_reversed = True,
                        outfile           = "antenna_locations_auto.txt",
-                       tpm_list          = None
+                       tpm_list          = None,
+                       options           = None
                      ) : 
                          
     (connected_antennas,tpms_unique,antenna_list,data_index) = read_mapping( file=csv_file, tpm_input_reversed=tpm_input_reversed, tpm_list=tpm_list )
@@ -336,6 +339,8 @@ def antenna2dataindex( csv_file="20190621_BRIDGING.csv",
     out_f = open( outfile, "w" )    
     for ant in data_index:
        line = "Ant%03d %.4f %.4f %.4f" % (int(ant.antenna_base),ant.east_west,ant.north_south,ant.z)
+       if options.print_tpm :
+          line += (" %d" % ant.tpm)
        print line
        
        out_f.write(line + "\n")
@@ -363,6 +368,6 @@ if __name__ == '__main__':
    else :
       print "CSV file provided -> no converting required"
 
-   (connected_antennas,tpms_unique,antenna_list,data_index) = antenna2dataindex( csv_file=csv_file, tpm_input_reversed=options.tpm_input_reversed, outfile=options.outfile, tpm_list=tpm_list )
+   (connected_antennas,tpms_unique,antenna_list,data_index) = antenna2dataindex( csv_file=csv_file, tpm_input_reversed=options.tpm_input_reversed, outfile=options.outfile, tpm_list=tpm_list, options=options )
    
 
