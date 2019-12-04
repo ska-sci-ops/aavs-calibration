@@ -91,6 +91,7 @@ echo "##########################################################################
 
 
 # Link some configuration files
+echo "Creating links to config files for a default station (station name = $station_name)"
 if [[ $station_name == "eda2" || $station_name == "EDA2" ]]; then
    echo "Creating links to config files for station $station_name"
       
@@ -98,11 +99,15 @@ if [[ $station_name == "eda2" || $station_name == "EDA2" ]]; then
    ln -sf /home/aavs/aavs-calibration/antenna_locations_eda2.txt antenna_locations.txt
    ln -sf /home/aavs/aavs-calibration/header_eda2_cal.txt header.txt
 else
-   echo "Creating links to config files for a default station (station name = $station_name)"
-
-   ln -s /home/aavs/aavs-calibration/instr_config.txt
-   ln -s /home/aavs/aavs-calibration/antenna_locations.txt
-   ln -s /home/aavs/aavs-calibration/header_cal.txt header.txt
+   if [[ $station_name == "aavs2" || $station_name == "AAVS2" ]]; then
+      ln -s /home/aavs/aavs-calibration/config/aavs2/instr_config_aavs2_20191129.txt instr_config.txt
+      ln -s /home/aavs/aavs-calibration/antenna_locations_20191202.txt antenna_locations.txt
+      ln -s /home/aavs/aavs-calibration/header_cal.txt header.txt
+   else
+      ln -s /home/aavs/aavs-calibration/instr_config.txt
+      ln -s /home/aavs/aavs-calibration/antenna_locations.txt
+      ln -s /home/aavs/aavs-calibration/header_cal.txt header.txt
+   fi
 fi   
 
 # Compute the integration time for the given dump time and integration skip (nav)
