@@ -124,7 +124,8 @@ def get_last_delays( station_id=2 ) :
       print "ERROR : no calibration solutions in the database for station_id = %d" % (station_id)
       return (None,None,None,None)
 
-   szSQL = "select ant_id,x_delay,y_delay from calibration_solution where station_id=%d" % (station_id) 
+   # *1000 to have in nanoseconds
+   szSQL = "select ant_id,x_delay*1000,y_delay*1000 from calibration_solution where station_id=%d" % (station_id) 
    print "Execurting SQL : %s" % szSQL
 
    # conn = db_connect()   
@@ -151,12 +152,18 @@ def get_last_delays( station_id=2 ) :
            x_delays.append( delay_x )
            y_delays.append( delay_y )
            ant_tpm.append ( tpm )
+           cnt += 1
 
            if (cnt % 16) == 0 :
               tpm += 1
 
            
    cur.close()
+   
+   print "Returning %d antennas, %d tpms, %d X delays and %d Y delays" % (len(ants),len(ant_tpm),len(x_delays),len(y_delays))
+   n = len(ants)
+   for ant in range(0,n) :
+      print "%d : TPM-%d , x_delays = %.2f [ns], y_delays = %.2f [ns]" % (ant,ant_tpm[ant],x_delays[ant],y_delays[ant])
 
    return (ants, ant_tpm, x_delays, y_delays)
 
@@ -270,11 +277,14 @@ def main() :
 
 
    if options.dbname is not None :
+      global conn
+      conn = db_connect()
+    
       outfile = "delay_vs_tpm_lastdb.txt"
       outconfig = "delay_vs_tpm_lastdb.conf"
-      (ant_name, ant_tpm, x_delays, y_delays) = get_last_delays( station = options.station_id )       
+      (ant_name, ant_tpm, x_delays, y_delays) = get_last_delays( station_id = options.station_id )       
       (mean_delays) = calc_mean_delays_per_tpm( ant_name , x_delays , ant_tpm, outfile=outfile, outconfig=outconfig )           
-   else 
+   else :
       outconfig = filename.replace(".txt",".conf")
       outfile="delay_vs_tpm.txt"
 
