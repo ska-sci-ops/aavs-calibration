@@ -30,7 +30,9 @@ if [[ -n "$6" && "$6" != "-" ]]; then
    plotting_options=$6
 fi
 
+station_name="aavs1"
 station_id=2
+antenna_config="~/aavs-calibration/antenna_locations_eda2.txt"
 if [[ -n "$7" && "$7" != "-" ]]; then
    station_id=$7
 fi
@@ -59,6 +61,16 @@ if [[ -n "$9" && "$9" != "-" ]]; then
       echo "cp ${www_dir}/index.html ${www_dir}/${out_subdir}/"
       cp ${www_dir}/index.html ${www_dir}/${out_subdir}/
    fi
+fi
+
+if [[ $station_id == 2 ]]; then
+   antenna_config="~/aavs-calibration/antenna_locations_eda2.txt"
+   station_name="eda2"
+fi
+
+if [[ $station_id == 3 ]]; then
+   antenna_config="~/aavs-calibration/config/aavs2/antenna_locations_20191202.txt"
+   station_name="aavs2"
 fi
 
 
@@ -99,9 +111,8 @@ fi
 
 cd ${dt}
 
-if [[ $station_id == 2 ]]; then
-   ln -s ~/aavs-calibration/antenna_locations_eda2.txt antenna_locations.txt
-fi
+echo "cp ${antenna_config} antenna_locations.txt"
+cp ${antenna_config} antenna_locations.txt
 
 # export PATH=/home/msok/bighorns/software/analysis/scripts/aavs1:$PATH
 # plot_delay_path=/home/msok/bighorns/software/analysis/scripts/aavs1/plot_delay.py
@@ -150,24 +161,24 @@ do
 done
 
 # part plotting mean / stddev :
-echo "python $scripts_path/plot_calsolutions_vs_time.py --last_calibration_file=\"last_calibration.txt\" --outdir=\"./\" --station_id=${station_id} --start_date=${start_date} --get_mean_stddev_delay --outfile=eda2_mean_stddev_delay.txt"
-python $scripts_path/plot_calsolutions_vs_time.py --last_calibration_file="last_calibration.txt" --outdir="./" --station_id=${station_id} --start_date=${start_date} --get_mean_stddev_delay --outfile=eda2_mean_stddev_delay.txt
+echo "python $scripts_path/plot_calsolutions_vs_time.py --last_calibration_file=\"last_calibration.txt\" --outdir=\"./\" --station_id=${station_id} --start_date=${start_date} --get_mean_stddev_delay --outfile=${station_name}_mean_stddev_delay.txt"
+python $scripts_path/plot_calsolutions_vs_time.py --last_calibration_file="last_calibration.txt" --outdir="./" --station_id=${station_id} --start_date=${start_date} --get_mean_stddev_delay --outfile=${station_name}_mean_stddev_delay.txt
 
-echo "python $scripts_path/plot_delay.py eda2_mean_stddev_delay.txt --delay_unit=\"[ns]\" --multiplier=1000.00 --comment=\"ErrorBar is STDDEV\" --mean_stddev --y_min=-10 --y_max=10 --outdir=\"./\""
-python $scripts_path/plot_delay.py eda2_mean_stddev_delay.txt --delay_unit="[ns]" --multiplier=1000.00 --comment="ErrorBar is STDDEV" --mean_stddev --y_min=-10 --y_max=10 --outdir="./"
-echo "cp eda2_mean_stddev_delay.png ${www_dir}/${out_subdir}/"
-cp eda2_mean_stddev_delay.png ${www_dir}/${out_subdir}/
+echo "python $scripts_path/plot_delay.py ${station_name}_mean_stddev_delay.txt --delay_unit=\"[ns]\" --multiplier=1000.00 --comment=\"ErrorBar is STDDEV\" --mean_stddev --y_min=-10 --y_max=10 --outdir=\"./\""
+python $scripts_path/plot_delay.py ${station_name}_mean_stddev_delay.txt --delay_unit="[ns]" --multiplier=1000.00 --comment="ErrorBar is STDDEV" --mean_stddev --y_min=-10 --y_max=10 --outdir="./"
+echo "cp ${station_name}_mean_stddev_delay.png ${www_dir}/${out_subdir}/"
+cp ${station_name}_mean_stddev_delay.png ${www_dir}/${out_subdir}/
 
 month=`date +%Y%m`
 first_of_month=`date +"%Y-%m-01 00:00:00"`
-echo "python $scripts_path/plot_calsolutions_vs_time.py --last_calibration_file="last_calibration.txt" --outdir="./" --station_id=${station_id} --start_date=${first_of_month} --get_mean_stddev_delay --outfile=${month}_eda2_mean_stddev_delay.txt"
-python $scripts_path/plot_calsolutions_vs_time.py --last_calibration_file="last_calibration.txt" --outdir="./" --station_id=${station_id} --start_date=${first_of_month} --get_mean_stddev_delay --outfile=${month}_eda2_mean_stddev_delay.txt
+echo "python $scripts_path/plot_calsolutions_vs_time.py --last_calibration_file="last_calibration.txt" --outdir="./" --station_id=${station_id} --start_date=${first_of_month} --get_mean_stddev_delay --outfile=${month}_${station_name}_mean_stddev_delay.txt"
+python $scripts_path/plot_calsolutions_vs_time.py --last_calibration_file="last_calibration.txt" --outdir="./" --station_id=${station_id} --start_date=${first_of_month} --get_mean_stddev_delay --outfile=${month}_${station_name}_mean_stddev_delay.txt
 
-echo "python $scripts_path/plot_delay.py ${month}_eda2_mean_stddev_delay.txt --delay_unit=\"[ns]\" --multiplier=1000.00 --comment=\"ErrorBar is STDDEV\" --mean_stddev --y_min=-10 --y_max=10 --outdir=\"./\""
-python $scripts_path/plot_delay.py ${month}_eda2_mean_stddev_delay.txt --delay_unit="[ns]" --multiplier=1000.00 --comment="ErrorBar is STDDEV" --mean_stddev --y_min=-10 --y_max=10 --outdir="./"
+echo "python $scripts_path/plot_delay.py ${month}_${station_name}_mean_stddev_delay.txt --delay_unit=\"[ns]\" --multiplier=1000.00 --comment=\"ErrorBar is STDDEV\" --mean_stddev --y_min=-10 --y_max=10 --outdir=\"./\""
+python $scripts_path/plot_delay.py ${month}_${station_name}_mean_stddev_delay.txt --delay_unit="[ns]" --multiplier=1000.00 --comment="ErrorBar is STDDEV" --mean_stddev --y_min=-10 --y_max=10 --outdir="./"
 
-echo "cp ${month}_eda2_mean_stddev_delay.png ${www_dir}/${out_subdir}/"
-cp ${month}_eda2_mean_stddev_delay.png ${www_dir}/${out_subdir}/
+echo "cp ${month}_${station_name}_mean_stddev_delay.png ${www_dir}/${out_subdir}/"
+cp ${month}_${station_name}_mean_stddev_delay.png ${www_dir}/${out_subdir}/
 
-echo "cp ${month}_eda2_mean_stddev_delay.png ${www_dir}/${out_subdir}/current_month_eda2_mean_stddev_delay.png"
-cp ${month}_eda2_mean_stddev_delay.png ${www_dir}/${out_subdir}/current_month_eda2_mean_stddev_delay.png
+echo "cp ${month}_${station_name}_mean_stddev_delay.png ${www_dir}/${out_subdir}/current_month_${station_name}_mean_stddev_delay.png"
+cp ${month}_${station_name}_mean_stddev_delay.png ${www_dir}/${out_subdir}/current_month_${station_name}_mean_stddev_delay.png
