@@ -90,23 +90,29 @@ echo "station_name      = $station_name"
 echo "######################################################################################################"
 
 
+# MS : 20191204 - I changed symbolic links to copies to keep track of what we used at the time of calibration
+#      with symbolic link if the target changes, we don't know what was used at the time
 # Link some configuration files
 echo "Creating links to config files for a default station (station name = $station_name)"
 if [[ $station_name == "eda2" || $station_name == "EDA2" ]]; then
    echo "Creating links to config files for station $station_name"
-      
-   ln -sf /home/aavs/aavs-calibration/instr_config_eda2.txt instr_config.txt
-   ln -sf /home/aavs/aavs-calibration/antenna_locations_eda2.txt antenna_locations.txt
-   ln -sf /home/aavs/aavs-calibration/header_eda2_cal.txt header.txt
+         
+   cp ~/aavs-calibration/instr_config_eda2.txt instr_config.txt
+   cp ~/aavs-calibration/antenna_locations_eda2.txt antenna_locations.txt
+   cp ~/aavs-calibration/header_eda2_cal.txt header.txt
 else
    if [[ $station_name == "aavs2" || $station_name == "AAVS2" ]]; then
-      ln -s /home/aavs/aavs-calibration/config/aavs2/instr_config_aavs2_20191129.txt instr_config.txt
-      ln -s /home/aavs/aavs-calibration/antenna_locations_20191202.txt antenna_locations.txt
-      ln -s /home/aavs/aavs-calibration/header_cal.txt header.txt
+      echo "Creating links to config files for station AAVS2"
+      
+      cp ~/aavs-calibration/config/aavs2/instr_config_aavs2_20191129.txt instr_config.txt
+      cp ~/aavs-calibration/antenna_locations_20191202.txt antenna_locations.txt
+      cp ~/aavs-calibration/header_cal.txt header.txt
    else
-      ln -s /home/aavs/aavs-calibration/instr_config.txt
-      ln -s /home/aavs/aavs-calibration/antenna_locations.txt
-      ln -s /home/aavs/aavs-calibration/header_cal.txt header.txt
+      echo "Creating links to config files for default station (AAVS1)"
+      
+      cp ~/aavs-calibration/instr_config.txt .
+      cp ~/aavs-calibration/antenna_locations.txt .
+      cp ~/aavs-calibration/header_cal.txt header.txt .
    fi
 fi   
 
