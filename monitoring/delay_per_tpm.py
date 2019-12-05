@@ -125,7 +125,7 @@ def get_last_delays( station_id=2 ) :
       return (None,None,None,None)
 
    # *1000 to have in nanoseconds
-   szSQL = "select ant_id,x_delay*1000,y_delay*1000 from calibration_solution where station_id=%d" % (station_id) 
+   szSQL = "select ant_id,x_delay*1000,y_delay*1000 from calibration_solution where station_id=%d and fit_time='%s'" % (station_id,max_dtm) 
    print "Execurting SQL : %s" % szSQL
 
    # conn = db_connect()   
