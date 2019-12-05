@@ -107,8 +107,8 @@ else
       echo "Creating links to config files for station AAVS2"
       
       cp ~/aavs-calibration/config/aavs2/instr_config_aavs2_20191129.txt instr_config.txt
-      cp ~/aavs-calibration/antenna_locations_20191202.txt antenna_locations.txt
-      cp ~/aavs-calibration/header_cal.txt header.txt
+      cp ~/aavs-calibration/config/aavs2/antenna_locations_20191202.txt antenna_locations.txt
+      cp ~/aavs-calibration/header_cal.txt header.txt 
    else
       echo "Creating links to config files for default station (AAVS1)"
       
