@@ -80,7 +80,7 @@ def load_coefficients(directory, channel):
     return xx_amp, xx_phase, yy_amp, yy_phase
 
 
-def calibrate_channel(channel) # ,station_name="EDA2"): - parameters do not work in multi-threaded version, I used global variable to pass correct station_name (the same for the whole processing)
+def calibrate_channel(channel) : # ,station_name="EDA2"): - parameters do not work in multi-threaded version, I used global variable to pass correct station_name (the same for the whole processing)
     """ Run calibration process on channel"""
     global g_station_name
     
