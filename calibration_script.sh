@@ -29,6 +29,7 @@ function print_usage {
 
 # parse command-line options
 while getopts ":D:T:N:ksS:R:" opt; do
+  echo "Parsing option ${opt} , argument = ${OPTARG}"
   case ${opt} in
     D)
       data_dir=${OPTARG}
@@ -85,6 +86,7 @@ echo "channel: $channel. PWD: $PWD"
 echo "######################################################################################################"
 echo "PARAMETERS :"
 echo "######################################################################################################"
+echo "channel           = $channel"
 echo "reference_antenna = $reference_antenna"
 echo "station_name      = $station_name"
 echo "######################################################################################################"
