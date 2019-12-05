@@ -27,6 +27,7 @@ show_output = False
 nof_integrations = 1
 directory = '.'
 
+g_station_name = "EDA2"
 
 def read_gain_solution_file(filepath):
     """ Read coefficients from filepath """
@@ -79,8 +80,11 @@ def load_coefficients(directory, channel):
     return xx_amp, xx_phase, yy_amp, yy_phase
 
 
-def calibrate_channel(channel,station_name="EDA2"):
+def calibrate_channel(channel) # ,station_name="EDA2"): - parameters do not work in multi-threaded version, I used global variable to pass correct station_name (the same for the whole processing)
     """ Run calibration process on channel"""
+    global g_station_name
+    
+    station_name = g_station_name
 
     logging.info("Processing channel {}".format(channel))
     # test if with full path it will work :
@@ -110,6 +114,9 @@ def calibrate_channel(channel,station_name="EDA2"):
 
 def run_calibration(directory, nof_channels, threads, station_name="EDA2" ):
     """ Calibrate channels """
+    global g_station_name
+    # set value of global variable before call to calibrate_channel in either single or multi-threaded version 
+    g_station_name = station_name 
 
     # If more than 1 thread is required, use process pool
     if threads > 1:
