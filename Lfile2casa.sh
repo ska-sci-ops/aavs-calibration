@@ -5,7 +5,8 @@
 # 3: RA hours (optional, default is zenith)
 # 4: DEC degs (optional, default is zenith)
 
-# requires cotter_tiny to be compiled on the system : github.com/marcinsokolowski/cotter_tiny - it is a private repository at the moment, but might be changed if needed.
+# requires cotter_tiny to be compiled on the system : github.com/marcinsokolowski/cotter_tiny.git - it is a private repository at the moment, but might be changed if needed.
+# assumes that cotter_tiny is installed in standard location (/usr/local/bin for example) - follow instructions in cotter_tiny README.md file
 
 dump_time=1.38240	# basic correlator integration time for 40000 averages
 dump_time=2.00016	# basic correlator integration time for 57875 averages
@@ -115,5 +116,5 @@ ntimes=$((lacsize/la_chunksize/nchunks))
 if [ $ntimes -lt 1 ] ; then ntimes=1 ; fi
 echo "Processing file $Lfilebase. There are $ntimes times. Start unix time: $startunix"
 
-echo "cotter_tiny $Lfilebase ${Lfilebase}.ms -a ${antenna_locations_path} -i ${instr_path} -c ${chan}"
-cotter_tiny $Lfilebase ${Lfilebase}.ms -a ${antenna_locations_path} -i ${instr_path} -c ${chan}
+echo "lfile2casa $Lfilebase ${Lfilebase}.ms -a ${antenna_locations_path} -i ${instr_path} -c ${chan}"
+lfile2casa $Lfilebase ${Lfilebase}.ms -a ${antenna_locations_path} -i ${instr_path} -c ${chan}

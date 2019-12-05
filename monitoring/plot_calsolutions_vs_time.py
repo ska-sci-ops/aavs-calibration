@@ -242,7 +242,7 @@ if __name__ == "__main__":
    if os.path.exists( options.last_calibration_file ) :
        last_calib_date = read_last_calibration_dtm( options.last_calibration_file )
    
-       if is_there_new_calibration( last_calib_date ) : 
+       if is_there_new_calibration( last_calib_date, station_id=options.station_id ) : 
           print "INFO : there are new calibration solutions in the database"
        else :
           print "WARNING : no new calibration solutions to plot found in the database after %s" % (last_calib_date)
