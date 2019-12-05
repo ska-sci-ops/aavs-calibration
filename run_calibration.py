@@ -88,8 +88,9 @@ def calibrate_channel(channel,station_name="EDA2"):
     command = [cal_script, "-D", directory,
                "-T", str(dump_time),
                "-N", str(nof_integrations),
-               "-k", str(channel),
-               "-S", station_name
+               "-S", station_name,
+               "-k", str(channel) # WARNING : channel MUST GO LAST ADD PARAMETERS EARLIER BUT NOT AFTER !!!
+               # WARNING : channel MUST GO LAST ADD PARAMETERS EARLIER BUT NOT AFTER !!!
               ]
 
     cmdline=""
