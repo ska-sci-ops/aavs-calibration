@@ -21,7 +21,7 @@ print("Query is: %s. Date is: %s" % (query,str(target)))
 cur.execute(query,(target,))
 
 rows = cur.fetchall()
-fit_time = rows[0][0] # because its fucking obvious you have to do this
+fit_time = rows[0][0] 
 
 # now fetch the most recent solution for this time
 query="select create_time from calibration_fit where fit_time=%s order by create_time desc limit 1"
