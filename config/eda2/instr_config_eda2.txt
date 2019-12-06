@@ -1,4 +1,6 @@
 ##################################################
+#    EDA2 
+# 
 # this file maps inputs into the receiver/correlator to antennas and polarisations.
 # in addition, a cable length delta (in meters) can be specified
 # the first column is not actually used by the uvfits writer, but is there as
