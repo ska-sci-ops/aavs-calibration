@@ -1,3 +1,6 @@
+# Script by Randall Wayth to plot calibration solutions with fits overplotted (requires access to database)
+# TODO : make it a bit more "parameterised"
+
 # quick and dirty script to plot cal solutions from database, corresponding to a particular time
 # the default plan uses the directory name as the time the data were taken based on Alessio's script
 import psycopg2,os,numpy,sys
