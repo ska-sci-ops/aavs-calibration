@@ -29,8 +29,8 @@ images_dir=${www_dir}/${station_name_lower}/${cal_dtm}
 echo "ssh aavs@aavs1-server \"mkdir -p ${images_dir}\""
 ssh aavs@aavs1-server "mkdir -p ${images_dir}"
 
-echo "~/aavs-calibration/monitoring/plotcal_v_freq.py"
-~/aavs-calibration/monitoring/plotcal_v_freq.py
+echo "python ~/aavs-calibration/monitoring/plotcal_v_freq.py"
+python ~/aavs-calibration/monitoring/plotcal_v_freq.py
 
 
 echo "scp *.png aavs@aavs1-server:${images_dir}/"
