@@ -348,6 +348,6 @@ if __name__ == "__main__":
     if conf.plot_solutions :
        print "Plotting the latest calibration solutions with fits from the database:"
        cal_script = "/home/aavs/aavs-calibration/monitoring/plotcal_v_freq.sh"
-       command = [ cal_script , conf.station_name ] # add parameters separated by commas : , "-D", directory,  etc 
+       command = [ cal_script , conf.station_name, conf.directory ] # add parameters separated by commas : , "-D", directory,  etc 
        subprocess.call(command, stdout=stdout, stderr=subprocess.STDOUT)
        
