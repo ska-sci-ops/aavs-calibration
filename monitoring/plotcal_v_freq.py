@@ -4,7 +4,10 @@
 # quick and dirty script to plot cal solutions from database, corresponding to a particular time
 # the default plan uses the directory name as the time the data were taken based on Alessio's script
 import psycopg2,os,numpy,sys
-import matplotlib.pyplot as plt
+import matplotlib
+if not 'matplotlib.backends' in sys.modules:
+   matplotlib.use('agg') # not to use X11
+import matplotlib.pyplot as plt   
 from datetime import datetime
 from datetime import timedelta
 import pytz
