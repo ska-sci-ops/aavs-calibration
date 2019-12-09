@@ -48,5 +48,6 @@ scp *.png aavs@aavs1-server:${www_dir}/${station_name_lower}/current/
 
 # Get delays from DB and format them for the station config file:
 # PGUSER=aavs
+pwd
 echo "python ~/aavs-calibration/monitoring/delay_per_tpm.py --db=$PGUSER --station_id=3"
 python ~/aavs-calibration/monitoring/delay_per_tpm.py --db=$PGUSER --station_id=3
