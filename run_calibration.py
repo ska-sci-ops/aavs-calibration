@@ -271,6 +271,8 @@ if __name__ == "__main__":
                       help="Station ID (as in the station configuratio file) [default: %]", type=int )                      
     parser.add_option("--station_name", dest="station_name", default="EDA2", # was AAVS1
                       help="Station ID (as in the station configuratio file) [default: %]" )                      
+     parser.add_option("-P", "--plots", '--do_plots', '--plot_solutions', action="store_true", dest="plot_solutions", default=True,
+                      help="Plot calibration solutions and fits from the database [default: %defualt]")
     (conf, args) = parser.parse_args(argv[1:])
 
     # Set logging
@@ -343,3 +345,9 @@ if __name__ == "__main__":
     if not conf.no_db :
         save_coefficients_mongo(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_name=conf.station_name )
 
+    if plot_solutions :
+       print "Plotting the latest calibration solutions with fits from the database:"
+       cal_script = "/home/aavs/aavs-calibration/monitoring/plotcal_v_freq.sh"
+       command = [cal_script] # add parameters separated by commas : , "-D", directory,  etc 
+       subprocess.call(command, stdout=stdout, stderr=subprocess.STDOUT)
+       
