@@ -29,6 +29,9 @@ images_dir=${www_dir}/${station_name_lower}/${cal_dtm}
 echo "ssh aavs@aavs1-server \"mkdir -p ${images_dir}\""
 ssh aavs@aavs1-server "mkdir -p ${images_dir}"
 
+echo "ssh aavs@aavs1-server \"ln -sf ${images_dir} ${www_dir}/${station_name_lower}/current\""
+ssh aavs@aavs1-server "ln -sf ${images_dir} ${www_dir}/${station_name_lower}/current"
+
 echo "python ~/aavs-calibration/monitoring/plotcal_v_freq.py"
 python ~/aavs-calibration/monitoring/plotcal_v_freq.py
 
