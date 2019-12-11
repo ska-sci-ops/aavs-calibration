@@ -46,8 +46,8 @@ ssh aavs@aavs1-server "mkdir -p ${images_dir} ${www_dir}/${station_name_lower}/c
 # echo "ssh aavs@aavs1-server \"ln -sf ${images_dir} ${www_dir}/${station_name_lower}/current\""
 # ssh aavs@aavs1-server "ln -sf ${images_dir} ${www_dir}/${station_name_lower}/current"
 
-echo "scp ~/aavs-calibration/monitoring/html/plot_calsol_index.html aavs@aavs1-server:${images_dir}/index.html"
-scp ~/aavs-calibration/monitoring/html/plot_calsol_index.html aavs@aavs1-server:${images_dir}/index.html
+echo "scp ~/aavs-calibration/monitoring/html/plot_calsol_index_${station_name_lower}.html aavs@aavs1-server:${images_dir}/index.html"
+scp ~/aavs-calibration/monitoring/html/plot_calsol_index_${station_name_lower}.html aavs@aavs1-server:${images_dir}/index.html
 
 
 echo "scp *.png aavs@aavs1-server:${images_dir}/"
