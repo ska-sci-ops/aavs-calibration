@@ -24,7 +24,7 @@ def do_plots( station_id ):
    currdir=os.path.split(os.getcwd())[-1] # the local time for the dump is encoded in the directory name for now
    mytz=pytz.timezone('Australia/West')
    target=mytz.localize(datetime.strptime(currdir,"%Y_%m_%d-%H:%M"))
-   query="select fit_time from calibration_solutions where station_id=%d order by abs(extract(epoch from (fit_time - %s))) limit 1"
+   query="select fit_time from calibration_solutions where station_id=%s order by abs(extract(epoch from (fit_time - %s))) limit 1"
    print("Query is: %s. Date is: %s" % (query,str(target)))
    cur.execute(query,(station_id,target,))
 
@@ -32,7 +32,7 @@ def do_plots( station_id ):
    fit_time = rows[0][0] 
 
    # now fetch the most recent solution for this time
-   query="select create_time from calibration_solutions where fit_time=%s and station_id=%d order by create_time desc limit 1"
+   query="select create_time from calibration_solutions where fit_time=%s and station_id=%s order by create_time desc limit 1"
    cur.execute(query,(fit_time,station_id,))
 
    rows = cur.fetchall()
@@ -57,7 +57,7 @@ def do_plots( station_id ):
        ant_ind = group*16 + subgroup_ind
        ax1d[subgroup_ind].set_ylim([-200,200])
        ax1d[subgroup_ind].set_title('Ant '+str(ant_ind+1))
-       qu_cal="select x_pha,y_pha,x_amp,y_amp,x_delay,y_delay,x_phase0,y_phase0 from calibration_solution where fit_time = %s and create_time = %s and ant_id = %s and station_id = %d"
+       qu_cal="select x_pha,y_pha,x_amp,y_amp,x_delay,y_delay,x_phase0,y_phase0 from calibration_solution where fit_time = %s and create_time = %s and ant_id = %s and station_id = %s"
        cur.execute(qu_cal,(fit_time,create_time, ant_ind, station_id))
        allcals=cur.fetchall()
        assert (len(allcals) == 1)
