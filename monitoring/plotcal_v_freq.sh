@@ -34,8 +34,8 @@ curr_path=`pwd`
 cal_dtm=`basename $curr_path`
 echo "Real-time calibration path = $curr_path -> cal_dtm = $cal_dtm"
 
-echo "python ~/aavs-calibration/monitoring/plotcal_v_freq.py"
-python ~/aavs-calibration/monitoring/plotcal_v_freq.py
+echo "python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id}"
+python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id}
 
 # prepare directorios and copy images to WWW server :
 images_dir=${www_dir}/${station_name_lower}/${cal_dtm}
