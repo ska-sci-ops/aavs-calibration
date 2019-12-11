@@ -49,6 +49,9 @@ ssh aavs@aavs1-server "mkdir -p ${images_dir} ${www_dir}/${station_name_lower}/c
 echo "scp ~/aavs-calibration/monitoring/html/plot_calsol_index_${station_name_lower}.html aavs@aavs1-server:${images_dir}/index.html"
 scp ~/aavs-calibration/monitoring/html/plot_calsol_index_${station_name_lower}.html aavs@aavs1-server:${images_dir}/index.html
 
+echo "scp ~/aavs-calibration/monitoring/html/plot_calsol_index_${station_name_lower}.html aavs@aavs1-server:${www_dir}/${station_name_lower}/current/index.html"
+scp ~/aavs-calibration/monitoring/html/plot_calsol_index_${station_name_lower}.html aavs@aavs1-server:${www_dir}/${station_name_lower}/current/index.html
+
 
 echo "scp *.png aavs@aavs1-server:${images_dir}/"
 scp *.png aavs@aavs1-server:${images_dir}/
@@ -61,3 +64,9 @@ scp *.png aavs@aavs1-server:${www_dir}/${station_name_lower}/current/
 pwd
 echo "python ~/aavs-calibration/monitoring/delay_per_tpm.py --db=$PGUSER --station_id=${station_id}"
 python ~/aavs-calibration/monitoring/delay_per_tpm.py --db=$PGUSER --station_id=${station_id}
+
+echo "scp delay_vs_tpm_lastdb.conf aavs@aavs1-server:${www_dir}/${station_name_lower}/current/"
+scp delay_vs_tpm_lastdb.conf aavs@aavs1-server:${www_dir}/${station_name_lower}/current/
+
+echo "scp delay_vs_tpm_lastdb.conf aavs@aavs1-server:${images_dir}/"
+scp delay_vs_tpm_lastdb.conf aavs@aavs1-server:${images_dir}/
