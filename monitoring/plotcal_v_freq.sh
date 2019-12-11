@@ -2,10 +2,14 @@
 
 # caldir="/data/aavs2/real_time_calibration/"
 station_name="eda2"
+station_id=2
 if [[ -n "$1" && "$1" != "-" ]]; then
    station_name="$1"
 fi
 station_name_lower=`echo $station_name | awk '{print tolower($1);}'`
+if [[ $station_name_lower == "aavs2" ]]; then
+   station_id=3
+fi
 
 data_dir="./"
 if [[ -n "$2" && "$2" != "-" ]]; then
@@ -18,6 +22,12 @@ www_dir="/exports/calibration/"
 if [[ -n "$3" && "$3" != "-" ]]; then
    www_dir=$3
 fi
+
+echo "################################################"
+echo "PARAMETERS:"
+echo "################################################"
+echo "station_name = $station_name ( station_id = $station_id )"
+echo "################################################"
 
 
 curr_path=`pwd`
@@ -49,5 +59,5 @@ scp *.png aavs@aavs1-server:${www_dir}/${station_name_lower}/current/
 # Get delays from DB and format them for the station config file:
 # PGUSER=aavs
 pwd
-echo "python ~/aavs-calibration/monitoring/delay_per_tpm.py --db=$PGUSER --station_id=3"
-python ~/aavs-calibration/monitoring/delay_per_tpm.py --db=$PGUSER --station_id=3
+echo "python ~/aavs-calibration/monitoring/delay_per_tpm.py --db=$PGUSER --station_id=${station_id}"
+python ~/aavs-calibration/monitoring/delay_per_tpm.py --db=$PGUSER --station_id=${station_id}
