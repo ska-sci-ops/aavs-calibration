@@ -24,7 +24,7 @@ def do_plots( station_id ):
    currdir=os.path.split(os.getcwd())[-1] # the local time for the dump is encoded in the directory name for now
    mytz=pytz.timezone('Australia/West')
    target=mytz.localize(datetime.strptime(currdir,"%Y_%m_%d-%H:%M"))
-   query="select fit_time from calibration_solutions where station_id=%s order by abs(extract(epoch from (fit_time - %s))) limit 1"
+   query="select fit_time from calibration_solution where station_id=%s order by abs(extract(epoch from (fit_time - %s))) limit 1"
    print("Query is: %s. Date is: %s" % (query,str(target)))
    cur.execute(query,(station_id,target,))
 
@@ -32,7 +32,7 @@ def do_plots( station_id ):
    fit_time = rows[0][0] 
 
    # now fetch the most recent solution for this time
-   query="select create_time from calibration_solutions where fit_time=%s and station_id=%s order by create_time desc limit 1"
+   query="select create_time from calibration_solution where fit_time=%s and station_id=%s order by create_time desc limit 1"
    cur.execute(query,(fit_time,station_id,))
 
    rows = cur.fetchall()
