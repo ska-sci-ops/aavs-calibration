@@ -58,7 +58,7 @@ def do_plots( station_id ):
        ax1d[subgroup_ind].set_ylim([-200,200])
        plot_title = 'Ant '+str(ant_ind+1)
        if subgroup_ind == 1 :
-          local_time = mytz.localize(datetime.strptime(currdir,"%Y%m%d_%H%M"))
+          local_time = mytz.localize(datetime.strptime(currdir,"%Y_%m_%d-%H:%M"))
           plot_title += str( local_time )
        ax1d[subgroup_ind].set_title( plot_title )
        qu_cal="select x_pha,y_pha,x_amp,y_amp,x_delay,y_delay,x_phase0,y_phase0 from calibration_solution where fit_time = %s and create_time = %s and ant_id = %s and station_id = %s"
