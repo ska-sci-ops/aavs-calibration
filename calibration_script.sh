@@ -9,7 +9,8 @@ data_dir=${default_data_dir}
 keep_intermediate=0
 convert_hdf5_files=1
 station_name=eda2
-reference_antenna=3 # Changed 2->3 for EDA2 (2 is not working) there might be some issue with EDA2 antenna 2 (index based from 1) or 1 (index based 0), So I might need to test another one
+reference_antenna=5 # 2020-01-29 - antenna 3 broken after storm -> using 5 for now (at least for the EDA2)
+                    # Changed 2->3 for EDA2 (2 is not working) there might be some issue with EDA2 antenna 2 (index based from 1) or 1 (index based 0), So I might need to test another one
 
 # Include binaries in calibration directory
 #export PATH=$PATH:/home/aavs/randall_calibration
