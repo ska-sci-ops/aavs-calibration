@@ -1155,7 +1155,7 @@ if __name__ == "__main__":
     print "Running a loop over channels %d - %d" % (conf.start_channel,conf.stop_channel)
     channel_list = numpy.arange( conf.start_channel,conf.stop_channel,conf.step_channel )
     
-    if options.add_uav_channels :
+    if conf.add_uav_channels :
        channel_list = numpy.append( channel_list, [ 64, 90, 141, 204, 294, 410 ] )
     
     for channel in channel_list :
