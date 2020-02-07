@@ -19,6 +19,7 @@ import time
 import math
 import sys
 import os
+import numpy
 
 # Define default configuration
 configuration = {'tiles': None,
@@ -1109,6 +1110,8 @@ if __name__ == "__main__":
     parser.add_option("--start_ux", "--start_unixtime", action="store", dest="start_unixtime",
                       type="int", default=-1, help="Start unixtime [default: %default]")                      
                                             
+    parser.add_option("--add_uav_channels", "--include_uav_channels", action="store_true", dest="add_uav_channels", default=False, help="Include UAV channels at the very end")
+                                            
                                                       
     (conf, args) = parser.parse_args(argv[1:])
     
@@ -1149,7 +1152,12 @@ if __name__ == "__main__":
     
     # running a loop over specified channel range :
     print "Running a loop over channels %d - %d" % (conf.start_channel,conf.stop_channel)
-    for channel in range(conf.start_channel,conf.stop_channel,conf.step_channel) :
+    channel_list = numpy.arange( conf.start_channel,conf.stop_channel,conf.step_channel )
+    
+    if options.add_uav_channels :
+       channel_list = numpy.append( channel_list, [ 64, 90, 141, 204, 294, 410 ] )
+    
+    for channel in channel_list :
         print "Stopping previous and starting channel %d" % (channel)
         station.send_channelised_data_continuous( channel )
         print "%.4f : Staying on channel %d for %d seconds ..." % (time.time(),channel,conf.time_per_channel)
