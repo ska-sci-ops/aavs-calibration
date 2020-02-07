@@ -1141,9 +1141,10 @@ if __name__ == "__main__":
     station.connect()
     
     # first wait until specified time 
-    wait_time = int( conf.start_unixtime - time.time() )
-    print "Waiting %d seconds to start data acuisition ..." % (wait_time)
-    time.sleep( wait_time )
+    if conf.start_unixtime > 0 :
+       wait_time = int( conf.start_unixtime - time.time() )
+       print "Waiting %d seconds to start data acuisition ..." % (wait_time)
+       time.sleep( wait_time )
 
     # just to collect some initial data which is bad before collecting proper data later in the loop        
     station.send_channelised_data_continuous( 30 )
