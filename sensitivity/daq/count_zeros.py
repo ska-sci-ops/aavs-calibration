@@ -39,7 +39,7 @@ if __name__ == "__main__":
    if header :      
       header_line = "# "
       for t in range(0,n_ants):
-         header_line += ( "T%dX   T%dY" % (t,t))
+         header_line += ( "T%dX T%dY " % (t,t))
          
       out_f.write( header_line + "\n" )   
    
