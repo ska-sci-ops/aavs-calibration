@@ -1111,6 +1111,7 @@ if __name__ == "__main__":
                       type="int", default=-1, help="Start unixtime [default: %default]")                      
                                             
     parser.add_option("--add_uav_channels", "--include_uav_channels", action="store_true", dest="add_uav_channels", default=False, help="Include UAV channels at the very end")
+    parser.add_option("--channel_filename", "--channel_file", action="store", dest="channel_file", default="current_channel.txt", help="Channel ID [default %default]")    
                                             
                                                       
     (conf, args) = parser.parse_args(argv[1:])
@@ -1164,6 +1165,12 @@ if __name__ == "__main__":
         print "Stopping previous and starting channel %d" % (channel)
         station.send_channelised_data_continuous( channel )
         print "%.4f : Staying on channel %d for %d seconds ..." % (time.time(),channel,conf.time_per_channel)
+        
+        # saving current channel to file :
+        channel_f = open( conf.channel_file , "w")
+        channel_f.write( ("%d\n" % (channel)) )
+        channel_f.close()
+        
         time.sleep( conf.time_per_channel )
         
         # stop transimission is commented out because it stops and then station.send_channelised_data_continuous does not wake it up again (see e-mails with Alessio starting on Thu 8/29/2019 3:20 PM )
