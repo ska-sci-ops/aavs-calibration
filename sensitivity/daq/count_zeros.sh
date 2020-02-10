@@ -5,6 +5,11 @@ if [[ -n "$1" && "$1" != "-" ]]; then
    listfile=$1
 fi
 
+if [[ ! -s ${listfile} ]]; then
+   ls *.hdf5 > hdf5_list
+   listfile="hdf5_list"
+fi
+
 
 for hdf5file in `cat $listfile`
 do
