@@ -1199,8 +1199,11 @@ if __name__ == "__main__":
        iterations += 1
        curr_time = time.time()
        print "current ux time = %d vs. end time = %d" % (curr_time,end_time)
-       
 
+    
+    # stop transimissions before exit   
+    station.stop_data_transmission()
+    
     print "Loop over channels executed -> exiting script now"
     exit()
     
