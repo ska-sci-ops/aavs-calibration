@@ -1168,7 +1168,7 @@ if __name__ == "__main__":
         
         # saving current channel to file :
         channel_f = open( conf.channel_file , "w")
-        channel_f.write( ("%d\n" % (channel)) )
+        channel_f.write( ("%d" % (channel)) )
         channel_f.close()
         
         time.sleep( conf.time_per_channel )
