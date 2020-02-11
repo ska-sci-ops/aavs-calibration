@@ -1117,7 +1117,7 @@ if __name__ == "__main__":
     parser.add_option("--add_uav_channels", "--include_uav_channels", action="store_true", dest="add_uav_channels", default=False, help="Include UAV channels at the very end")
     parser.add_option("--channel_filename", "--channel_file", action="store", dest="channel_file", default="current_channel.txt", help="Channel ID [default %default]")    
 
-    parser.add_option("--n_iterations", "--n_iter", "-iterations", action="store", dest="n_iterations", default=1, help="Number of iterations over channels, <=0 means infinite loop [default %default]",type="int")
+    parser.add_option("--n_iterations", "--n_iter", "--iterations", action="store", dest="n_iterations", default=1, help="Number of iterations over channels, <=0 means infinite loop [default %default]",type="int")
                                             
                                                       
     (conf, args) = parser.parse_args(argv[1:])
