@@ -1196,9 +1196,9 @@ if __name__ == "__main__":
             # print "Waiting 5 seconds for things to settle down ..."
             # time.sleep( 5 )
 
-       iterations += 1
-       curr_time = time.time()
-       print "current ux time = %d vs. end time = %d" % (curr_time,end_time)
+        iterations += 1
+        curr_time = time.time()
+        print "current ux time = %d vs. end time = %d" % (curr_time,end_time)
 
     
     # stop transimissions before exit   
