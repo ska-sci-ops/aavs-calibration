@@ -1109,9 +1109,15 @@ if __name__ == "__main__":
 
     parser.add_option("--start_ux", "--start_unixtime", action="store", dest="start_unixtime",
                       type="int", default=-1, help="Start unixtime [default: %default]")                      
+
+    parser.add_option("--max_time_sec", "--total_time_sec", action="store", dest="total_time_seconds",
+                      type="int", default=-1, help="Total time in seconds, <=0 means inifite until killed [default: %default]")
+                      
                                             
     parser.add_option("--add_uav_channels", "--include_uav_channels", action="store_true", dest="add_uav_channels", default=False, help="Include UAV channels at the very end")
     parser.add_option("--channel_filename", "--channel_file", action="store", dest="channel_file", default="current_channel.txt", help="Channel ID [default %default]")    
+
+    parser.add_option("--n_iterations", "--n_iter", "-iterations", action="store", dest="n_iterations", default=1, help="Number of iterations over channels, <=0 means infinite loop [default %default]",type="int")
                                             
                                                       
     (conf, args) = parser.parse_args(argv[1:])
@@ -1161,22 +1167,39 @@ if __name__ == "__main__":
     if conf.add_uav_channels :
        channel_list = numpy.append( channel_list, [ 64, 90, 141, 204, 294, 410 ] )
     
-    for channel in channel_list :
-        print "Stopping previous and starting channel %d" % (channel)
-        station.send_channelised_data_continuous( channel )
-        print "%.4f : Staying on channel %d for %d seconds ..." % (time.time(),channel,conf.time_per_channel)
+    iterations = 0
+    start_time = time.time()
+    end_time   = start_time + 1000*86400 # 1000 days ~= infinity 
+    if conf.total_time_seconds > 0 :
+       end_time   = start_time + conf.total_time_seconds
+    curr_time = start_time
+
+    print "Start time ux = %d , end_time = %d , curr_time = %d" % (start_time,end_time,curr_time)
+    
+    while iterations < conf.n_iterations or conf.n_iterations <= 0 :
+        print "%d - iteration over channels" % (iterations)
+    
+        for channel in channel_list :
+            print "Stopping previous and starting channel %d" % (channel)
+            station.send_channelised_data_continuous( channel )
+            print "%.4f : Staying on channel %d for %d seconds ..." % (time.time(),channel,conf.time_per_channel)
         
-        # saving current channel to file :
-        channel_f = open( conf.channel_file , "w")
-        channel_f.write( ("%d" % (channel)) )
-        channel_f.close()
+            # saving current channel to file :
+            channel_f = open( conf.channel_file , "w")
+            channel_f.write( ("%d" % (channel)) )
+            channel_f.close()
         
-        time.sleep( conf.time_per_channel )
+            time.sleep( conf.time_per_channel )
         
-        # stop transimission is commented out because it stops and then station.send_channelised_data_continuous does not wake it up again (see e-mails with Alessio starting on Thu 8/29/2019 3:20 PM )
-        # station.stop_data_transmission()
-        # print "Waiting 5 seconds for things to settle down ..."
-        # time.sleep( 5 )
+            # stop transimission is commented out because it stops and then station.send_channelised_data_continuous does not wake it up again (see e-mails with Alessio starting on Thu 8/29/2019 3:20 PM )
+            # station.stop_data_transmission()
+            # print "Waiting 5 seconds for things to settle down ..."
+            # time.sleep( 5 )
+
+       iterations += 1
+       curr_time = time.time()
+       print "current ux time = %d vs. end time = %d" % (curr_time,end_time)
+       
 
     print "Loop over channels executed -> exiting script now"
     exit()
