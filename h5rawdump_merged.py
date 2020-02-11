@@ -29,7 +29,7 @@ for o, a in opts:
   else:
     assert False, "unhandled option"
 
-f=h5py.File(infilename)
+f=h5py.File(infilename,mode='r')
 # output output file
 outfp=open(outfilename,'w')
 
