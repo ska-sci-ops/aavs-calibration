@@ -1148,7 +1148,7 @@ if __name__ == "__main__":
        time.sleep( wait_time )
 
     # just to collect some initial data which is bad before collecting proper data later in the loop        
-    if False :
+    if True :
        # probably not needed anymore :
        station.send_channelised_data_continuous( 30 )
        time.sleep( 20 )
