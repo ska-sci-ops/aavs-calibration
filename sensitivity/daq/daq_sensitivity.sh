@@ -13,8 +13,8 @@ do
    echo "Date/time = $dtm"   
    cd ${dtm}   
    pwd
-   echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -d . -X --channel_samples=262144 -t 16 --continuous_period 4 --duration 620"
-   python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -d . -X --channel_samples=262144 -t 16 --continuous_period 4 --duration 620 
+   echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -d . -X --channel_samples=262144 -t 16 --continuous_period 4 --duration 1200"
+   python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -d . -X --channel_samples=262144 -t 16 --continuous_period 4 --duration 1200
    cd ../
 
    while [[ ! -s started_channel_loop.txt ]];
