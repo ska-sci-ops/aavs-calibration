@@ -1118,6 +1118,7 @@ if __name__ == "__main__":
     parser.add_option("--channel_filename", "--channel_file", action="store", dest="channel_file", default="current_channel.txt", help="Channel ID [default %default]")    
 
     parser.add_option("--n_iterations", "--n_iter", "--iterations", action="store", dest="n_iterations", default=1, help="Number of iterations over channels, <=0 means infinite loop [default %default]",type="int")
+    parser.add_option("--daq_exit_file","--exit_file",action="store", dest="daq_exit_file", default="daqExit.txt", help="Daq exit filename causes script to stop and quit [default %default]")
                                             
                                                       
     (conf, args) = parser.parse_args(argv[1:])
@@ -1176,7 +1177,8 @@ if __name__ == "__main__":
 
     print "Start time ux = %d , end_time = %d , curr_time = %d" % (start_time,end_time,curr_time)
     
-    while iterations < conf.n_iterations or conf.n_iterations <= 0 :
+    continue_loop = True
+    while continue_loop and ( iterations < conf.n_iterations or conf.n_iterations <= 0 ) :
         print "%d - iteration over channels" % (iterations)
     
         for channel in channel_list :
@@ -1199,6 +1201,11 @@ if __name__ == "__main__":
         iterations += 1
         curr_time = time.time()
         print "current ux time = %d vs. end time = %d" % (curr_time,end_time)
+        
+        # checking for existance of a "STOP_FILE"
+        if os.path.exists( conf.daq_exit_file ) :
+           print "File %s found -> exiting loop now" % (conf.daq_exit_file)
+           continue_loop = False
 
     
     # stop transimissions before exit   
