@@ -1178,7 +1178,7 @@ if __name__ == "__main__":
     print "Start time ux = %d , end_time = %d , curr_time = %d" % (start_time,end_time,curr_time)
     
     continue_loop = True
-    while continue_loop and ( iterations < conf.n_iterations or conf.n_iterations <= 0 ) :
+    while continue_loop and ( iterations < conf.n_iterations or conf.n_iterations <= 0 ) and curr_time < end_time :
         print "%d - iteration over channels" % (iterations)
     
         for channel in channel_list :
