@@ -1123,9 +1123,9 @@ if __name__ == "__main__":
                                                       
     (conf, args) = parser.parse_args(argv[1:])
     
-    if conf.start_unixtime <= 0 :
-       print "ERROR : start unixtime = %d (not specified) -> cannot continue"
-       exit()
+#    if conf.start_unixtime <= 0 :
+#       print "ERROR : start unixtime = %d (not specified) -> cannot continue"
+#       exit()
        
 
     # Set logging
