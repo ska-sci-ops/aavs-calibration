@@ -11,11 +11,9 @@ do
    echo
    echo "--------------------------------------------------- $iteration ---------------------------------------------------"   
    echo "Date/time = $dtm"   
-   cd ${dtm}   
    pwd
-   echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -d . -X --channel_samples=262144 -t 16 --continuous_period 4 --duration 900"
-   python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -d . -X --channel_samples=262144 -t 16 --continuous_period 4 --duration 900
-   cd ../
+   echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -d ${dtm}/ -X --channel_samples=262144 -t 16 --continuous_period 4 --duration 900"
+   python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -d ${dtm}/ -X --channel_samples=262144 -t 16 --continuous_period 4 --duration 900
 
    while [[ ! -s started_channel_loop.txt ]];
    do
