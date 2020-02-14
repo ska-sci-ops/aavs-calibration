@@ -13,11 +13,13 @@ do
    bash $merge_path -i 0.2831 -n 8140 -d merged/ -H -S 0 > merge.out 
    
    # move to separate sub-channel dirs :
+   cd merged/
    echo "~/aavs-calibration/sensitivity/daq/mvch.sh"
    ~/aavs-calibration/sensitivity/daq/mvch.sh      
-      
+         
    echo "~/aavs-calibration/sensitivity/daq/convert.sh > conversion.out 2>&1"
    ~/aavs-calibration/sensitivity/daq/convert.sh > conversion.out 2>&1
+   cd ../
       
 
    cd ..
