@@ -16,8 +16,8 @@ do
    echo "~/aavs-calibration/sensitivity/daq/mvch.sh"
    ~/aavs-calibration/sensitivity/daq/mvch.sh      
       
-   echo "~/aavs-calibration/sensitivity/daq/convert.sh"
-   ~/aavs-calibration/sensitivity/daq/convert.sh
+   echo "~/aavs-calibration/sensitivity/daq/convert.sh > conversion.out 2>&1"
+   ~/aavs-calibration/sensitivity/daq/convert.sh > conversion.out 2>&1
       
 
    cd ..
