@@ -399,8 +399,5 @@ if __name__ == "__main__":
 
     # print get_station_list()
 
-    base, x, y = get_antenna_positions("EDA2_FULL")
-
-    from matplotlib import pyplot as plt
-    plt.scatter(x, y)
-    plt.show()
+    base, x, y = get_antenna_positions("EDA2")
+    print(base, x, y)

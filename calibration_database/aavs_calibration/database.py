@@ -4,7 +4,7 @@ import logging
 import pymongo
 
 DB_NAME = 'aavs'    # change name to create another database
-HOST = 'localhost'  # insert IP address or url here
+HOST = '10.0.10.200'  # insert IP address or url here
 PORT = 27017        # mongodb standard port
 
 
@@ -61,7 +61,7 @@ def purge_station(station_name):
 
 
 if __name__ == "__main__":
-    # connect()
+    connect()
     # purge_fits()
 
-    purge_station("UKPHASE0")
+    # purge_station("UKPHASE0")
