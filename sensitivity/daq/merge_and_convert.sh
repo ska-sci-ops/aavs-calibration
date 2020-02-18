@@ -5,9 +5,12 @@ if [[ -n "$1" && "$1" != "-" ]]; then
    template="$1"
 fi
 
+pwd
+
 for subdir in `ls -d ${template}`
 do
    cd $subdir
+   pwd
   
    # merge :
    # -H disables dumping of .bin files 
@@ -18,6 +21,7 @@ do
    
    # move to separate sub-channel dirs :
    cd merged/
+   pwd
    echo "~/aavs-calibration/sensitivity/daq/mvch.sh"
    ~/aavs-calibration/sensitivity/daq/mvch.sh      
          
