@@ -214,7 +214,7 @@ if __name__ == "__main__":
         log.error("A station configuration file is required, exiting")
         exit()
 
-    # Update calibration coefficients
+    # Update calibration coefficients 
     update_calibration_coefficients(opts.config)
 
     # If period is defined, loop forever with given period
