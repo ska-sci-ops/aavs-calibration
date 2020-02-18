@@ -28,7 +28,7 @@ if [[ -n "$5" && "$5" != "-" ]]; then
 fi
 
 
-rm -f started_channel_loop.txt
+rm -f current_channel.txt
 
 iteration=1
 while [ 1 ];
@@ -37,13 +37,13 @@ do
    echo
    echo "--------------------------------------------------- $iteration ---------------------------------------------------"
    date   
-   date +%s > started_channel_loop.txt
+   echo "-1" > current_channel.txt
    # just one iteration over channels :      
    echo "python ~/aavs-calibration/sensitivity/daq/channels_sweep.py --config=${config_file} --time_per_channel=28 --start_channel=${start_channel} --end_channel=${end_channel} --step-channel=${step} --n_iterations=1"
    python ~/aavs-calibration/sensitivity/daq/channels_sweep.py --config=${config_file} --time_per_channel=28 --start_channel=${start_channel} --end_channel=${end_channel} --step-channel=${step} --n_iterations=1
    
-   echo "rm -f started_channel_loop.txt"
-   rm -f started_channel_loop.txt   
+   echo "rm -f current_channel.txt"
+   rm -f current_channel.txt   
 
    echo "sleep $interval"
    sleep $interval

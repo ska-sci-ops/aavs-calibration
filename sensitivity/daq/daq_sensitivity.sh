@@ -20,9 +20,9 @@ do
    echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -d ${dtm}/ -X --channel_samples=262144 -t 16 --continuous_period 4 --duration ${daq_run_time}"
    python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -d ${dtm}/ -X --channel_samples=262144 -t 16 --continuous_period 4 --duration ${daq_run_time}
 
-   while [[ ! -s started_channel_loop.txt ]];
+   while [[ ! -s current_channel.txt ]];
    do
-      echo "Waiting for new channel loop file ( started_channel_loop.txt )"
+      echo "Waiting for new channel loop file ( current_channel.txt )"
       sleep 1
    done
 
