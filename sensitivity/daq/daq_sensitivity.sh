@@ -2,6 +2,11 @@
 
 # assuming full loop takes ~600 seconds 
 
+daq_run_time=3600
+if [[ -n "$1" && "$1" != "-" ]]; then
+   daq_run_time=$1
+fi
+
 iteration=0
 while [ 1 ];
 do
@@ -12,8 +17,8 @@ do
    echo "--------------------------------------------------- $iteration ---------------------------------------------------"   
    echo "Date/time = $dtm"   
    pwd
-   echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -d ${dtm}/ -X --channel_samples=262144 -t 16 --continuous_period 4 --duration 900"
-   python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -d ${dtm}/ -X --channel_samples=262144 -t 16 --continuous_period 4 --duration 900
+   echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -d ${dtm}/ -X --channel_samples=262144 -t 16 --continuous_period 4 --duration ${daq_run_time}"
+   python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -d ${dtm}/ -X --channel_samples=262144 -t 16 --continuous_period 4 --duration ${daq_run_time}
 
    while [[ ! -s started_channel_loop.txt ]];
    do
