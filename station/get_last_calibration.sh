@@ -11,7 +11,7 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    ch=$2
 fi
 
-local_caldir="/home/msok/Desktop/${station_upper}/real_time_calibration"
+local_caldir="/home/msok/Desktop/${station_upper}/data/real_time_calibration"
 
 last_cal_dir=`ssh ${station} "ls -dtr /data/real_time_calibration/2???_??_??-??:??/ |tail -1"`
 last_cal_dtm=`basename ${last_cal_dir}`
