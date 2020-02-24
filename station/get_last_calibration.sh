@@ -18,14 +18,19 @@ last_cal_dtm=`basename ${last_cal_dir}`
 
 echo "last_cal_dtm = $last_cal_dtm ( $last_cal_dir )"
 
-mkdir -p ${local_caldir}/${last_cal_dtm}
-cd ${local_caldir}/${last_cal_dtm}
-pwd
+if [[ ! -d ${local_caldir}/${last_cal_dtm} ]]; then
+   mkdir -p ${local_caldir}/${last_cal_dtm}
+   cd ${local_caldir}/${last_cal_dtm}
+   pwd
 
-if [[ $ch -ge 0 ]]; then
-   echo "rsync -avP ${station}:${last_cal_dir}/*${ch}.txt ."
-   rsync -avP ${station}:${last_cal_dir}/*${ch}.txt .
+   if [[ $ch -ge 0 ]]; then
+      echo "rsync -avP ${station}:${last_cal_dir}/*${ch}*.txt ."
+      rsync -avP ${station}:${last_cal_dir}/*${ch}*.txt .
+   else
+      echo "rsync -avP ${station}:${last_cal_dir}/*.txt ."
+      rsync -avP ${station}:${last_cal_dir}/*.txt .
+   fi   
 else
-   echo "rsync -avP ${station}:${last_cal_dir}/*.txt ."
-   rsync -avP ${station}:${last_cal_dir}/*.txt .
+   echo "INFO : ${local_caldir}/${last_cal_dtm} already exists -> nothing done (use force=1 parameter)"
 fi   
+
