@@ -178,7 +178,7 @@ done
 # Remove all generated files
 if [ $keep_intermediate -ne 1 ] ; then
 #  rm -fr *.uvfit
-  rm -fr *ts_unix.txt *.uv
+  rm -fr *ts_unix.txt # MS : keeping these to be able to later apply and form images in real-time, please do not change without consulting with MS : *.uv
 fi
 for hdffile in `ls -tr *_${channel}_*.hdf5` ; do
   bname=`basename $hdffile .hdf5`
