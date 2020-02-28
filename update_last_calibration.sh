@@ -50,14 +50,15 @@ for txt_full_path in `ls -d ${last_cal_dir}/chan_*_selfcal_???_??.txt`
 do
    txt_file=`basename $txt_full_path`
 
-   # chan_204_20200227T044851.uv
+   # chan_197selfcal_amp_XX.txt
    channel=`echo $txt_file | awk '{start=index($1,"_");s=substr($1,start+1);end=index(s,"_");ch=substr(s,1,end-1);print ch;}'`
    postfix=`echo $txt_file | cut -b 10-`
 
-   echo "$txt_full_path -> $txt_file -> $channel"   
-   file_name=`echo "$channel $postfix" | awk '{printf("chan_%03d%s",$1,$2);}'`
+   file_name=`echo "$channel $postfix" | awk '{printf("chan_%03d_%s\n",$1,$2);}'
+   echo "$txt_full_path -> $txt_file -> $channel -> $file_name"   
 
 
-   echo "cp -a ${txtv_full_path} ${file_name}"
-   cp -a ${uv_full_path} ${file_name}
+   echo
+   echo "cp -a ${txt_full_path} ${file_name}"
+   cp -a ${txt_full_path} ${file_name}
 done
