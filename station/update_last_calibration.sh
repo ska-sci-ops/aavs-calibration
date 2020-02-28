@@ -15,7 +15,7 @@ if [[ ! -s chan_204_selfcal_pha_XX.txt ]]; then
    last_cal_dir=`ls -dtr /data/real_time_calibration/2???_??_??-??:??/ |tail -1`   
 fi
 
-echo "INFO : last cal dir = $last_cal_dir -> updating last calibration in ${cal_path}/{last_calibration}/"
+echo "INFO : last cal dir = $last_cal_dir -> updating last calibration in ${cal_path}/last_calibration/"
 
 mkdir -p ${cal_path}/last_calibration/
 
