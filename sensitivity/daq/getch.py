@@ -22,14 +22,17 @@ f = h5py.File( hdf5_file , "r" )
 channel_id = int( f['root'].attrs['channel_id'] )
 print "File %s is channel %d" % (hdf5_file,channel_id)
 
-cmd_str = "mkdir -p %d/" % (channel_id)
-os.system( cmd_str )
-
-if conf.cp :
-   cmd_str = "cp %s %d/" % (hdf5_file,channel_id)
+if channel_id >= 0 :
+   cmd_str = "mkdir -p %d/" % (channel_id)
    os.system( cmd_str )
 
-if conf.mv :
-   cmd_str = "mv %s %d/" % (hdf5_file,channel_id)
-   os.system( cmd_str )
+   if conf.cp :
+      cmd_str = "cp %s %d/" % (hdf5_file,channel_id)
+      os.system( cmd_str )
 
+   if conf.mv :
+      cmd_str = "mv %s %d/" % (hdf5_file,channel_id)
+      os.system( cmd_str )
+else :
+   print "ERROR : channel_id = %d < 0 -> wrong channel value -> ignored" % (channel_id)      
+   
