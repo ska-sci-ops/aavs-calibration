@@ -23,8 +23,10 @@ channel_id = int( f['root'].attrs['channel_id'] )
 print "File %s is channel %d" % (hdf5_file,channel_id)
 
 if channel_id >= 0 :
-   cmd_str = "mkdir -p %d/" % (channel_id)
-   os.system( cmd_str )
+   if conf.cp or conf.mv :
+      # create subdirectory only if move or copy required 
+      cmd_str = "mkdir -p %d/" % (channel_id)
+      os.system( cmd_str )
 
    if conf.cp :
       cmd_str = "cp %s %d/" % (hdf5_file,channel_id)
