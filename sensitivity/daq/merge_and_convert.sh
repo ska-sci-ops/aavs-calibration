@@ -11,6 +11,7 @@ for subdir in `ls -d ${template}`
 do
    cd $subdir
    pwd
+   mkdir -p merged/
   
    # merge :
    # -H disables dumping of .bin files 
