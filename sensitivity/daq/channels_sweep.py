@@ -1167,6 +1167,17 @@ if __name__ == "__main__":
     
     if conf.add_uav_channels :
        channel_list = numpy.append( channel_list, [ 64, 90, 141, 204, 294, 410 ] )
+
+    last_channel = -1
+    # check if last channel file exists (means that script has crashed and should possibly be continued rather than re-started from first channel as this may cause - de-synchronisation with a 
+    # daq loop script in ( ~/aavs-calibration/sensitivity/daq/daq_sensitivity.sh )
+    if os.path.exists( options.channel_file ) :
+       channel_file = open( options.channel_file , 'r' )
+       data = channel_file.readlines()
+       channel_file.close()
+       
+       last_channel = int( data[0] ) 
+       print "Detected %s file and read last channel = %d -> starting from next channel" % (options.channel_file,last_channel)
     
     iterations = 0
     start_time = time.time()
@@ -1184,19 +1195,26 @@ if __name__ == "__main__":
         for channel in channel_list :
             print "Stopping previous and starting channel %d" % (channel)
             station.send_channelised_data_continuous( channel )
-            print "%.4f : Staying on channel %d for %d seconds ..." % (time.time(),channel,conf.time_per_channel)
+            
+            if channel > last_channel :            
+               print "%.4f : Staying on channel %d for %d seconds ..." % (time.time(),channel,conf.time_per_channel)
         
-            # saving current channel to file :
-            channel_f = open( conf.channel_file , "w")
-            channel_f.write( ("%d" % (channel)) )
-            channel_f.close()
+               # saving current channel to file :
+               channel_f = open( conf.channel_file , "w")
+               channel_f.write( ("%d" % (channel)) )
+               channel_f.close()
         
-            time.sleep( conf.time_per_channel )
+               time.sleep( conf.time_per_channel )
         
-            # stop transimission is commented out because it stops and then station.send_channelised_data_continuous does not wake it up again (see e-mails with Alessio starting on Thu 8/29/2019 3:20 PM )
-            # station.stop_data_transmission()
-            # print "Waiting 5 seconds for things to settle down ..."
-            # time.sleep( 5 )
+               # stop transimission is commented out because it stops and then station.send_channelised_data_continuous does not wake it up again (see e-mails with Alessio starting on Thu 8/29/2019 3:20 PM )
+               # station.stop_data_transmission()
+               # print "Waiting 5 seconds for things to settle down ..."
+               # time.sleep( 5 )
+            else :
+               print "Channel %d skipped because smaller than last_channel = %d (continuation of the interrupted loop)" % (last_channel)
+                
+        # reseting last_channel - it is only for the first iteration in case continuing "broken" iteration
+        last_channel = -1
 
         iterations += 1
         curr_time = time.time()
