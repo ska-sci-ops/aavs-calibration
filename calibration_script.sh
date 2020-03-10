@@ -188,7 +188,9 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
        else
           echo "WARNING : object $mfcal_ok of unknown flux specified -> will use standard selfcal"
        fi
-    else    
+    else
+       echo "INFO : no mfcal object specified -> will use normal selfcal"
+    fi
     
     if [[ $mfcal_ok -le 0 ]]; then
        echo "WARNING : using standard selfcal procedure flux scale (also for Sun) is not optimal (set to 100000)"
