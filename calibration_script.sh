@@ -187,7 +187,7 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
                        
              echo "Channel = $channel <= 192 -> using the low-frequency power law, lower uvrange limit = $min_klambda kLambda"             
              echo "mfcal vis=${src}.uv flux=51000,0.15,1.9 select='uvrange($min_klambda,1)' refant=${reference_antenna}"
-             mfcal vis=${src}.uv flux=51000,0.15,1.9 select='uvrange($min_klambda,1)' refant=${reference_antenna}# f < 150 MHz
+             mfcal vis=${src}.uv flux=51000,0.15,1.9 select='uvrange($min_klambda,1)' refant=${reference_antenna} # f < 150 MHz
           fi
        else
           echo "WARNING : object $mfcal_ok of unknown flux specified -> will use standard selfcal"
