@@ -165,6 +165,7 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
     src=`basename $uvfitsfile .uvfits`
     echo "Processing $uvfitsfile to ${src}.uv"
     
+    # newly added part to try to use proper spectral model of the Sun (selfcal cannot do it):
     mfcal_ok=0
     if [[ -n "$do_mfcal_object" ]]; then
        if [[ $do_mfcal_object == "sun" ]]; then
@@ -180,6 +181,14 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
              echo "Channel = $channel > 192 -> using the high-frequency power law:"
              echo "mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"
              mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
+
+             # mfcal on XX and YY or rather uvcat to split .uv -> _XX.uv and _YY.uv ?
+             # current way is a bit in-efficient, so I will change it later
+             echo "mfcal vis=${src}_XX.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"  
+             mfcal vis=${src}_XX.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
+
+             echo "mfcal vis=${src}_YY.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"  
+             mfcal vis=${src}_YY.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
           else
              # below 150 MHz the uvrange has to be different as otherwise we can end up with 0 baselines 
              # I set limit to B>10m and calculate 
@@ -188,6 +197,14 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
              echo "Channel = $channel <= 192 -> using the low-frequency power law, lower uvrange limit = $min_klambda kLambda"             
              echo "mfcal vis=${src}.uv flux=51000,0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
              mfcal vis=${src}.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
+             
+             # mfcal on XX and YY or rather uvcat to split .uv -> _XX.uv and _YY.uv ?
+             # current way is a bit in-efficient, so I will change it later
+             echo "mfcal vis=${src}_XX.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna}"
+             mfcal vis=${src}_XX.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
+
+             echo "mfcal vis=${src}_YY.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna}"
+             mfcal vis=${src}_YY.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz                          
           fi
        else
           echo "WARNING : object $mfcal_ok of unknown flux specified -> will use standard selfcal"
@@ -196,6 +213,7 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
        echo "INFO : no mfcal object specified -> will use normal selfcal"
     fi
     
+    # normal code using selfcal (if mfcal is not requested to have correct flux scale) :
     if [[ $mfcal_ok -le 0 ]]; then
        echo "WARNING : using standard selfcal procedure flux scale (also for Sun) is not optimal (set to 100000)"
        selfcal vis=${src}_XX.uv select='uvrange(0.005,10)' options=amplitude,noscale refant=${reference_antenna} flux=100000
