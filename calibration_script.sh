@@ -176,14 +176,18 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
           # extras.springer.com )
           # note change in spectral index of sun around 150 MHz, so better to use different
           # power law at low vs high freqs
-          if [[ $channel -gt 192 ]]; then
+          if [[ $channel -gt 192 ]]; then # f > 150 MHz (192 *(400/512) = 150 MHz ) :
              echo "Channel = $channel > 192 -> using the high-frequency power law:"
-             echo "mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)'"
-             mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' # f > 150 MHz
+             echo "mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"
+             mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
           else
-             echo "Channel = $channel <= 192 -> using the high-frequency power law:"             
-             echo "mfcal vis=${src}.uv flux=51000,0.15,1.9 select='uvrange(0.005,1)'"
-             mfcal vis=${src}.uv flux=51000,0.15,1.9 select='uvrange(0.005,1)' # f < 150 MHz
+             # below 150 MHz the uvrange has to be different as otherwise we can end up with 0 baselines 
+             # I set limit to B>10m and calculate 
+             min_klambda=`echo $channel | awk '{print ($1*(400.00/512.00))/30000.00;}'`
+                       
+             echo "Channel = $channel <= 192 -> using the low-frequency power law, lower uvrange limit = $min_klambda kLambda"             
+             echo "mfcal vis=${src}.uv flux=51000,0.15,1.9 select='uvrange($min_klambda,1)' refant=${reference_antenna}"
+             mfcal vis=${src}.uv flux=51000,0.15,1.9 select='uvrange($min_klambda,1)' refant=${reference_antenna}# f < 150 MHz
           fi
        else
           echo "WARNING : object $mfcal_ok of unknown flux specified -> will use standard selfcal"
