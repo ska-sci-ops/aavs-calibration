@@ -21,10 +21,9 @@ mkdir -p ${cal_path}/last_calibration/
 
 cd ${cal_path}/last_calibration
 pwd
-sleep 10
 
 echo "rm -fr chan*.uv chan*.txt"
-# rm -fr chan*.uv chan*.txt
+rm -fr chan*.uv chan*.txt
 
 # creating info file about the last calibration :
 echo "$last_cal_dir" > last_cal_info.txt
