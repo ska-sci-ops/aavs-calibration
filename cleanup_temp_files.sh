@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# keeping .uv files to use later as calibrators 
 remove_uv_files=1
 
 function print_usage {
@@ -21,6 +22,7 @@ while getopts ":D:T:N:ku:" opt; do
     u)
       remove_uv_files=${OPTARG}
       echo "remove_uv_files = $remove_uv_files"
+      ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
       print_usage

@@ -131,8 +131,11 @@ def run_calibration(directory, nof_channels, threads, station_name="EDA2" ):
         logging.info('Serial processing of channels')
         for channel in range(start_channel, nof_channels):
             calibrate_channel(channel,station_name=station_name)
-
-    # All done, cleanup up temporary files
+  
+    # All done, first update last calibration :
+    subprocess.check_call(['update_last_calibration.sh'])
+    
+    # then cleanup up temporary files
     subprocess.check_call(['cleanup_temp_files.sh', '-D', directory])
 
 def get_acquisition_time(conf):
