@@ -200,10 +200,10 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
              
              # mfcal on XX and YY or rather uvcat to split .uv -> _XX.uv and _YY.uv ?
              # current way is a bit in-efficient, so I will change it later
-             echo "mfcal vis=${src}_XX.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna}"
+             echo "mfcal vis=${src}_XX.uv flux=51000,0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
              mfcal vis=${src}_XX.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
 
-             echo "mfcal vis=${src}_YY.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna}"
+             echo "mfcal vis=${src}_YY.uv flux=51000,0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
              mfcal vis=${src}_YY.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz                          
           fi
        else
