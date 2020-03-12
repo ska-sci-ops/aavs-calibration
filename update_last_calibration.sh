@@ -51,7 +51,7 @@ do
 
    # chan_197selfcal_amp_XX.txt
    channel=`echo $txt_file | awk '{start=index($1,"_");s=substr($1,start+1);end=index(s,"_");ch=substr(s,1,end-1);print ch;}'`
-   postfix=`echo $txt_file | cut -b 10-`
+   postfix=`echo $txt_file | awk '{start=index($1,"_");s=substr($1,start+1);end=index(s,"_");ch=substr(s,end+1);print ch;}'`
 
    file_name=`echo "$channel $postfix" | awk '{printf("chan_%03d_%s\n",$1,$2);}'`
    echo "$txt_full_path -> $txt_file -> $channel -> $file_name"   
