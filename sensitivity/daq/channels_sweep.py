@@ -1171,13 +1171,13 @@ if __name__ == "__main__":
     last_channel = -1
     # check if last channel file exists (means that script has crashed and should possibly be continued rather than re-started from first channel as this may cause - de-synchronisation with a 
     # daq loop script in ( ~/aavs-calibration/sensitivity/daq/daq_sensitivity.sh )
-    if os.path.exists( options.channel_file ) :
-       channel_file = open( options.channel_file , 'r' )
+    if os.path.exists( conf.channel_file ) :
+       channel_file = open( conf.channel_file , 'r' )
        data = channel_file.readlines()
        channel_file.close()
        
        last_channel = int( data[0] ) 
-       print "Detected %s file and read last channel = %d -> starting from next channel" % (options.channel_file,last_channel)
+       print "Detected %s file and read last channel = %d -> starting from next channel" % (conf.channel_file,last_channel)
     
     iterations = 0
     start_time = time.time()
