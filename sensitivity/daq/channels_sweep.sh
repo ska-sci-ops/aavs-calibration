@@ -27,6 +27,10 @@ if [[ -n "$5" && "$5" != "-" ]]; then
    interval=$5
 fi
 
+reprogram_every_n_iter=20
+if [[ -n "$6" && "$6" != "-" ]]; then
+   reprogram_every_n_iter=$6
+fi
 
 rm -f current_channel.txt
 
@@ -38,9 +42,17 @@ do
    echo "--------------------------------------------------- $iteration ---------------------------------------------------"
    date   
    echo "-1" > current_channel.txt
+   
+   extra_options=""
+   rest=$(($iteration%$reprogram_every_n_iter))
+   echo "Iteration = $iteration -> rest from division by $reprogram_every_n_iter is $rest"
+   if [[ $rest == 0 && $iteration -gt 0 ]]; then
+      extra_options="-IP"
+   fi
+   
    # just one iteration over channels :      
-   echo "python ~/aavs-calibration/sensitivity/daq/channels_sweep.py --config=${config_file} --time_per_channel=28 --start_channel=${start_channel} --end_channel=${end_channel} --step-channel=${step} --n_iterations=1"
-   python ~/aavs-calibration/sensitivity/daq/channels_sweep.py --config=${config_file} --time_per_channel=28 --start_channel=${start_channel} --end_channel=${end_channel} --step-channel=${step} --n_iterations=1
+   echo "python ~/aavs-calibration/sensitivity/daq/channels_sweep.py --config=${config_file} --time_per_channel=28 --start_channel=${start_channel} --end_channel=${end_channel} --step-channel=${step} --n_iterations=1 $extra_options"
+   python ~/aavs-calibration/sensitivity/daq/channels_sweep.py --config=${config_file} --time_per_channel=28 --start_channel=${start_channel} --end_channel=${end_channel} --step-channel=${step} --n_iterations=1 $extra_options
    
    echo "rm -f current_channel.txt"
    rm -f current_channel.txt   
