@@ -1148,11 +1148,16 @@ if __name__ == "__main__":
     # Connect station (program, initialise and configure if required)
     station.connect()
     
+    if conf.initialise :
+       print "Initialisation required calling set_preadu_attenuation(0) :"
+       station.set_preadu_attenuation(0)
+       print "set_preadu_attenuation(0) executed"
+    
     # first wait until specified time 
     if conf.start_unixtime > 0 :
        wait_time = int( conf.start_unixtime - time.time() )
        print "Waiting %d seconds to start data acuisition ..." % (wait_time)
-       time.sleep( wait_time )
+       time.sleep( wait_time )   
 
     # just to collect some initial data which is bad before collecting proper data later in the loop        
     if True :
