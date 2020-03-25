@@ -61,13 +61,13 @@ tiles:
     - tpm-7
     - tpm-8
     - tpm-9
-    - tpm-33 # 20200203 : Andrea : EDA2 config file replacing IP 10.0.10.10 (or alias TPM-10) with IP 10.0.10.33 (requires also addition in /etc/hosts )
+    - tpm-10 # 2020-03-25 - changed by Andrea / Riccardo 
     - tpm-11
     - tpm-12
     - tpm-13
     - tpm-14
     - tpm-15
-    - tpm-32 # testing AAVS2 TPM with EDA2 to check if works here ...
+    - tpm-16 # 2020-03-25 - changed by Andrea / Riccardo
 #    - tpm-16
 
 # Time delay to apply to each antenna (one entry per TPM, optional)
