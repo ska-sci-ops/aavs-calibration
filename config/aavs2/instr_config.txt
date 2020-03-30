@@ -485,7 +485,7 @@
 461	230	Y	0	0
 462	231	X	0	0		# Ant046
 463	231	Y	0	0
-464	232	X	0	1		# Ant015
+464	232	X	0	1		# Ant015 flagged due to  2 JIG LNAs have been left connected inside the SmartBox of Tile-15 failing Antenna #15 (TPM input #5).
 465	232	Y	0	1
 466	233	X	0	0		# Ant016
 467	233	Y	0	0
