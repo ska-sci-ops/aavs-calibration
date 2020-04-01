@@ -37,6 +37,12 @@ if [[ -n "$7" && "$7" != "-" ]]; then
    n_iter=$7
 fi
 
+options=""
+if [[ -n "$8" && "$8" != "-" ]]; then
+   options="$8"
+fi
+
+
 rm -f current_channel.txt
 
 iteration=1
@@ -48,7 +54,7 @@ do
    date   
    echo "-1" > current_channel.txt
    
-   extra_options=""
+   extra_options="$options"
    rest=$(($iteration%$reprogram_every_n_iter))
    echo "Iteration = $iteration -> rest from division by $reprogram_every_n_iter is $rest"
    if [[ $rest == 0 && $iteration -gt 0 ]]; then
