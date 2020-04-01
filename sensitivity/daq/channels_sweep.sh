@@ -32,14 +32,19 @@ if [[ -n "$6" && "$6" != "-" ]]; then
    reprogram_every_n_iter=$6
 fi
 
+n_iter=-1 # <0 -> infinite loop
+if [[ -n "$7" && "$7" != "-" ]]; then
+   n_iter=$7
+fi
+
 rm -f current_channel.txt
 
 iteration=1
-while [ 1 ];
+while [[ $n_iter -le 0 || $iteration -le $n_iter ]];
 do
    
    echo
-   echo "--------------------------------------------------- $iteration ---------------------------------------------------"
+   echo "--------------------------------------------------- $iteration / $n_iter ---------------------------------------------------"
    date   
    echo "-1" > current_channel.txt
    

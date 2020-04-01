@@ -1127,7 +1127,6 @@ if __name__ == "__main__":
 #       print "ERROR : start unixtime = %d (not specified) -> cannot continue"
 #       exit()
        
-
     # Set logging
     log = logging.getLogger('')
     log.setLevel(logging.INFO)
@@ -1148,10 +1147,23 @@ if __name__ == "__main__":
     # Connect station (program, initialise and configure if required)
     station.connect()
     
+    print "Running channels_sweep for station %s" % (configuration['station']['name'])
+    
     if conf.initialise :
-       print "Initialisation required calling set_preadu_attenuation(0) :"
-       station.set_preadu_attenuation(0)
-       print "set_preadu_attenuation(0) executed"
+       if configuration['station']['name'].upper() == "EDA2" :
+          print "Initialisation required calling set_preadu_attenuation(0) (as for EDA2) :"
+          station.set_preadu_attenuation(0)
+          print "set_preadu_attenuation(0) executed"
+       elif configuration['station']['name'].upper() == "AAVS2":
+          print "Initialisation required calling set_preadu_attenuation(0) (as for AAVS2) :"
+          station.set_preadu_attenuation(10)
+          print "set_preadu_attenuation(10) executed"
+          
+          station.equalize_preadu_gain(16)
+          print "station.equalize_preadu_gain(16) executed"
+       else :
+          print "WARNING : unknown station name = %s -> dont know how to optimally initialise" % (configuration['station']['name'])
+          
     
     # first wait until specified time 
     if conf.start_unixtime > 0 :
