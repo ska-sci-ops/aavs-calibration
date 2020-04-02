@@ -6,6 +6,7 @@
 # https://python4mpia.github.io/fitting_data/least-squares-fitting.html
 
 # just info :
+from __future__ import print_function
 import sys,os
 import math
 import numpy
@@ -72,7 +73,7 @@ def db_connect( dbname='aavs', db_host_ip="10.0.10.200" ):
    global conn
 
    if not g_connected:
-      print "testing connection to database"
+      print("testing connection to database")
       # open up database connection
       try:
          conn = psycopg2.connect( database='aavs' , host=db_host_ip, user='aavs' )
@@ -80,10 +81,10 @@ def db_connect( dbname='aavs', db_host_ip="10.0.10.200" ):
          logger.error("Unable to open connection to database")
          sys.exit(1)
 
-      print "Connected!"
+      print("Connected!")
       g_connected=True
    else :
-      print "Already connected -> using exisitng connection"
+      print("Already connected -> using exisitng connection")
          
    return conn
 
@@ -92,7 +93,7 @@ def get_last_calsolution( station_id=2 ) :
    global conn
 
    szSQL = "select max(extract(epoch from fit_time)) as max_uxtime, max(fit_time) as max_dtm from calibration_solution where station_id=%d" % (station_id) 
-   print "Execurting SQL : %s" % szSQL
+   print("Execurting SQL : %s" % szSQL)
 
    # conn = db_connect()   
    cur = conn.cursor()
@@ -101,16 +102,16 @@ def get_last_calsolution( station_id=2 ) :
 
    max_uxtime = -1
    max_dtm    = None
-   print "\tNumber of selected records = %d" % (len(records))
+   print("\tNumber of selected records = %d" % (len(records)))
    for rec in records:
-       print "\tTest rec[0] = %s (check if None)" % (rec[0])
+       print("\tTest rec[0] = %s (check if None)" % (rec[0]))
        if rec[0] is not None :
-           print "\tTest rec[0] = %.2f" % (rec[0])
+           print("\tTest rec[0] = %.2f" % (rec[0]))
            max_uxtime = float( rec[0] )
            max_dtm    = rec[1]
            
    cur.close()
-   print "Maximum unix time of calibration solution in the database = %.2f (dtm = %s)" % (max_uxtime,max_dtm)
+   print("Maximum unix time of calibration solution in the database = %.2f (dtm = %s)" % (max_uxtime,max_dtm))
    
    return (max_uxtime,max_dtm)
 
@@ -121,12 +122,12 @@ def get_last_delays( station_id=2 ) :
    (max_uxtime,max_dtm) = get_last_calsolution( station_id=station_id )
    
    if max_uxtime <= 0 :
-      print "ERROR : no calibration solutions in the database for station_id = %d" % (station_id)
+      print("ERROR : no calibration solutions in the database for station_id = %d" % (station_id))
       return (None,None,None,None)
 
    # *1000 to have in nanoseconds
    szSQL = "select ant_id,x_delay*1000,y_delay*1000 from calibration_solution where station_id=%d and fit_time='%s'" % (station_id,max_dtm) 
-   print "Execurting SQL : %s" % szSQL
+   print("Execurting SQL : %s" % szSQL)
 
    # conn = db_connect()   
    cur = conn.cursor()
@@ -140,10 +141,10 @@ def get_last_delays( station_id=2 ) :
    tpm=1
    cnt=0
    
-   print "\tNumber of selected records = %d" % (len(records))
+   print("\tNumber of selected records = %d" % (len(records)))
    for rec in records:
        if rec[0] is not None :
-           print "\tTest rec[0] = %d / %.2f / %.2f" % (int(rec[0]),float(rec[1]),float(rec[2]))
+           print("\tTest rec[0] = %d / %.2f / %.2f" % (int(rec[0]),float(rec[1]),float(rec[2])))
            ant_idx    = int(rec[0])
            delay_x    = float(rec[1])
            delay_y    = float(rec[2])
@@ -160,10 +161,10 @@ def get_last_delays( station_id=2 ) :
            
    cur.close()
    
-   print "Returning %d antennas, %d tpms, %d X delays and %d Y delays" % (len(ants),len(ant_tpm),len(x_delays),len(y_delays))
+   print("Returning %d antennas, %d tpms, %d X delays and %d Y delays" % (len(ants),len(ant_tpm),len(x_delays),len(y_delays)))
    n = len(ants)
    for ant in range(0,n) :
-      print "%d : TPM-%d , x_delays = %.2f [ns], y_delays = %.2f [ns]" % (ant,ant_tpm[ant],x_delays[ant],y_delays[ant])
+      print("%d : TPM-%d , x_delays = %.2f [ns], y_delays = %.2f [ns]" % (ant,ant_tpm[ant],x_delays[ant],y_delays[ant]))
 
    return (ants, ant_tpm, x_delays, y_delays)
 
@@ -171,7 +172,7 @@ def get_last_delays( station_id=2 ) :
 def calc_mean_delays_per_tpm( ant_name, ant_delay, ant_tpm, outfile="delay_vs_tpm.txt" , outconfig="delays_vs_tpm.conf" , b_save_both_pols=True ) :
    n_ant = len(ant_name)
    n_tpms = n_ant / 16
-   print "Calculating mean delays for %d TPMs ( n_ant = %d )" % (n_tpms,n_ant)
+   print("Calculating mean delays for %d TPMs ( n_ant = %d )" % (n_tpms,n_ant))
    mean_delays = []
    
    out_f = open( outfile , "w" )
@@ -193,7 +194,7 @@ def calc_mean_delays_per_tpm( ant_name, ant_delay, ant_tpm, outfile="delay_vs_tp
                count      += 1 
                all_values += ("%.2f " % (ant_delay[ant_idx]))
             else :
-               print "WARNING : antenna index = %d skipped in MEDAN/MEDIAN due to 0 delay (probably calibration failed)" % (ant_idx)
+               print("WARNING : antenna index = %d skipped in MEDAN/MEDIAN due to 0 delay (probably calibration failed)" % (ant_idx))
                
             tpm_delays.append( ant_delay[ant_idx] )
 
@@ -201,7 +202,7 @@ def calc_mean_delays_per_tpm( ant_name, ant_delay, ant_tpm, outfile="delay_vs_tp
             tpm_delays_round.append( int(round(ant_delay[ant_idx])) )
 
       if len(tpm_delays) != 16 :
-          print "ERROR : number of delays for TPM-%d is %d - should be 16 !!!" % (tpm,len(tpm_delays))
+          print("ERROR : number of delays for TPM-%d is %d - should be 16 !!!" % (tpm,len(tpm_delays)))
           os.exit(-1)
       
       if count > 0 :            
@@ -223,7 +224,7 @@ def calc_mean_delays_per_tpm( ant_name, ant_delay, ant_tpm, outfile="delay_vs_tp
          median_delay = numpy.median( tpm_delays )
          mean_delay = mean_delay / count      
          mean_delays.append( mean_delay )
-         print "TPM-%02d -> mean delay = %.4f [nanoseconds] , median = %.4f [ns] ( based on %d values : %s )" % (tpm,mean_delay,median_delay,count,all_values)
+         print("TPM-%02d -> mean delay = %.4f [nanoseconds] , median = %.4f [ns] ( based on %d values : %s )" % (tpm,mean_delay,median_delay,count,all_values))
          
          line = "%d %.4f %.4f %s\n" % (tpm,median_delay,mean_delay,tpm_delays)
          out_f.write( line )
@@ -237,7 +238,7 @@ def calc_mean_delays_per_tpm( ant_name, ant_delay, ant_tpm, outfile="delay_vs_tp
          line = "    - %d [%s]\n" % (int(round(median_delay)),tpm_delays_round_string)
          out_conf_f.write( line )
       else :
-         print "WARNING : tpm=%d has no delays ????" % (tpm)
+         print("WARNING : tpm=%d has no delays ????" % (tpm))
 
    
    out_f.close()         
@@ -268,12 +269,12 @@ def main() :
    (options, args) = parse_options(1)
    
       
-   print "##################################################"
-   print "PARAMETERS :"
-   print "##################################################"
-   print "database   = %s" % (options.dbname)
-   print "station ID = %d" % (options.station_id)
-   print "##################################################"
+   print("##################################################")
+   print("PARAMETERS :")
+   print("##################################################")
+   print("database   = %s" % (options.dbname))
+   print("station ID = %d" % (options.station_id))
+   print("##################################################")
 
 
    if options.dbname is not None :

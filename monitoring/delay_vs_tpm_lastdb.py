@@ -1,3 +1,4 @@
+from __future__ import print_function
 # this scripts allows to calculate how to update delays in config files based on the newly calculated delays from the cal. solutions
 # it still requires a bit of copy/pasting and editing, but hopefylly next iterations will be a bit more automatic ...
 
@@ -97,7 +98,7 @@ for t in range(1,17):
    
    line += "]"
    
-   print "%s" % (line)
+   print("%s" % (line))
    
 
 

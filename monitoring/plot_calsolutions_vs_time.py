@@ -2,6 +2,7 @@
 """
 Script for certain MWA database queries required for primary beam calibration (based on test_db.py and some other MWA python scripts : sql_find_observations.py )
 """
+from __future__ import print_function
 
 
 import logging, sys, os, glob, string, re, urllib, math, time
@@ -30,7 +31,7 @@ def db_connect():
    global conn
 
    if not g_connected:
-      print "testing connection to database"
+      print("testing connection to database")
       # open up database connection
       try:
          conn = psycopg2.connect(database='aavs')
@@ -38,10 +39,10 @@ def db_connect():
          logger.error("Unable to open connection to database")
          sys.exit(1)
 
-      print "Connected!"
+      print("Connected!")
       g_connected=True
    else :
-      print "Already connected -> using exisitng connection"
+      print("Already connected -> using exisitng connection")
          
    return conn
 
@@ -57,7 +58,7 @@ def get_mean_stddev_delay_per_ant( outname="eda2_mean_stddev_delay.txt", max_tim
            
    # excluding some wrong solutions in SQL :
    szSQL = "select (ant_id+1) as ant,COALESCE(avg(x_delay),0) as mean_x_delay_ns,COALESCE(stddev(x_delay),0) as stddev_mean_x_delay_ns,COALESCE(avg(y_delay),0) as mean_y_delay_ns,COALESCE(stddev(y_delay),0) as stddev_mean_y_delay_ns from calibration_solution where fit_time >= '%s' AND station_id=%d group by ant_id order by ant_id" % (start_date,station_id)
-   print "Execurting SQL : %s" % szSQL
+   print("Execurting SQL : %s" % szSQL)
 
    # conn = db_connect()   
    cur = conn.cursor()
@@ -94,7 +95,7 @@ def get_mean_stddev_delay_per_ant( outname="eda2_mean_stddev_delay.txt", max_tim
            avg_y_delays.append( avg_y_delay )
            stddev_y_delays.append( stddev_y_delay )
        else :
-           print "WARNING : error in calibration ? ant %d (x_delay,y_delay) = (%.2f,%.2f)" % (ant,avg_x_delay,avg_y_delay)
+           print("WARNING : error in calibration ? ant %d (x_delay,y_delay) = (%.2f,%.2f)" % (ant,avg_x_delay,avg_y_delay))
 
 
    cur.close()
@@ -120,7 +121,7 @@ def get_calsolution_delay( ant_id=0, outname="calsol_amp_antid0.txt", max_time_s
            
    # excluding some wrong solutions in SQL :
    szSQL = "select extract(epoch from fit_time) as uxtime,COALESCE(x_delay,-1000),COALESCE(y_delay,-1000),fit_time from calibration_solution where ant_id=%d and (fit_time<'2018-12-20 00:00:00' or fit_time>'2018-12-31 23:59:59') and fit_time not in ('2019-08-13 11:39:00+08','2019-08-14 11:44:00+08') and station_id=%d and fit_time>='%s' %s order by fit_time ASC" % (ant_id,station_id,start_date,szWhere) 
-   print "Execurting SQL : %s" % szSQL
+   print("Execurting SQL : %s" % szSQL)
 
    # conn = db_connect()   
    cur = conn.cursor()
@@ -152,7 +153,7 @@ def get_calsolution_delay( ant_id=0, outname="calsol_amp_antid0.txt", max_time_s
            y_delay.append( y_del )
            fit_time.append( ft )
        else :
-           print "WARNING : error in calibration ? %s (x_delay,y_delay) = (%.2f,%.2f)" % (ft,x_del,y_del)
+           print("WARNING : error in calibration ? %s (x_delay,y_delay) = (%.2f,%.2f)" % (ft,x_del,y_del))
 
 
    cur.close()
@@ -186,7 +187,7 @@ def is_there_new_calibration( last_calibration_date=-1000, station_id=2 ) :
    else :
        szSQL = "select max(extract(epoch from fit_time)) as max_uxtime from calibration_solution where extract(epoch from fit_time) > '%s' and station_id=%d" % (last_calibration_date,station_id) 
 
-   print "Execurting SQL : %s" % szSQL
+   print("Execurting SQL : %s" % szSQL)
 
    # conn = db_connect()   
    cur = conn.cursor()
@@ -194,15 +195,15 @@ def is_there_new_calibration( last_calibration_date=-1000, station_id=2 ) :
    records = cur.fetchall()
 
    max_uxtime = -1
-   print "\tNumber of selected records = %d" % (len(records))
+   print("\tNumber of selected records = %d" % (len(records)))
    for rec in records:
-       print "\tTest rec[0] = %s (check if None)" % (rec[0])
+       print("\tTest rec[0] = %s (check if None)" % (rec[0]))
        if rec[0] is not None :
-           print "\tTest rec[0] = %.2f" % (rec[0])
+           print("\tTest rec[0] = %.2f" % (rec[0]))
            max_uxtime = float( rec[0] )
 
    cur.close()
-   print "Maximum unix time of calibration solution in the database = %.2f" % (max_uxtime)
+   print("Maximum unix time of calibration solution in the database = %.2f" % (max_uxtime))
    
    if max_uxtime > 0 :
        return True
@@ -243,9 +244,9 @@ if __name__ == "__main__":
        last_calib_date = read_last_calibration_dtm( options.last_calibration_file )
    
        if is_there_new_calibration( last_calib_date, station_id=options.station_id ) : 
-          print "INFO : there are new calibration solutions in the database"
+          print("INFO : there are new calibration solutions in the database")
        else :
-          print "WARNING : no new calibration solutions to plot found in the database after %s" % (last_calib_date)
+          print("WARNING : no new calibration solutions to plot found in the database after %s" % (last_calib_date))
           do_plots = False
 
    if do_plots :   
@@ -260,7 +261,7 @@ if __name__ == "__main__":
                outfile = '%s/calsol_delay_antid%03d.txt' % (options.outdir,ant_id)
                get_calsolution_delay( ant_id, outfile, start_date=options.start_date, station_id=options.station_id )
    else :
-       print "WARNING : no new calibration solutions to plot found in the database"
+       print("WARNING : no new calibration solutions to plot found in the database")
        
       
    conn.close()

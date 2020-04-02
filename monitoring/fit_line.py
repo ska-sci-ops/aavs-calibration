@@ -6,6 +6,7 @@
 # https://python4mpia.github.io/fitting_data/least-squares-fitting.html
 
 # just info :
+from __future__ import print_function
 import sys,os
 import math
 import numpy
@@ -82,10 +83,10 @@ def read_gains(tile_name,amp_dir,pol) :
    
       return gain_str
    except OSError as exc:
-      print "ERROR (OSError) : could not read file %s" % file
+      print("ERROR (OSError) : could not read file %s" % file)
 #      pass
    except :
-      print "ERROR (any): could not read file %s" % file
+      print("ERROR (any): could not read file %s" % file)
       
    return "-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000"
    
@@ -122,7 +123,7 @@ def read_data(filename) :
          if x < min_x :
             min_x = x
 
-   print "Frequency range = %.4f - %.4f MHz" % (min_x,max_x)         
+   print("Frequency range = %.4f - %.4f MHz" % (min_x,max_x))         
    return (x_arr,y_arr,min_x,max_x)
 
 fig_global = None 
@@ -133,13 +134,13 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
    typical_thickness = 3.9
    
    cnt=len(x_arr)
-   print "n_iter = %d , cnt = %d" % (n_iter,cnt)
+   print("n_iter = %d , cnt = %d" % (n_iter,cnt))
    if len(x_arr) != len(y_arr) :
-      print "ERROR : len(x_arr)=%d != len(y_arr)=%d -> cannot continue" % (len(x_arr),len(y_arr))
+      print("ERROR : len(x_arr)=%d != len(y_arr)=%d -> cannot continue" % (len(x_arr),len(y_arr)))
       return (-10000,-10000)
 
    if len(x_arr) < min_points :
-      print "ERROR : there are only %d points < minimum required %d -> no fit done" % (len(x_arr),min_points)
+      print("ERROR : there are only %d points < minimum required %d -> no fit done" % (len(x_arr),min_points))
       return (-10000,-10000)
 
    min_x = min(x_arr)
@@ -153,10 +154,10 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
    # slope,intercept, rval, pval, stderr = linregress(x_arr,y_arr)
    # version 2 :
    slope,intercept, rval, pval, stderr = stats.linregress(x_arr,y_arr)
-   print "y = {0}*x + {1}".format(slope,intercept)
+   print("y = {0}*x + {1}".format(slope,intercept))
    # print "rval = {0}".format(rval)
    # print "pval = {0}".format(pval)
-   print "stderr = {0}".format(stderr)
+   print("stderr = {0}".format(stderr))
 
    # calculate error from thickness of the data in n_ch bins :
    n_bins = len(x_arr)/n_ch
@@ -169,7 +170,7 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
             # minimum thicnkess from distribution is ~3.9 deg (see refitting_tests.odt) :
             thickness_bins[ii] = typical_thickness # set to 4 deg 
             if not bWarned :
-               print "WARNING : median_thickness <= 0.1 -> setting minimum thickness = 3.9 (bin=%d - printing just once and maybe more)" % (ii)
+               print("WARNING : median_thickness <= 0.1 -> setting minimum thickness = 3.9 (bin=%d - printing just once and maybe more)" % (ii))
                bWarned = True
 
    # Find median thickness :
@@ -177,17 +178,17 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
    if median_thickness <= 0.1 :
       # minimum thicnkess from distribution is ~3.9 deg (see refitting_tests.odt) :
       median_thickness = typical_thickness # set to 4 deg 
-      print "WARNING : phase median_thickness <= 0.1 -> setting minimum thickness = 3.9"
+      print("WARNING : phase median_thickness <= 0.1 -> setting minimum thickness = 3.9")
    if median_thickness >= 3*typical_thickness :
       min_thickness = numpy.min( thickness_bins )
-      print "WARNING : phase median_thickness >= %.2f -> changed to minimum thickness %.2f" % (median_thickness,min(min_thickness,typical_thickness))
+      print("WARNING : phase median_thickness >= %.2f -> changed to minimum thickness %.2f" % (median_thickness,min(min_thickness,typical_thickness)))
       median_thickness = min(min_thickness,typical_thickness)
       
    # Log thickness bins :
    line=""
    for ii in range(0,len(thickness_bins)) :
       line += (" %.2f" % thickness_bins[ii])
-   print "%s : Median phase thickness = %.2f from bins : %s" % (filename,median_thickness,line)
+   print("%s : Median phase thickness = %.2f from bins : %s" % (filename,median_thickness,line))
    
    # calculate residuals and their standard deviation :
    residuals = numpy.zeros(len(x_arr))
@@ -205,12 +206,12 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
       chi2 = chi2 + diff*diff # this gives always 1 - as expected 
    chi2 = chi2 / (len(x_arr)-2) # per degree of freedom
 
-   print "Iter = 0 : PHASE : sigma of residuals = %.2f , median_thickness = %.2f -> chi2/NDOF = %.2f" % (sigma_resid,median_thickness,chi2)
+   print("Iter = 0 : PHASE : sigma of residuals = %.2f , median_thickness = %.2f -> chi2/NDOF = %.2f" % (sigma_resid,median_thickness,chi2))
    
 
    A=slope
    B=intercept
-   print "PHASE : Fitted using %d points line y = %.8f x + %.8f" % (cnt,A,B)
+   print("PHASE : Fitted using %d points line y = %.8f x + %.8f" % (cnt,A,B))
 
 
    if  n_iter > 1 :
@@ -223,8 +224,8 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
 
       iter=0
       while iter<n_iter and max_diff>limit :
-        print
-        print "Fitting iteration = %d" % iter
+        print()
+        print("Fitting iteration = %d" % iter)
         # find and exclude worst outlier 
         max_i=-1;
         max_diff=-1e20;
@@ -238,7 +239,7 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
               max_i=i;
 
         if  max_i >= 0 :
-            print "\tPHASE : Maximum residual = %.4f [deg] at %.2f MHz -> excluding this point and re-fitting" %(max_diff,x_val[max_i])
+            print("\tPHASE : Maximum residual = %.4f [deg] at %.2f MHz -> excluding this point and re-fitting" %(max_diff,x_val[max_i]))
 
             for i in range(max_i,(count-1)):
                x_val[i] = x_val[i+1]
@@ -264,8 +265,8 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
            chi2 = chi2 + diff*diff # this gives always 1 - as expected 
         chi2 = chi2 / (len(x_val)-2) # per degree of freedom
 
-        print "\tPHASE : Fitted using %d points line y = %.8f x + %.8f -> max_diff=%.2f (vs. limit = %.2f)" % (count,A,B,max_diff,limit)
-        print "\tPHASE : Sigma of residuals = %.2f (from %d points), chi2/NDOF = %.2f" % (sigma_resid,len(x_val),chi2)
+        print("\tPHASE : Fitted using %d points line y = %.8f x + %.8f -> max_diff=%.2f (vs. limit = %.2f)" % (count,A,B,max_diff,limit))
+        print("\tPHASE : Sigma of residuals = %.2f (from %d points), chi2/NDOF = %.2f" % (sigma_resid,len(x_val),chi2))
         
         
         iter = iter + 1
@@ -285,7 +286,7 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
    quality_flag = 0 
    if n_channels > 0 :
       quality_flag = ( float(n_channels - n_bad_channels) / float(N_FINE_CHANNELS))
-   print "\tPHASE : Number of bad channels = %d / %d -> quality flag = %.4f" % (n_bad_channels,len(x_arr_original),quality_flag)
+   print("\tPHASE : Number of bad channels = %d / %d -> quality flag = %.4f" % (n_bad_channels,len(x_arr_original),quality_flag))
 
       
          
@@ -298,7 +299,7 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
                      
    fig_idx=0
    if save_png and pngfile is not None :
-      print "Saving image ..."
+      print("Saving image ...")
       # generate array of floats of given value :
       # arrays of ZEROS than add 1 :
       # numpy.empty - 
@@ -325,7 +326,7 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
       if count_large < 20 :
          ax.set_ylim(bottom=-360.00,top=+380.00)
       else :
-         print "WARNING : %d values exceeds |360| -> plotting automatic Y-axis range" % (count_large)
+         print("WARNING : %d values exceeds |360| -> plotting automatic Y-axis range" % (count_large))
          shift=(max(y_arr) - min(y_arr))/10.00
       pyplot.title(filename)
    
@@ -347,7 +348,7 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
       desc3="Thickness = %.2f, N_bad_ch = %d , quality = %.4f" % (median_thickness,n_bad_channels,quality_flag)
       plt.text(minx, 275.00-2*shift, desc3, fontsize=15)
     
-      print "Saving file %s" % (pngfile)
+      print("Saving file %s" % (pngfile))
       mkdir_p("images/")
       if pngfile.find("images/")<0 :
          pngfile="images/" + pngfile
@@ -363,7 +364,7 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
 #         pyplot.pause(0.025)
          # time.sleep(1)
          # pyplot.close()
-      print "done"
+      print("done")
       
       
       # close(fig)
@@ -373,7 +374,7 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
 
    outfile=None
    if outfile_name is not None and sqlfile is not None :
-      print "Saving output files %s and %s ..." % (outfile_name,sqlfile)
+      print("Saving output files %s and %s ..." % (outfile_name,sqlfile))
       outfile=open(outfile_name,"w") # was a+ in 2pols version 
       # sqlfile_f=open(sqlfile,"w")         
 
@@ -391,26 +392,26 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
 
       outfile.close()
       # sqlfile_f.close()
-      print "done"
+      print("done")
 
    return (len_m,B,sigma_resid,chi2,quality_flag)
 
 def fit_hor_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit=20, n_iter=1, comment="UNKNOWN", amp_dir="../amp/" , filename=None,pngfile=None, min_points=1, limit_in_sigma=5 ):      
-   print "n_iter = %d" % (n_iter)
+   print("n_iter = %d" % (n_iter))
    cnt=len(x_arr)
    if len(x_arr) != len(y_arr) :
-      print "ERROR : len(x_arr)=%d != len(y_arr)=%d -> cannot continue" % (len(x_arr),len(y_arr))
+      print("ERROR : len(x_arr)=%d != len(y_arr)=%d -> cannot continue" % (len(x_arr),len(y_arr)))
       return (-10000,-10000)
 
    if len(x_arr) < min_points :
-      print "ERROR : there are only %d points < minimum required %d -> no fit done" % (len(x_arr),min_points)
+      print("ERROR : there are only %d points < minimum required %d -> no fit done" % (len(x_arr),min_points))
       return (-10000,-10000)
 
    min_x = min(x_arr)
    max_x = max(x_arr)   
    
    for i in range(0,len(x_arr)):
-      print "%d (%.2f,%.2f)" % (i,x_arr[i],y_arr[i])
+      print("%d (%.2f,%.2f)" % (i,x_arr[i],y_arr[i]))
   
 
    # version 1 :
@@ -423,14 +424,14 @@ def fit_hor_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, l
    stderr = numpy.std( diff, 0 )
    rval = 0
    pval = 0
-   print "y = {0}*x + {1}".format(slope,intercept)
+   print("y = {0}*x + {1}".format(slope,intercept))
    # print "rval = {0}".format(rval)
    # print "pval = {0}".format(pval)
-   print "stderr = {0}".format(stderr)
+   print("stderr = {0}".format(stderr))
 
    A=slope
    B=intercept
-   print "Fitted using %d points line y = %.8f x + %.8f" % (cnt,A,B)
+   print("Fitted using %d points line y = %.8f x + %.8f" % (cnt,A,B))
 
 
    if  n_iter > 1 :
@@ -446,8 +447,8 @@ def fit_hor_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, l
 
       iter=0
       while iter<n_iter and max_diff>limit :
-        print
-        print "Fitting iteration = %d" % iter
+        print()
+        print("Fitting iteration = %d" % iter)
         # find and exclude worst outlier 
         max_i=-1;
         max_diff=-1e20;
@@ -461,7 +462,7 @@ def fit_hor_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, l
               max_i=i;
 
         if  max_i >= 0 :
-            print "Maximum residual = %.4f [deg] at %.2f MHz -> excluding this point and re-fitting" %(max_diff,x_val[max_i])
+            print("Maximum residual = %.4f [deg] at %.2f MHz -> excluding this point and re-fitting" %(max_diff,x_val[max_i]))
 
             for i in range(max_i,(count-1)):
                x_val[i] = x_val[i+1]
@@ -480,14 +481,14 @@ def fit_hor_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, l
 
         A = slope;
         B = intercept;
-        print "Fitted using %d points line y = %.8f x + %.8f -> max_diff=%.2f (vs. limit = %.2f)" % (count,A,B,max_diff,limit)
-        print "Stderr = %.2f" % (stderr)
+        print("Fitted using %d points line y = %.8f x + %.8f -> max_diff=%.2f (vs. limit = %.2f)" % (count,A,B,max_diff,limit))
+        print("Stderr = %.2f" % (stderr))
         
         iter = iter + 1
         
         if limit_in_sigma > 0 :
            limit=limit_in_sigma*stderr
-           print "Limit %.2f sigma = %.2f" % (limit_in_sigma,limit)
+           print("Limit %.2f sigma = %.2f" % (limit_in_sigma,limit))
 
       x_arr=list(x_val)
       y_arr=list(y_val)
@@ -562,17 +563,17 @@ def main() :
 #   if options.sqlfile is not None :
 #      sqlfile=options.sqlfile
 
-   print "Processing file = %s" % (filename)     
+   print("Processing file = %s" % (filename))     
    (x_arr,y_arr,min_x,max_x) = read_data(filename)  
    x_arr=np.array(x_arr)
    y_arr=np.array(y_arr)
    
    if options.fit_hor_line :
       (B) = fit_hor_line(x_arr,y_arr,save_png=options.save_png,do_plot=options.do_plot,outfile_name=options.outfile,limit=options.limit,n_iter=options.n_iter,comment=options.comment,amp_dir=options.amp_dir,filename=filename,pngfile=pngfile)
-      print "Fitted value = %.2f [deg]" % (B)
+      print("Fitted value = %.2f [deg]" % (B))
    else :
       (len_m,B) = fit_line(x_arr,y_arr,save_png=options.save_png,do_plot=options.do_plot,outfile_name=options.outfile,limit=options.limit,n_iter=options.n_iter,comment=options.comment,amp_dir=options.amp_dir,filename=filename,pngfile=pngfile)         
-      print "delay = %.2f [m] , intercept = %.2f [deg]" % (len_m,B)
+      print("delay = %.2f [m] , intercept = %.2f [deg]" % (len_m,B))
   
 if __name__ == "__main__":
    main()

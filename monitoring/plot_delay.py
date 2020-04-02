@@ -1,10 +1,11 @@
 #!/usr/bin/python
 
 # import pyfits
+from __future__ import print_function
 try:
     import astropy.io.fits as pyfits
 except ImportError:
-    print "ERROR : could not import astropy.io.fits -> trying pyfits"
+    print("ERROR : could not import astropy.io.fits -> trying pyfits")
     import pyfits
 
 # Test if X-windows / DISPLAY is not needed :
@@ -103,7 +104,7 @@ def plotfile( filename,
    alldata = np.loadtxt(filename,usecols=[0,1,2])
    rcv_list = None
    if metafits is not None :
-      print "Metafits = %s -> reading RCV-Tile mapping" % (metafits)
+      print("Metafits = %s -> reading RCV-Tile mapping" % (metafits))
       rcv_list = metadata_auto.get_tile_rcv_mapping( metafits )
 
    if len(alldata)>0 :
@@ -144,7 +145,7 @@ def plotfile( filename,
           y_median = np.median( y_delay_m )
           y_min = y_median - y_auto_median_range
           y_max = y_median + y_auto_median_range
-          print "Using median = %.2f to plot in range %.3f - %.3f" % (y_median,y_min,y_max)
+          print("Using median = %.2f to plot in range %.3f - %.3f" % (y_median,y_min,y_max))
 
    
       x_min=min(uttime)
@@ -186,8 +187,8 @@ def plotfile( filename,
 
       (B_x) = fit_hor_line(gpstime,x_delay_m,save_png=False,do_plot=False,limit_in_sigma=5,n_iter=10)
       (B_y) = fit_hor_line(gpstime,y_delay_m,save_png=False,do_plot=False,limit_in_sigma=5,n_iter=10)
-      print "Fitted delay X pol = %.2f" % (B_x)
-      print "Fitted delay Y pol = %.2f" % (B_y)
+      print("Fitted delay X pol = %.2f" % (B_x))
+      print("Fitted delay Y pol = %.2f" % (B_y))
 
       # X-pol :
       desc_x="Fitted X-pol delay = %.2f %s" % (B_x,delay_unit)
@@ -198,7 +199,7 @@ def plotfile( filename,
          mean_last_n = len(x_delay_m)
       
       x_delay_last=np.mean(x_delay_m[-mean_last_n:])         
-      print "TEST %s -> mean(last 5)=%.4f last value = %.4f" % (x_delay_m[-16:],x_delay_last,x_delay_m[-1])
+      print("TEST %s -> mean(last 5)=%.4f last value = %.4f" % (x_delay_m[-16:],x_delay_last,x_delay_m[-1]))
       desc_x="Mean last %d X delays = %.2f (last delay = %.2f)" % (mean_last_n,x_delay_last,x_delay_m[-1])
       if not publication :
          plt.text((x_min), y_max-(y_max-y_min)*0.1, desc_x, fontsize=15, color='blue')
@@ -213,7 +214,7 @@ def plotfile( filename,
          mean_last_n = len(y_delay_m)
       
       y_delay_last=np.mean(y_delay_m[-mean_last_n:])         
-      print "TEST %s -> mean(last 5)=%.4f last value = %.4f" % (y_delay_m[-16:],y_delay_last,y_delay_m[-1])
+      print("TEST %s -> mean(last 5)=%.4f last value = %.4f" % (y_delay_m[-16:],y_delay_last,y_delay_m[-1]))
       desc_y="Mean last %d X delays = %.2f (last delay = %.2f)" % (mean_last_n,y_delay_last,y_delay_m[-1])
       if not publication :
          plt.text((x_min), y_max-(y_max-y_min)*0.2, desc_y, fontsize=15, color='red')
@@ -222,7 +223,7 @@ def plotfile( filename,
       rcv_id = "-1"
       if rcv_list is not None :
           rcv_id = rcv.find_tile_rcv( tile_id , receiver_list=rcv_list )
-      print "Tile = %s -> rcv_id = %s" % (tile_id,rcv_id)
+      print("Tile = %s -> rcv_id = %s" % (tile_id,rcv_id))
       rcv_file_name = rcv_id + ".txt"
       rcv_file = open(rcv_file_name,"a+")
       rcv_file.write("%s %.8f %.8f\n" % (tile_id,x_delay_last,y_delay_last))
@@ -285,7 +286,7 @@ def plot_mean_stddev( filename,
    alldata = np.loadtxt(filename,usecols=[0,1,2,3,4])
    rcv_list = None
    if metafits is not None :
-      print "Metafits = %s -> reading RCV-Tile mapping" % (metafits)
+      print("Metafits = %s -> reading RCV-Tile mapping" % (metafits))
       rcv_list = metadata_auto.get_tile_rcv_mapping( metafits )
 
    if len(alldata)>0 :
@@ -306,7 +307,7 @@ def plot_mean_stddev( filename,
    
       y_min=min(min(mean_x_delay_ns),min(mean_x_delay_ns))-2
       y_max=max(max(mean_y_delay_ns),max(mean_y_delay_ns))+2
-      print "y_min = %.4f, y_max = %.4f" % (y_min,y_max)
+      print("y_min = %.4f, y_max = %.4f" % (y_min,y_max))
 
       # overwrite to skip extreme points (at least for testing time to adjust phases to 0)
       if y_min < -50 :
@@ -322,7 +323,7 @@ def plot_mean_stddev( filename,
           y_median = np.median( y_delay_m )
           y_min = y_median - y_auto_median_range
           y_max = y_median + y_auto_median_range
-          print "Using median = %.2f to plot in range %.3f - %.3f" % (y_median,y_min,y_max)
+          print("Using median = %.2f to plot in range %.3f - %.3f" % (y_median,y_min,y_max))
 
    
       x_min=1
@@ -335,7 +336,7 @@ def plot_mean_stddev( filename,
          item.set_fontsize(30)
       
       plt.ylim([y_min,y_max])
-      print "plt.ylim([%.4f,%.4f])" % (y_min,y_max)
+      print("plt.ylim([%.4f,%.4f])" % (y_min,y_max))
 #      line_x, = plt.plot(ants,mean_x_delay_ns, linestyle='None', marker='o', color='blue', markersize=3, label='X pol.')
 #      line_y, = plt.plot(ants,mean_y_delay_ns, linestyle='None', marker='+', color='red', markersize=3, label='Y pol.')
       # line_x, = 

@@ -1,6 +1,7 @@
 #!/opt/caastro/ext/anaconda/bin/python
 
 # import pdb
+from __future__ import print_function
 import astropy.io.fits as pyfits
 import pylab
 import math as m
@@ -155,7 +156,7 @@ def calc_max_baseline(table,n_ant=256) :
             if d > max_baseline :
                max_baseline = d 
 
-   print "max_baseline = %.2f" % (max_baseline)
+   print("max_baseline = %.2f" % (max_baseline))
    return max_baseline
 
 
@@ -171,24 +172,24 @@ def main() :
    if options.outfile is not None :
       outfile = options.outfile
    
-   print "####################################################"
-   print "PARAMTERS :"
-   print "####################################################"
-   print "fitsname       = %s -> obsID = %s" % (fitsname,obsid)
-   print "Max baseline   = %s" % (options.max_baseline)
-   print "outfile        = %s" % (outfile)
-   print "####################################################"
+   print("####################################################")
+   print("PARAMTERS :")
+   print("####################################################")
+   print("fitsname       = %s -> obsID = %s" % (fitsname,obsid))
+   print("Max baseline   = %s" % (options.max_baseline))
+   print("outfile        = %s" % (outfile))
+   print("####################################################")
 
    fits = pyfits.open(fitsname)
    table = fits[1].data
-   print 'Read fits file %s' % fitsname
+   print('Read fits file %s' % fitsname)
 
    out_f = open( outfile, "w")
    
    max_baseline = -100 
    if options.max_baseline or options.save_all :
       max_baseline = calc_max_baseline( table )
-      print "Maximum baseline = %.4f [m]" % (max_baseline)
+      print("Maximum baseline = %.4f [m]" % (max_baseline))
       out_f.write("MAX_BASELINE = %.4f\n" % (max_baseline))
       
       freqcent = fits[0].header['FREQCENT']

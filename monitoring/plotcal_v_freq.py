@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Script by Randall Wayth to plot calibration solutions with fits overplotted (requires access to database)
 # TODO : make it a bit more "parameterised"
 
@@ -51,7 +52,7 @@ def do_plots( station_id ):
    fig.subplots_adjust(left=0.05, bottom=0.07, right=0.98, top=0.95, wspace=0.2, hspace=0.3)
    ax1d=ax.flatten()
    for group in range(16):
-     print "Processing group "+str(group)
+     print("Processing group "+str(group))
      # make a new plot
      for subgroup_ind in range(16):
        ant_ind = group*16 + subgroup_ind

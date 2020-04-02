@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 
 
@@ -237,4 +238,4 @@ if __name__ == "__main__":
 
    rcv_id = find_tile_rcv(tile_id)
    
-   print "Tile %s is connected to receiver %s" % (tile_id,rcv_id)
+   print("Tile %s is connected to receiver %s" % (tile_id,rcv_id))
