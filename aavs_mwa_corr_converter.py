@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import h5py
 import sys
@@ -22,11 +23,11 @@ def get_metadata(datafile, show=True):
     metadata['nof_integrations'] = metadata['n_blocks'] * metadata['n_samples']
 
     if show:
-        print "---- Meta data ----"
+        print("---- Meta data ----")
         for k, v in metadata.iteritems():
             if k in ['ts_start', 'nof_integrations', 'channel_id']:
-                print "{}:\t{}".format(k, v)
-        print '\n'
+                print("{}:\t{}".format(k, v))
+        print('\n')
 
     return metadata
 

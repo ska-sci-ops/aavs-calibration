@@ -3,6 +3,7 @@
 # h5dump -d "/chan_/data" -b -o outfilename
 # but about 1000 times faster
 
+from __future__ import print_function
 import h5py,sys,getopt
 
 def printUsage():

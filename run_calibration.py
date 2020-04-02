@@ -1,3 +1,4 @@
+from __future__ import print_function
 import logging
 import os
 import re
@@ -349,7 +350,7 @@ if __name__ == "__main__":
         save_coefficients_mongo(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_name=conf.station_name )
 
     if conf.plot_solutions :
-       print "Plotting the latest calibration solutions with fits from the database:"
+       print("Plotting the latest calibration solutions with fits from the database:")
        cal_script = "/home/aavs/aavs-calibration/monitoring/plotcal_v_freq.sh"
        command = [ cal_script , conf.station_name, conf.directory ] # add parameters separated by commas : , "-D", directory,  etc 
        subprocess.call(command, stdout=stdout, stderr=subprocess.STDOUT)

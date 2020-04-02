@@ -1,3 +1,4 @@
+from __future__ import print_function
 from datetime import datetime
 from datetime import timedelta
 import os, sys, getopt
@@ -57,7 +58,7 @@ for row in fit_rows:
         if fit_x is None or fit_y is None:
             logger.warn('Failed to fit delay for ant %d' % (ant_id))
             continue
-        print "Fit time: %s, ant: %d, delay x: %f, delay y: %f" % (str(fit_time), ant_id, fit_x[1], fit_y[1])
+        print("Fit time: %s, ant: %d, delay x: %f, delay y: %f" % (str(fit_time), ant_id, fit_x[1], fit_y[1]))
         # check for polarity reversed antennas
         if fit_x[0] > 2.0 or fit_y[0] > 2.0:
             logger.warning(
