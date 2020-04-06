@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import range
 import logging
 import os
 import re
@@ -105,7 +107,7 @@ def run_calibration(directory, nof_channels, threads):
         from multiprocessing.pool import ThreadPool
 
         p = ThreadPool(threads)
-        p.map(calibrate_channel, range(start_channel, nof_channels))
+        p.map(calibrate_channel, list(range(start_channel, nof_channels)))
 
     # Otherwise process serially
     else:

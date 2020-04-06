@@ -5,7 +5,7 @@ import sys
 import os
 
 nof_mwa_inputs = 512
-nof_mwa_baselines = (nof_mwa_inputs + 1) * nof_mwa_inputs / 2
+nof_mwa_baselines = (nof_mwa_inputs + 1) * int(nof_mwa_inputs // 2)
 
 
 def get_metadata(datafile, show=True):
@@ -24,7 +24,7 @@ def get_metadata(datafile, show=True):
 
     if show:
         print("---- Meta data ----")
-        for k, v in metadata.iteritems():
+        for k, v in metadata.items():
             if k in ['ts_start', 'nof_integrations', 'channel_id']:
                 print("{}:\t{}".format(k, v))
         print('\n')
@@ -38,7 +38,7 @@ def generate_indexing_map():
 
     # MWA correlator expect antennas in order with interleaved polarisations
     map = np.zeros((nof_mwa_baselines, 2), dtype=np.int)
-
+    
     # Map to get baseline number for two antennas
     aavs_baseline_number = {}
 
@@ -57,8 +57,8 @@ def generate_indexing_map():
             pol_index = i_pol << 1 | j_pol
 
             # Get corresponding AAVS baseline number
-            i_antenna = i / 2
-            j_antenna = j / 2
+            i_antenna = int(i // 2)
+            j_antenna = int(j // 2)
             baseline = aavs_baseline_number[(i_antenna, j_antenna)]
 
             # Add to mapping
@@ -107,10 +107,10 @@ if __name__ == "__main__":
         # Create converted vis array once
         converted_vis = np.zeros(nof_mwa_baselines, dtype=np.complex64)
         converted_autos = np.zeros(nof_mwa_inputs, dtype=np.float32)
-        converted_cross = np.zeros((nof_mwa_inputs - 1) * nof_mwa_inputs / 2, dtype=np.complex64)
+        converted_cross = np.zeros((nof_mwa_inputs - 1) * int(nof_mwa_inputs // 2), dtype=np.complex64)
 
         # Process file one integration at a time
-        for t in range(metadata['nof_integrations'] / n_av):
+        for t in range(int(metadata['nof_integrations'] // n_av)):
             converted_autos.fill(0)
             converted_cross.fill(0)
             for a in range(n_av):
@@ -151,5 +151,6 @@ if __name__ == "__main__":
             converted_cross.tofile(output_cross)
             converted_autos.tofile(output_autos)
 
+    
     except Exception as e:
-        print("Something went wrong: {}".format(e.message))
+        print("Something went wrong: {}".format(e))

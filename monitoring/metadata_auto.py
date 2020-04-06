@@ -2,6 +2,10 @@
 
 # import pdb
 from __future__ import print_function
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import astropy.io.fits as pyfits
 import pylab
 import math as m
@@ -196,7 +200,7 @@ def main() :
       freqcent_hz = freqcent*1e6
       out_f.write("FREQCENT = %.2f MHz = %.2f Hz\n" % (freqcent,freqcent_hz))
       
-      lambda_m = 300000000/freqcent_hz
+      lambda_m = old_div(300000000,freqcent_hz)
       out_f.write("LAMBDA = %.4f [m]\n" % lambda_m);
       
       # based on rules of thumb:
@@ -206,7 +210,7 @@ def main() :
       # -> cellsize between 1.4 and 2.3 -> ~2arcmin
       # TODO : calculate automatically !!!
       # see also image_tile_auto.py
-      synthesized_beam=(lambda_m/max_baseline)*(180.00/math.pi)*60.00 # in arcmin
+      synthesized_beam=(old_div(lambda_m,max_baseline))*(180.00/math.pi)*60.00 # in arcmin
       lower=synthesized_beam/5.00
       higher=synthesized_beam/3.00
       primary_beam_deg=25 # 25deg @ 150 MHz, 20deg @ 200 MHz 

@@ -11,6 +11,7 @@ from time import sleep
 
 from pyaavs import station
 from pydaq import daq_receiver as receiver
+import pyaavs.logger
 
 # Global variables
 daq_config = None
@@ -125,20 +126,15 @@ if __name__ == "__main__":
 
     opts, args = p.parse_args(sys.argv[1:])
 
-    # Set logging
-    log = logging.getLogger('')
-    log.setLevel(logging.INFO)
-    format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    ch = logging.StreamHandler(stdout)
-    ch.setFormatter(format)
-    log.addHandler(ch)
+    # Set current thread name
+    threading.currentThread().name = "Calibration Loop"
 
     # Check if a configuration file was defined
     if opts.config is None:
-        log.error("A station configuration file is required, exiting")
+        logging.error("A station configuration file is required, exiting")
         exit()
     elif not os.path.exists(opts.config):
-        log.error("Invalid config file specified: {}".format(opts.config))
+        logging.error("Invalid config file specified: {}".format(opts.config))
         exit()
 
     # Check if directory exists

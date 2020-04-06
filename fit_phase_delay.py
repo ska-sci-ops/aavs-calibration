@@ -1,3 +1,4 @@
+from builtins import str
 import logging
 import os
 
@@ -35,7 +36,7 @@ def modelFuncPhase(params, x):
   Phase diff = 2*pi*freq*delay
   where freq and delay should be in equivalent units, like MHz and microseconds
   """
-    d_nu = (nyquist_freq / nof_channels)  # spacing of frequency points
+    d_nu = nyquist_freq / nof_channels  # spacing of frequency points
     # print "x: "+str(x)
     # print "params: "+str(params)
     model = params[0] + 2 * np.pi * x * d_nu * params[1]
@@ -68,7 +69,7 @@ def fitDelay(phases):
         # there are no non-zero gain entries, nothing to do here. Return null model
         return None
     xs = nonzeros[0]
-    ys = np.cos(phases[xs] * np.pi / 180) + 1j * np.sin(
+    ys =  np.cos(phases[xs] * np.pi / 180) + 1j * np.sin(
         phases[xs] * np.pi / 180)  # use normalised complex numbers for the phases
     # do initial brute-force search of parameter space
     delay_grid = np.linspace(-0.05, 0.05, 200)

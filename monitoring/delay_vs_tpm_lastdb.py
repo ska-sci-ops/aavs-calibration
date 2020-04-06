@@ -2,6 +2,7 @@ from __future__ import print_function
 # this scripts allows to calculate how to update delays in config files based on the newly calculated delays from the cal. solutions
 # it still requires a bit of copy/pasting and editing, but hopefylly next iterations will be a bit more automatic ...
 
+from builtins import range
 import numpy
 
 # delays from recent calibration (for example 2019_12_05-15:27 ):
