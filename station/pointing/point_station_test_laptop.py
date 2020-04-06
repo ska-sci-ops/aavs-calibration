@@ -20,7 +20,7 @@ from pyaavs import station
 #    from aavs_calibration.common import *
 #except ImportError:
 #    logging.warning("Could not load calibration database. This script cannot be used")
-# from common import *
+from common import *
 import numpy
 
 warnings.simplefilter('ignore', category=AstropyWarning)
