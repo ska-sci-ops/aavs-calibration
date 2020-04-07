@@ -5,7 +5,10 @@ Script for certain MWA database queries required for primary beam calibration (b
 from __future__ import print_function
 
 
-import logging, sys, os, glob, string, re, urllib, math, time
+from future import standard_library
+standard_library.install_aliases()
+from builtins import range
+import logging, sys, os, glob, string, re, urllib.request, urllib.parse, urllib.error, math, time
 import errno
 from optparse import OptionParser
 import numpy

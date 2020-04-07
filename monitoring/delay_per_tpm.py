@@ -7,6 +7,10 @@
 
 # just info :
 from __future__ import print_function
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import sys,os
 import math
 import numpy
@@ -171,7 +175,7 @@ def get_last_delays( station_id=2 ) :
 
 def calc_mean_delays_per_tpm( ant_name, ant_delay, ant_tpm, outfile="delay_vs_tpm.txt" , outconfig="delays_vs_tpm.conf" , b_save_both_pols=True ) :
    n_ant = len(ant_name)
-   n_tpms = n_ant / 16
+   n_tpms = old_div(n_ant, 16)
    print("Calculating mean delays for %d TPMs ( n_ant = %d )" % (n_tpms,n_ant))
    mean_delays = []
    
@@ -222,7 +226,7 @@ def calc_mean_delays_per_tpm( ant_name, ant_delay, ant_tpm, outfile="delay_vs_tp
 
       
          median_delay = numpy.median( tpm_delays )
-         mean_delay = mean_delay / count      
+         mean_delay = old_div(mean_delay, count)      
          mean_delays.append( mean_delay )
          print("TPM-%02d -> mean delay = %.4f [nanoseconds] , median = %.4f [ns] ( based on %d values : %s )" % (tpm,mean_delay,median_delay,count,all_values))
          

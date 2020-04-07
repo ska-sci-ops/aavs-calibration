@@ -1,3 +1,8 @@
+from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from builtins import range
+from past.utils import old_div
 from pyaavs import station
 import numpy as np
 import psycopg2
@@ -19,7 +24,7 @@ def antenna_coordinates():
     """ Reads antenna base locations from the Google Drive sheet
     :return: Re-mapped antenna locations
     """
-    import urllib
+    import urllib.request, urllib.parse, urllib.error
 
     # Antenna mapping placeholder
     antenna_mapping = []
@@ -27,7 +32,7 @@ def antenna_coordinates():
         antenna_mapping.append([[]] * nof_antennas_per_tile)
 
     # Read antenna location spreadsheet
-    response = urllib.urlopen('https://docs.google.com/spreadsheets/d/e/2PACX-1vQTo60lZmrvBfT0gpa4BwyaB_QkPplqfHga'
+    response = urllib.request.urlopen('https://docs.google.com/spreadsheets/d/e/2PACX-1vQTo60lZmrvBfT0gpa4BwyaB_QkPplqfHga'
                               '7RCsLDR9J_lv15BQTqb3loBHFhMp6U0X_FIwyByfFCwG/pub?gid=220529610&single=true&output=tsv')
     html = response.read().split('\n')
 
@@ -57,7 +62,7 @@ def antenna_coordinates():
     # Create lookup table (uses PREADU mapping)
     antenna_positions = np.zeros((nof_antennas, 3))
     for i in range(nof_antennas):
-        tile_number = i / nof_antennas_per_tile
+        tile_number = old_div(i, nof_antennas_per_tile)
         rx_number = antenna_preadu_mapping[i % nof_antennas_per_tile] - 1
         antenna_positions[i] = (antenna_mapping[tile_number][rx_number])
 
@@ -79,7 +84,7 @@ def normalize_complex_vector(vector):
 
     for p in range(vector.shape[0]):
         for a in range(nof_antennas):
-            normalised[p, a] = vector[p][a] / max_val
+            normalised[p, a] = old_div(vector[p][a], max_val)
 
     return normalised
 
@@ -92,9 +97,9 @@ def get_latest_coefficients(obs_start_channel_frequency, obs_bandwidth):
     cur = conn.cursor()
 
     # Compute the required delays for the station beam channels
-    nof_channels = int(obs_bandwidth / channel_bandwidth)
-    frequencies = np.arange(obs_start_channel_frequency / channel_bandwidth,
-                            (obs_start_channel_frequency + obs_bandwidth) / channel_bandwidth) * channel_bandwidth
+    nof_channels = int(old_div(obs_bandwidth, channel_bandwidth))
+    frequencies = np.arange(old_div(obs_start_channel_frequency, channel_bandwidth),
+                            old_div((obs_start_channel_frequency + obs_bandwidth), channel_bandwidth)) * channel_bandwidth
 
     # Grab antenna coefficients one by one (X pol)
     x_delays = np.zeros((nof_antennas, 2), dtype=np.float)

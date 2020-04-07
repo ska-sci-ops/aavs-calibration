@@ -2,6 +2,7 @@
 
 # import pyfits
 from __future__ import print_function
+from builtins import range
 try:
     import astropy.io.fits as pyfits
 except ImportError:

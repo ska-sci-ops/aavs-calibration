@@ -1,9 +1,13 @@
 from __future__ import print_function
+from __future__ import division
 # Script by Randall Wayth to plot calibration solutions with fits overplotted (requires access to database)
 # TODO : make it a bit more "parameterised"
 
 # quick and dirty script to plot cal solutions from database, corresponding to a particular time
 # the default plan uses the directory name as the time the data were taken based on Alessio's script
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import psycopg2,os,numpy,sys
 import matplotlib
 if not 'matplotlib.backends' in sys.modules:
@@ -81,8 +85,8 @@ def do_plots( station_id ):
          model_ph_x = (2*numpy.pi*x_del*cchan_freqs + x_ph0)
          model_ph_y = (2*numpy.pi*y_del*cchan_freqs + y_ph0)
        # limit phases to between -pi and pi
-       model_ph_x_deg = numpy.arctan2(numpy.sin(model_ph_x),numpy.cos(model_ph_x))*180/numpy.pi
-       model_ph_y_deg = numpy.arctan2(numpy.sin(model_ph_y),numpy.cos(model_ph_y))*180/numpy.pi
+       model_ph_x_deg = old_div(numpy.arctan2(numpy.sin(model_ph_x),numpy.cos(model_ph_x))*180,numpy.pi)
+       model_ph_y_deg = old_div(numpy.arctan2(numpy.sin(model_ph_y),numpy.cos(model_ph_y))*180,numpy.pi)
        # plot the data
        ax1d[subgroup_ind].plot(cchan_freqs[c_ind], x_pha[c_ind],'1')
        ax1d[subgroup_ind].plot(cchan_freqs[c_ind], y_pha[c_ind],'x')

@@ -1,3 +1,6 @@
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 from aavs_calibration.common import get_latest_calibration_solution
 from pyaavs import station
 import numpy as np
@@ -25,7 +28,7 @@ def normalize_complex_vector(vector):
 
     for p in range(vector.shape[0]):
         for a in range(nof_antennas):
-            normalised[p, a] = vector[p][a] / max_val
+            normalised[p, a] = old_div(vector[p][a], max_val)
 
     return normalised
 
@@ -34,8 +37,8 @@ def get_latest_coefficients(start_channel_frequency, bandwidth):
     """ Read latest coefficients from database """
 
     # Calculate number of channels in beam and start channel ID
-    nof_channels = int(bandwidth / channel_bandwidth)
-    start_channel = int(start_channel_frequency / channel_bandwidth)
+    nof_channels = int(old_div(bandwidth, channel_bandwidth))
+    start_channel = int(old_div(start_channel_frequency, channel_bandwidth))
 
     # Grab the latest calibration solution
     # Amplitude and phase are in antenna/pol/channel order. Phases are in degrees

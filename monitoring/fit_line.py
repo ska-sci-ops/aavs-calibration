@@ -7,6 +7,10 @@
 
 # just info :
 from __future__ import print_function
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import sys,os
 import math
 import numpy
@@ -160,7 +164,7 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
    print("stderr = {0}".format(stderr))
 
    # calculate error from thickness of the data in n_ch bins :
-   n_bins = len(x_arr)/n_ch
+   n_bins = old_div(len(x_arr),n_ch)
    thickness_bins = numpy.zeros( n_bins )
    bWarned=False
    for ii in range(0,n_bins) :
@@ -202,9 +206,9 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
       model = slope*x_arr[i]+intercept
 #      diff = ((y_arr[i] - model) / sigma_resid)
 #      # chi2 = chi2 + ((y_arr[i] - model)*(y_arr[i] - model))/math.fabs(model)
-      diff = ((y_arr[i] - model) / median_thickness)
+      diff = (old_div((y_arr[i] - model), median_thickness))
       chi2 = chi2 + diff*diff # this gives always 1 - as expected 
-   chi2 = chi2 / (len(x_arr)-2) # per degree of freedom
+   chi2 = old_div(chi2, (len(x_arr)-2)) # per degree of freedom
 
    print("Iter = 0 : PHASE : sigma of residuals = %.2f , median_thickness = %.2f -> chi2/NDOF = %.2f" % (sigma_resid,median_thickness,chi2))
    
@@ -261,9 +265,9 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
         chi2=0
         for i in range(0,len(x_val)) :
            model = slope*x_val[i]+intercept
-           diff = ((y_val[i] - model) / median_thickness)
+           diff = (old_div((y_val[i] - model), median_thickness))
            chi2 = chi2 + diff*diff # this gives always 1 - as expected 
-        chi2 = chi2 / (len(x_val)-2) # per degree of freedom
+        chi2 = old_div(chi2, (len(x_val)-2)) # per degree of freedom
 
         print("\tPHASE : Fitted using %d points line y = %.8f x + %.8f -> max_diff=%.2f (vs. limit = %.2f)" % (count,A,B,max_diff,limit))
         print("\tPHASE : Sigma of residuals = %.2f (from %d points), chi2/NDOF = %.2f" % (sigma_resid,len(x_val),chi2))
@@ -291,7 +295,7 @@ def fit_line(x_arr, y_arr, save_png=True, do_plot=True, outfile_name=None, limit
       
          
    # freq in MHz -> 1/10^6Hz needed !
-   A_Hz=A/1e6
+   A_Hz=old_div(A,1e6)
    len_m = (A_Hz/360.00)*C_ms
    
    if not x_arr_MHz :

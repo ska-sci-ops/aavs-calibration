@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Based on westf/read_data_asd.py
 # 
 # Usage :
@@ -9,11 +10,16 @@
 # 
 # If Excel file format (columns) change just modify the mapping dictrionary : Excel_Columns_Map (set proper column numbers)
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import map
+from builtins import range
+from builtins import object
 import pandas as pd
 import xlrd 
 import csv
 # import json
-import cPickle as pickle
+import pickle as pickle
 
 import numpy
 import sys
@@ -109,7 +115,7 @@ Excel_Columns_Map = {
 
 g_verb=0
 
-class Antenna :
+class Antenna(object) :
    antenna_base  = "unknown"
    north_south    = 0.00
    east_west      = 0.00
@@ -177,17 +183,17 @@ def parse_options():
 
 def print_options(options,args,tpm_list) :
 
-   print "####################################################"
-   print "PARAMTERS :"
-   print "####################################################"
-   print "Input file  = %s" % (options.infile)
-   print "Output file = %s" % (options.outfile)
-   print "TPM list    = %s (%s)" % (options.tpm_list,tpm_list)
-   print "print_tpm   = %s" % (options.print_tpm)
-   print "Reversed    = %s" % (options.tpm_input_reversed)
-   print "Decimal     = %s" % (options.decimal)
-   print "Use all ANTs = %s" % (options.use_all_ants)
-   print "####################################################"
+   print("####################################################")
+   print("PARAMTERS :")
+   print("####################################################")
+   print("Input file  = %s" % (options.infile))
+   print("Output file = %s" % (options.outfile))
+   print("TPM list    = %s (%s)" % (options.tpm_list,tpm_list))
+   print("print_tpm   = %s" % (options.print_tpm))
+   print("Reversed    = %s" % (options.tpm_input_reversed))
+   print("Decimal     = %s" % (options.decimal))
+   print("Use all ANTs = %s" % (options.use_all_ants))
+   print("####################################################")
 
    
    return (options, args)
@@ -243,7 +249,7 @@ def read_spectrum( file_name ) :
 
        file.close()
    
-   print "Read %d points from file %s" % (len(data_x),file_name)
+   print("Read %d points from file %s" % (len(data_x),file_name))
    return (data_x,data_y)    
 
 
@@ -254,7 +260,7 @@ def excel2csv( xls_file = "20190621_BRIDGING.xlsx" , csv_file="20190621_BRIDGING
 
     csv_f = open(csv_file,"wb")
     wr = csv.writer( csv_f, quoting=csv.QUOTE_ALL)
-    for rownum in xrange(sheet.nrows) :
+    for rownum in range(sheet.nrows) :
         wr.writerow(sheet.row_values(rownum))
     csv_f.close()
 
@@ -267,7 +273,7 @@ def read_mapping( file="20190621_BRIDGING.csv",
                 ) : 
     global g_ribbon_column_name 
                      
-    print "Reading file %s" % (file)
+    print("Reading file %s" % (file))
    
     mapping_data = pd.read_csv(file,low_memory=False,decimal=decimal) # or ","
 
@@ -278,7 +284,7 @@ def read_mapping( file="20190621_BRIDGING.csv",
        connected_antennas = mapping_data[(mapping_data[ g_ribbon_column_name ] != "-")]
     connected_count = connected_antennas.shape[0]
     
-    print "connected_antennas count = %d" % (len(connected_antennas))
+    print("connected_antennas count = %d" % (len(connected_antennas)))
 
 #    for idx in range(0,n_ant) : 
 #       ribbon = mapping_data['Ribbon'][idx]
@@ -294,11 +300,11 @@ def read_mapping( file="20190621_BRIDGING.csv",
        
        if tpm_list is not None :
           if tpm not in tpm_list :
-             print "WARNING : tpm = %s not in list %s -> skipped" % (tpm,tpm_list)
+             print("WARNING : tpm = %s not in list %s -> skipped" % (tpm,tpm_list))
              continue
     
        if tpm not in tpms_unique :
-          print "Adding unique TPM = %s" % (tpm)
+          print("Adding unique TPM = %s" % (tpm))
           tpms_unique.append( tpm )
           
        # using mapping Excel_Columns_Map[''] but original "easy" version commented on the right           
@@ -335,7 +341,7 @@ def read_mapping( file="20190621_BRIDGING.csv",
               break
         
 
-    print "TPMs = %s" % (tpms_unique)
+    print("TPMs = %s" % (tpms_unique))
     
 
 
@@ -357,7 +363,7 @@ def antenna2dataindex( csv_file="20190621_BRIDGING.csv",
        line = "Ant%03d %.4f %.4f %.4f" % (int(ant.antenna_base),ant.east_west,ant.north_south,ant.z)
        if options.print_tpm :
           line += (" %d" % ant.tpm)
-       print line
+       print(line)
        
        out_f.write(line + "\n")
        
@@ -371,18 +377,18 @@ if __name__ == '__main__':
    tpm_list = None 
    if options.tpm_list is not None :
        tpm_list=options.tpm_list.split(",")
-       tpm_list=map(int,tpm_list)
+       tpm_list=list(map(int,tpm_list))
    
    print_options( options, args, tpm_list) 
    
   
    csv_file=options.infile
    if options.infile.find(".xlsx") >= 0 :
-      print "Converting Excel -> csv file ..."
+      print("Converting Excel -> csv file ...")
       csv_file = options.infile.replace('.xlsx', '.csv' )
       excel2csv( xls_file=options.infile, csv_file=csv_file )      
    else :
-      print "CSV file provided -> no converting required"
+      print("CSV file provided -> no converting required")
 
    (connected_antennas,tpms_unique,antenna_list,data_index) = antenna2dataindex( csv_file=csv_file, tpm_input_reversed=options.tpm_input_reversed, outfile=options.outfile, tpm_list=tpm_list, options=options )
    

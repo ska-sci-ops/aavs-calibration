@@ -3,6 +3,7 @@ import logging
 import os
 import re
 import subprocess
+import threading
 import time
 from datetime import datetime
 from datetime import timedelta
@@ -13,6 +14,7 @@ import psycopg2
 
 import fit_phase_delay
 
+import pyaavs.logging
 from aavs_calibration.common import add_new_calibration_solution
 
 nyquist_freq = 400.0  # MHz
@@ -279,13 +281,8 @@ if __name__ == "__main__":
                       help="Plot calibration solutions and fits from the database [default: %defualt]")
     (conf, args) = parser.parse_args(argv[1:])
 
-    # Set logging
-    log = logging.getLogger('')
-    log.setLevel(logging.INFO)
-    format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    ch = logging.StreamHandler(stdout)
-    ch.setFormatter(format)
-    log.addHandler(ch)
+    # Set current thread name
+    threading.currentThread().name = "Run calibration"
 
     # Sanity check, make sure directory exists
     if not os.path.exists(conf.directory) or not os.path.isdir(conf.directory):
@@ -323,7 +320,7 @@ if __name__ == "__main__":
             yy_amp[channel, :] = y_amp
             yy_phase[channel, :] = y_pha
         except Exception as e:
-            logging.warning("Unable to load data for channel {}: {}".format(channel, e.message))
+            logging.warning("Unable to load data for channel {}: {}".format(channel, e))
 
     # Now fit a delay to each pol of each antenna
     for a in range(nof_antennas):
@@ -354,4 +351,3 @@ if __name__ == "__main__":
        cal_script = "/home/aavs/aavs-calibration/monitoring/plotcal_v_freq.sh"
        command = [ cal_script , conf.station_name, conf.directory ] # add parameters separated by commas : , "-D", directory,  etc 
        subprocess.call(command, stdout=stdout, stderr=subprocess.STDOUT)
-       
