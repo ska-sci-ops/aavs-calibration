@@ -320,7 +320,7 @@ if __name__ == "__main__":
             yy_amp[channel, :] = y_amp
             yy_phase[channel, :] = y_pha
         except Exception as e:
-            logging.warning("Unable to load data for channel {}: {}".format(channel, e.message))
+            logging.warning("Unable to load data for channel {}: {}".format(channel, e))
 
     # Now fit a delay to each pol of each antenna
     for a in range(nof_antennas):
