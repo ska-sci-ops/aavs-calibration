@@ -86,6 +86,9 @@ class Pointing(object):
         self._latitude = info.latitude
         self._nof_antennas = info.nof_antennas
 
+        x = numpy.zeros( self._nof_antennas )
+        y = numpy.zeros( self._nof_antennas )
+        z = numpy.zeros( self._nof_antennas )
         # Grab antenna locations and create displacement vectors
         if antenna_location_file is not None :
             # assuming format : Ant001 X Y Z 
@@ -95,7 +98,7 @@ class Pointing(object):
 
         self._displacements = np.full([self._nof_antennas, 3], np.nan)
         for i in range(self._nof_antennas):
-            self._displacements[i, :] = x[i], y[i], 0
+            self._displacements[i, :] = x[i], y[i], z[i]
 
         # Get reference antenna location
         self._reference_antenna_loc = EarthLocation.from_geodetic(self._longitude, self._latitude, ellipsoid='WGS84')
@@ -105,10 +108,6 @@ class Pointing(object):
         self._delays = None
         self._delay_rate = None
         
-        # show delays :
-        for i in range(0,len(self._delays)):
-           print("Delay[%d] = %.4f [ns] = %.2f [ps]" % (i,self._delays[i]*1e9,self._delays[i]*1e12))
-
 
     # -------------------------------- POINTING FUNCTIONS -------------------------------------
     def point_to_sun(self, pointing_time=None):
@@ -149,6 +148,10 @@ class Pointing(object):
         # Compute the delays
         self._delays = self._delays_from_altitude_azimuth(altitude.rad, azimuth.rad)
         self._delay_rate = self._delays * 0
+        
+        # show delays :
+        for i in range(0,len(self._delays)):
+           print("Delay[%d] = %.4f [ns] = %.2f [ps]" % (i,self._delays[i]*1e9,self._delays[i]*1e12))
 
     def point_array(self, right_ascension, declination, pointing_time=None, delta_time=1.0):
         """ Calculate the phase shift between two antennas which is given by the phase constant (2 * pi / wavelength)
@@ -357,7 +360,7 @@ if __name__ == "__main__":
             exit()
 
     # Generate pointing object
-    pointing = Pointing(opts.station, opts.config)
+    pointing = Pointing(opts.station, opts.config, antenna_location_file=opts.antenna_location_file )
 
     # Generate delay and delay rates
     if opts.sun:
