@@ -41,6 +41,8 @@ if __name__ == "__main__":
     # Connect to station
     station.load_configuration_file(conf.config)
     station = station.Station(station.configuration)
+    
+    # Connect station (program, initialise and configure if required)
     station.connect()
 
     if conf.calibrate_station :
