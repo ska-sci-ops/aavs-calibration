@@ -14,7 +14,7 @@ import psycopg2
 
 import fit_phase_delay
 
-import pyaavs.logging
+import pyaavs.logger
 from aavs_calibration.common import add_new_calibration_solution
 
 nyquist_freq = 400.0  # MHz
