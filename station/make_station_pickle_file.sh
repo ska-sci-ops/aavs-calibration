@@ -21,7 +21,7 @@ fi
 
 
 dt=`echo $dtm | awk '{gsub("_","");print substr($1,1,8);}'`
-outfile=${dt}_${station}_calcoefficients.pkl
+outfile=${dt}_${station}_ch${ch}_calcoefficients.pkl
 
 echo "python ~/aavs-calibration/station/calibration.py --outfile=${outfile} --filebase=phase_vs_antenna"
 python ~/aavs-calibration/station/calibration.py --outfile=${outfile} --filebase=phase_vs_antenna
