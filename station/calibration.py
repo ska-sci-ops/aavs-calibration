@@ -9,6 +9,7 @@
             1: X->Y polarization cross element
             2: Y->X polarization cross element
             3: Y polarization direct element"""
+from __future__ import print_function
 
 
 import numpy
@@ -42,31 +43,31 @@ def print_coeff_pol( obj, pol ) :
    n_pols = obj.shape[2]
    middle_chan = n_chan / 2       
 
-   print "------------------------------------------------ %s polarisation ------------------------------------------------" % (pol_str)
+   print("------------------------------------------------ %s polarisation ------------------------------------------------" % (pol_str))
    offline_beamformer_opt=""
-   print "------------------------------------------------"
-   print "%s-polarisation phases of calibration solutions :" % (pol_str)
-   print "------------------------------------------------"
-   print "Ant     Phase[deg]"
-   print "------------------------------------------------"
+   print("------------------------------------------------")
+   print("%s-polarisation phases of calibration solutions :" % (pol_str))
+   print("------------------------------------------------")
+   print("Ant     Phase[deg]")
+   print("------------------------------------------------")
    for ant in range(0,n_ant) :
       complex_coeff = obj[ant,middle_chan,pol]
       phase_deg     = numpy.angle( complex_coeff ) * (180.00/math.pi)
-      print "%d     %.4f" % (ant,phase_deg)
+      print("%d     %.4f" % (ant,phase_deg))
       
       phase_str = "%.4f" % (phase_deg)
       offline_beamformer_opt += phase_str
       if ant < (n_ant-1) :
          offline_beamformer_opt += ","
       
-   print "------------------------------------------------"
-   print "-X %s" % (offline_beamformer_opt)      
-   print "------------------------------------------------"       
+   print("------------------------------------------------")
+   print("-X %s" % (offline_beamformer_opt))      
+   print("------------------------------------------------")       
 
 
 def print_coeff( obj, filename=None ) :
    if filename is not None :
-      print "Calibration coefficients from file %s" % (filename)   
+      print("Calibration coefficients from file %s" % (filename))   
    
    print_coeff_pol( obj , 0 ) # 0 is X pol
    print_coeff_pol( obj , 3 ) # 3 is Y pol
@@ -79,7 +80,7 @@ def save_coeff( obj , name ):
     with open( pickle_file, 'wb') as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
         
-    print "Saved coefficients to file %s" % (pickle_file)    
+    print("Saved coefficients to file %s" % (pickle_file))    
 
 def load_coeff( pickle_file, show=True ) :
    obj = None
@@ -94,7 +95,7 @@ def load_coeff( pickle_file, show=True ) :
 
 
 def read_phase_offsets( filename ) :
-    print "Reading phase offsets from file %s" % (filename)
+    print("Reading phase offsets from file %s" % (filename))
 
     file=open( filename , 'r' )
     data=file.readlines()
@@ -145,12 +146,12 @@ def read_calibration_phase_offsets( phase_offset_file_X=None, phase_offset_file_
     
     if count_x == count_y :
        calibration_coef = numpy.zeros( (count_x, n_channels, n_pols ) , dtype=numpy.complex128)
-       print "calibration_coef.shape = %d x %d x %d" % (calibration_coef.shape[0],calibration_coef.shape[1],calibration_coef.shape[2])
+       print("calibration_coef.shape = %d x %d x %d" % (calibration_coef.shape[0],calibration_coef.shape[1],calibration_coef.shape[2]))
 
     
-       print "Number of phase offsets agree between X and Y and is %d" % (count_x)
+       print("Number of phase offsets agree between X and Y and is %d" % (count_x))
                                    
-       print "# ANT   |     X[deg]      |     Y[deg]       |    X_complex    |    Y_complex    |"
+       print("# ANT   |     X[deg]      |     Y[deg]       |    X_complex    |    Y_complex    |")
        for i in range(0,count_x) :       
           phase_x_rad = phase_offset_arr_x[i]*(math.pi / 180.00)
           phase_y_rad = phase_offset_arr_y[i]*(math.pi / 180.00)
@@ -162,12 +163,12 @@ def read_calibration_phase_offsets( phase_offset_file_X=None, phase_offset_file_
           calibration_coef[i,:,0] = coeff_arr_x[i] 
           calibration_coef[i,:,3] = coeff_arr_y[i]
        
-          print " %03d    |    %09.4f    |    %09.4f     |  %s  |  %s  |" % (i,phase_offset_arr_x[i],phase_offset_arr_y[i],coeff_arr_x[i],coeff_arr_y[i])
+          print(" %03d    |    %09.4f    |    %09.4f     |  %s  |  %s  |" % (i,phase_offset_arr_x[i],phase_offset_arr_y[i],coeff_arr_x[i],coeff_arr_y[i]))
           
           
           
     else :
-       print "ERROR : different number of coefficients read from files %s and %s , %d and %d respectively -> cannot continue" % (phase_offset_file_X,phase_offset_file_Y,count_x,count_y)
+       print("ERROR : different number of coefficients read from files %s and %s , %d and %d respectively -> cannot continue" % (phase_offset_file_X,phase_offset_file_Y,count_x,count_y))
        
 
 
@@ -260,14 +261,14 @@ def test_calibration( pickle_file ) :
     out_f_y.close()
     
     cmd = "diff phase_vs_antenna_X.txt test_X.tmp"
-    print "%s" % (cmd)
+    print("%s" % (cmd))
     os.system( cmd )
-    print "ANY DIFFERENCE ???"
+    print("ANY DIFFERENCE ???")
 
     cmd = "diff phase_vs_antenna_Y.txt test_Y.tmp"
-    print "%s" % (cmd)
+    print("%s" % (cmd))
     os.system( cmd )
-    print "ANY DIFFERENCE ???"
+    print("ANY DIFFERENCE ???")
 
     # check picke file :    
     coeff2 = get_calibration_coeff(calibration_file=pickle_file)
@@ -284,25 +285,25 @@ def test_calibration( pickle_file ) :
     out_f_y.close()
 
     cmd = "diff phase_vs_antenna_X.txt test_X_pickle.tmp"
-    print "%s" % (cmd)
+    print("%s" % (cmd))
     os.system( cmd )
-    print "ANY DIFFERENCE ???"
+    print("ANY DIFFERENCE ???")
 
     cmd = "diff phase_vs_antenna_Y.txt test_Y_pickle.tmp"
-    print "%s" % (cmd)
+    print("%s" % (cmd))
     os.system( cmd )
-    print "ANY DIFFERENCE ???"
+    print("ANY DIFFERENCE ???")
 
     
-    print 
-    print "Compare pickle to text files - any differences ???"
+    print() 
+    print("Compare pickle to text files - any differences ???")
     for ant in range(0,coeff1.shape[0]) :
        for ch in range(0,coeff1.shape[1]) :
            for pol in range(0,coeff1.shape[2]) :
               if coeff1[ant,ch,pol] != coeff2[ant,ch,pol] :
-                 print "DIFFERENCE !!!"
+                 print("DIFFERENCE !!!")
                  
-    print "No difference ???"             
+    print("No difference ???")             
                  
 if __name__ == '__main__':
 
@@ -314,26 +315,26 @@ if __name__ == '__main__':
     if options.outfile is None :
         options.outfile = options.filebase
 
-    print "####################################################"
-    print "PARAMTERS :"
-    print "####################################################"
-    print "File base       = %s -> files %s / %s" % (options.filebase,phase_offset_file_X,phase_offset_file_Y)
-    print "Output pkl file = %s" % (options.outfile)
-    print "####################################################"
+    print("####################################################")
+    print("PARAMTERS :")
+    print("####################################################")
+    print("File base       = %s -> files %s / %s" % (options.filebase,phase_offset_file_X,phase_offset_file_Y))
+    print("Output pkl file = %s" % (options.outfile))
+    print("####################################################")
     
     if options.test_pickle_file is not None :
         test_calibration( options.test_pickle_file )
     else :
         (calibration_coef) = read_calibration_phase_offsets( phase_offset_file_X , phase_offset_file_Y )
         ant_count = calibration_coef.shape[0]
-        print "Complex EDA-1 calibration coefficients:"
+        print("Complex EDA-1 calibration coefficients:")
         for ant in range(0,ant_count) :
-            print "X  pol antenna%02d : %s" % (ant,calibration_coef[ant,:,0])    
-            print "XY pol antenna%02d : %s" % (ant,calibration_coef[ant,:,1])
-            print "YX pol antenna%02d : %s" % (ant,calibration_coef[ant,:,2])
-            print "Y  pol antenna%02d : %s" % (ant,calibration_coef[ant,:,3])
-            print
-            print
+            print("X  pol antenna%02d : %s" % (ant,calibration_coef[ant,:,0]))    
+            print("XY pol antenna%02d : %s" % (ant,calibration_coef[ant,:,1]))
+            print("YX pol antenna%02d : %s" % (ant,calibration_coef[ant,:,2]))
+            print("Y  pol antenna%02d : %s" % (ant,calibration_coef[ant,:,3]))
+            print()
+            print()
 
 
         save_coeff( calibration_coef, options.outfile )
