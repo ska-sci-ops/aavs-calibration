@@ -1,3 +1,4 @@
+from __future__ import print_function
 __author__ = 'andrew'
 
 """Library to calculate first and second stage delays to point the Engineering Development Array (EDA).
@@ -83,7 +84,7 @@ def save_coeff( obj , name ):
     with open( pickle_file, 'wb') as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
                 
-    print "Saved coefficients to file %s" % (pickle_file)
+    print("Saved coefficients to file %s" % (pickle_file))
                     
 def load_coeff( pickle_file ) :
     obj = None
@@ -142,14 +143,14 @@ def getOffsets(dipolefile=None):
           number, xs, ys = values
           zs = 0.00
         else:
-          print "Bad line in file: %s" % line
+          print("Bad line in file: %s" % line)
         name = '%02x' % (int(number) - 1)
         bfid = name[0].upper()
         dipid = name[1].upper()
         x, y, z = float(xs), float(ys), float(zs)
         offsets[bfid][dipid] = (x, y, z)
       except AssertionError:
-        print "Problem parsing dipole position file %s in line: %s" % (dipolefile, line)
+        print("Problem parsing dipole position file %s in line: %s" % (dipolefile, line))
         return None
 
   return offsets
@@ -242,7 +243,7 @@ def calc_delays(offsets=None, az=0.0, el=90.0, verbose=True, errorlimit=MAXERROR
   #Check input sanity
   if (abs(za) > 90):
     if verbose:
-      print "Elevation must be between 0 and 90 degrees"
+      print("Elevation must be between 0 and 90 degrees")
     return None, None
 
   # Convert to radians
@@ -304,7 +305,7 @@ def calc_delays(offsets=None, az=0.0, el=90.0, verbose=True, errorlimit=MAXERROR
 
       # Take the Kaelus delay with the smallest sum-of-squares error and use that
       if verbose:
-        print "BF %s: Naive KD=%d, tried range from %d - %d, settled on KD=%d" % (bfid, idelays['K'][bfid], begin, end, bestkid)
+        print("BF %s: Naive KD=%d, tried range from %d - %d, settled on KD=%d" % (bfid, idelays['K'][bfid], begin, end, bestkid))
       delay2 = bestkid * KSTEP
       idelays['K'][bfid] = bestkid
 
@@ -319,17 +320,17 @@ def calc_delays(offsets=None, az=0.0, el=90.0, verbose=True, errorlimit=MAXERROR
           idelays[bfid][dipid] = MAXV1
 
     # idelays - in steps, delays in picoseconds 
-    print "%s : delay = %.2f steps , meandelays = %.2f" % (bfid,idelays['K'][bfid],meandelay)
+    print("%s : delay = %.2f steps , meandelays = %.2f" % (bfid,idelays['K'][bfid],meandelay))
     for dipid in HEXD:
         delay_stage2 = delays[bfid][dipid] - idelays[bfid][dipid]*MSTEP
-        print "\t%s : %.2f [?] (full delay = %.2f [ps] , delay_stage1 = %.2f [ps], delay_stage2 = %.2f or %.2f [ps])" % (dipid,idelays[bfid][dipid],delays[bfid][dipid],idelays[bfid][dipid]*MSTEP,delay_stage2,delay2)
+        print("\t%s : %.2f [?] (full delay = %.2f [ps] , delay_stage1 = %.2f [ps], delay_stage2 = %.2f or %.2f [ps])" % (dipid,idelays[bfid][dipid],delays[bfid][dipid],idelays[bfid][dipid]*MSTEP,delay_stage2,delay2))
     
     # TODO : verify correctness of the EDA1-beamformer to TPM-17 input/RX mapping :
     phase_rad = (2.00*math.pi*freq_hz*meandelay*1e-12)
     meandelays[bfid_index]           = meandelay*1e-12 # mean delays in seconds 
     calibration_coef[bfid_index,:,0] =  phase_rad      # complex( math.cos(phase_rad) , math.sin(phase_rad) )
     calibration_coef[bfid_index,:,3] =  phase_rad      # complex( math.cos(phase_rad) , math.sin(phase_rad) )
-    print "BF%d (%s) : %.4f [deg]" % (bfid_index,bfid,(2.00*math.pi*freq_hz*meandelay*1e-12)*(180.00/math.pi))
+    print("BF%d (%s) : %.4f [deg]" % (bfid_index,bfid,(2.00*math.pi*freq_hz*meandelay*1e-12)*(180.00/math.pi)))
     bfid_index = bfid_index + 1
   
   
@@ -337,8 +338,8 @@ def calc_delays(offsets=None, az=0.0, el=90.0, verbose=True, errorlimit=MAXERROR
   # 
   # phase0 = calibration_coef[0,0,0]
   phase0 = 0.00
-  print "phase0 = %.2f [deg]" % (phase0*(180.00/math.pi))
-  print "WARNING : transforming to have with respect to antenna0 (reference phase0 = %.4f deg)" % (phase0*(180.00/math.pi))
+  print("phase0 = %.2f [deg]" % (phase0*(180.00/math.pi)))
+  print("WARNING : transforming to have with respect to antenna0 (reference phase0 = %.4f deg)" % (phase0*(180.00/math.pi)))
   for idx in range(0,bfid_index) :
       phase_rad = calibration_coef[idx,0,0] - phase0            
       meandelay = meandelays[idx]
@@ -360,7 +361,7 @@ def calc_delays(offsets=None, az=0.0, el=90.0, verbose=True, errorlimit=MAXERROR
       calibration_coef_out[coeff_index,:,3] = complex( math.cos(phase_rad) , math.sin(phase_rad) )
       meandelays_out[coeff_index] = meandelay
       
-      print "BF%d (%s -> coeff_index = %d) : %s , delay = %.1f [pico-sec]" % (idx,HEXD[idx],coeff_index,calibration_coef_out[coeff_index,0,0],meandelay*1e12)      
+      print("BF%d (%s -> coeff_index = %d) : %s , delay = %.1f [pico-sec]" % (idx,HEXD[idx],coeff_index,calibration_coef_out[coeff_index,0,0],meandelay*1e12))      
       
   # save_coeff( calibration_coef_out, "pointing_MinusSign" )
   # save_coeff( calibration_coef_out, "pointing_PlusSign" )
@@ -388,11 +389,11 @@ def calc_delays(offsets=None, az=0.0, el=90.0, verbose=True, errorlimit=MAXERROR
       if abs(err) > errorlimit:   # If any dipole has an error greater than the maximum allowed error, then either disable it, or just fail
         if strict:
           if verbose:
-            print "BF %s: Dipole %s exceeds maximum error limit: %5.0f > %5.0f" % (bfid, dipid, maxerr, errorlimit)
+            print("BF %s: Dipole %s exceeds maximum error limit: %5.0f > %5.0f" % (bfid, dipid, maxerr, errorlimit))
           return None, None
         if clipdelays:   # Don't disable the dipole if we want to use single-beamformer mode, for example, after normalising delays
           idelays[bfid][dipid] = 16    # This disables the dipole, because 16 is added before sending it to the BF hardware
-          print "BF %s: Dipole %s exceeds maximum error limit: %5.0f > %5.0f" % (bfid, dipid, maxerr, errorlimit)
+          print("BF %s: Dipole %s exceeds maximum error limit: %5.0f > %5.0f" % (bfid, dipid, maxerr, errorlimit))
         offcount += 1   # Add to the count of disabled dipoles
       sqe += err * err
 
@@ -486,11 +487,11 @@ def calc_Kdelays(offsets=None, indelays=None, az=0.0, el=90.0, verbose=True, err
   #Check input sanity
   if (abs(za) > 90):
     if verbose:
-      print "Elevation must be between 0 and 90 degrees"
+      print("Elevation must be between 0 and 90 degrees")
     return None, None
 
   if indelays is None:
-    print "Must pass input delay structure - if you aren't modifying a previously calculated delay set, use calc_delays()"
+    print("Must pass input delay structure - if you aren't modifying a previously calculated delay set, use calc_delays()")
     return None, None
 
   # Convert to radians
@@ -537,16 +538,16 @@ def calc_Kdelays(offsets=None, indelays=None, az=0.0, el=90.0, verbose=True, err
 
       # Take the Kaelus delay with the smallest sum-of-squares error and use that
       if verbose:
-        print "BF %s: Naive KD=%d, tried range from %d - %d, settled on KD=%d" % (bfid, idelays['K'][bfid], begin, end, bestkid)
+        print("BF %s: Naive KD=%d, tried range from %d - %d, settled on KD=%d" % (bfid, idelays['K'][bfid], begin, end, bestkid))
       delay2 = bestkid * KSTEP
       idelays['K'][bfid] = bestkid
 
     # Copy the integer 1st stage delay values
     idelays[bfid] = copy.copy(indelays[bfid])
     
-    print "%s : delay = %.2f [?]" % (idelays['K'][bfid])
+    print("%s : delay = %.2f [?]" % (idelays['K'][bfid]))
     for dipid in HEXD:
-       print "\t%s : %.2f [?]" % (dipid,idelays[bfid][dipid])
+       print("\t%s : %.2f [?]" % (dipid,idelays[bfid][dipid]))
 
   # Calculate a final sum-of-squares error for the differences between ideal geometric and actual quantised, rounded delays, as a measure of pointing quality.
   sqe = 0.0
@@ -561,7 +562,7 @@ def calc_Kdelays(offsets=None, indelays=None, az=0.0, el=90.0, verbose=True, err
       if abs(err) > errorlimit:   # If any dipole has an error greater than the maximum allowed error, then either disable it, or just fail
         if strict:
           if verbose:
-            print "BF %s: Dipole %s exceeds maximum error limit: %5.0f > %5.0f" % (bfid, dipid, maxerr, errorlimit)
+            print("BF %s: Dipole %s exceeds maximum error limit: %5.0f > %5.0f" % (bfid, dipid, maxerr, errorlimit))
           return None, None
         if clipdelays:   # Don't disable the dipole if we want to use single-beamformer mode, for example, after normalising delays
           idelays[bfid][dipid] = 16    # This disables the dipole, because 16 is added before sending it to the BF hardware
@@ -577,30 +578,30 @@ def pdelays(delays=None, errors=None):
   if errors is not None:
     rdelays, delayerrs, errsum, maxerr, offcount = errors
   fstring = "%3d  " * 16
-  print "Integer delays for each dipole, and Kaelus BF:"
-  print "Dipole:                 0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F"
+  print("Integer delays for each dipole, and Kaelus BF:")
+  print("Dipole:                 0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F")
   for bfid in HEXD:
     mindelay = min(delays[bfid].values())
     maxdelay = max(delays[bfid].values())
     meandelay = sum(delays[bfid].values()) / 16.0
-    print "BF %s: delay = (%3d) +" % (bfid, delays['K'][bfid]), fstring % tuple([delays[bfid][dipid] for dipid in HEXD]), "   Max=%3d, Min=%3d, Mean=%7.3f" % (maxdelay, mindelay, meandelay)
+    print("BF %s: delay = (%3d) +" % (bfid, delays['K'][bfid]), fstring % tuple([delays[bfid][dipid] for dipid in HEXD]), "   Max=%3d, Min=%3d, Mean=%7.3f" % (maxdelay, mindelay, meandelay))
 
-  print
+  print()
   mindelay = min(delays['K'].values())
   maxdelay = max(delays['K'].values())
   meandelay = sum(delays['K'].values()) / 16.0
-  print "KB:   Max=%3d, Min=%3d, Mean=%7.3f" % (maxdelay, mindelay, meandelay)
+  print("KB:   Max=%3d, Min=%3d, Mean=%7.3f" % (maxdelay, mindelay, meandelay))
 
   if errors is not None:
-    print
-    print "%d dipoles disabled because delays exceeded limits" % offcount
-    print "Delay errors per dipole, in cm:"
+    print()
+    print("%d dipoles disabled because delays exceeded limits" % offcount)
+    print("Delay errors per dipole, in cm:")
     fstring = "%3.0f  " * 16
-    print "Dipole:                 0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F"
+    print("Dipole:                 0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F")
     for bfid in HEXD:
       minerr = min(delayerrs[bfid].values()) * 100 * C
       maxerr = max(delayerrs[bfid].values()) * 100 * C
-      print "BF %s:                " % bfid, fstring % tuple([delayerrs[bfid][dipid] * 100 * C for dipid in HEXD]), "   Max=%3d, Min=%3d" % (maxerr, minerr)
+      print("BF %s:                " % bfid, fstring % tuple([delayerrs[bfid][dipid] * 100 * C for dipid in HEXD]), "   Max=%3d, Min=%3d" % (maxerr, minerr))
 
 
 def track(offsets=None, fname='', errorlimit=MAXERRORSTRICT):
@@ -618,18 +619,18 @@ def track(offsets=None, fname='', errorlimit=MAXERRORSTRICT):
     t, az, el = map(float, line.split())
     newdelays, newerrors, pointing_coeff, meandelays = calc_delays(offsets=offsets, az=az, el=el, verbose=False, errorlimit=errorlimit)
     if newdelays is None:
-      print "Oops.", (odelays is None)
+      print("Oops.", (odelays is None))
     if (odelays is None) and (newdelays is not None):
       fixdelays, fixerrors, = newdelays, newerrors
-      print "Time=%d: Rises" % t
+      print("Time=%d: Rises" % t)
     elif (odelays is not None) and (newdelays is None):
-      print "Time=%d: Sets" % t
+      print("Time=%d: Sets" % t)
 
     newkdelays, newkerrors = calc_Kdelays(offsets=offsets, indelays=fixdelays, az=az, el=el, verbose=False, errorlimit=errorlimit)
     if newkdelays is not None:
       newkrdelays, newkdelayerrs, newkerrsum, newkmaxerr, newoffcount = newkerrors
       if newkmaxerr * C * 100 > errorlimit:
-        print "Time=%d: MWA BF delays changed, errors outside limits." % t
+        print("Time=%d: MWA BF delays changed, errors outside limits." % t)
         fixdelays, fixerrors = newdelays, newerrors
 
     odelays = newdelays

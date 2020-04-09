@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from __future__ import print_function
 import datetime
 import glob
 import os
@@ -76,7 +77,7 @@ def freqbin(indat=None):
 
 
 def set_onlybfs(onlybfs):
-  print "Setting onlybfs global to %s" % onlybfs
+  print("Setting onlybfs global to %s" % onlybfs)
   kproxy.onlybfs(bfids=onlybfs)
   for proxy in bfproxies.values():
     proxy.onlybfs(bfids=onlybfs)
@@ -87,7 +88,7 @@ def point_azel( az=0.00, el=90.00 ) :
  idelays, errors, pointing_coeff, meandelays = pointing.calc_delays(offsets=offsets, az=az, el=el, strict=False, verbose=True, clipdelays=True, optimise=False, cpos=(0.0, 0.0, 0.0))
                                            
  for b in HEXD:
-    print "%s : %s" % (b,idelays[b])
+    print("%s : %s" % (b,idelays[b]))
 #    print "idelays = %s" % (idelays)                                           
     
 #  kproxy = Pyro4.Proxy(KURL)
@@ -108,7 +109,7 @@ def point_azel( az=0.00, el=90.00 ) :
  for clientid, proxy in bfproxies.items():
      proxy.notify(obsid=0, starttime=stime, stoptime=stime + 8, clientid=clientid, rclass='pointing', values=values)
 
- print "Test finished, EDA-1 / TPM-17 pointed at (az,el) = (%.2f,%.2f) [deg]" % (az,el)
+ print("Test finished, EDA-1 / TPM-17 pointed at (az,el) = (%.2f,%.2f) [deg]" % (az,el))
 #  time.sleep(8)
   # data, dtime = getdata()
 

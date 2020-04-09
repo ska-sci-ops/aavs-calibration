@@ -13,6 +13,11 @@ import pyaavs.logger
 import logging
 import time
 
+import eda1_tpm_pointing
+import calibration
+import numpy
+
+
 if __name__ == "__main__":
     from optparse import OptionParser
     from sys import argv, stdout
