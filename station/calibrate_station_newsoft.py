@@ -74,7 +74,7 @@ if __name__ == "__main__":
         # Download coefficients
         t0 = time.time()
         for i, tile in enumerate(station.tiles):
-           print "i = %d" % (i)
+           print("i = %d" % (i))
            delay      = meandelays
            delay_rate = meandelays*0.00
            delays_in_seconds = numpy.array([delay, delay_rate]).transpose()
