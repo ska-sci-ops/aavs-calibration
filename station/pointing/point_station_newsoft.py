@@ -64,7 +64,7 @@ def read_antenna_list( filename,
 
    print("Read %d / %d / %d of x, y, z positions from file %s" % (len(x_arr),len(y_arr),len(z_arr),filename))
 
-   return (numpy.array(x_arr), numpy.array(y_arr), numpy.array(z_arr) )
+   return (np.array(x_arr), np.array(y_arr), np.array(z_arr) )
 
 
 
@@ -87,9 +87,9 @@ class Pointing(object):
         self._latitude = info.latitude
         self._nof_antennas = info.nof_antennas
 
-        x = numpy.zeros( self._nof_antennas )
-        y = numpy.zeros( self._nof_antennas )
-        z = numpy.zeros( self._nof_antennas )
+        x = np.zeros( self._nof_antennas )
+        y = np.zeros( self._nof_antennas )
+        z = np.zeros( self._nof_antennas )
         # Grab antenna locations and create displacement vectors
         if antenna_location_file is not None :
             # assuming format : Ant001 X Y Z 
