@@ -41,7 +41,7 @@ def print_coeff_pol( obj, pol ) :
    n_ant  = obj.shape[0]
    n_chan = obj.shape[1]
    n_pols = obj.shape[2]
-   middle_chan = n_chan / 2       
+   middle_chan = int( n_chan / 2 )
 
    print("------------------------------------------------ %s polarisation ------------------------------------------------" % (pol_str))
    offline_beamformer_opt=""
