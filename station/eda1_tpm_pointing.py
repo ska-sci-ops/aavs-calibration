@@ -13,7 +13,7 @@ from astropy.io import fits
 import numpy
 
 warnings.simplefilter(action='ignore')
-import Pyro4
+# import Pyro4
 
 
 import matplotlib
@@ -92,9 +92,9 @@ def point_azel( az=0.00, el=90.00 ) :
 #    print "idelays = %s" % (idelays)                                           
     
 #  kproxy = Pyro4.Proxy(KURL)
- bfproxies = {}
- for clientid, url in BURLS.items():
-    bfproxies[clientid] = Pyro4.Proxy(url)
+# bfproxies = {}
+# for clientid, url in BURLS.items():
+#    bfproxies[clientid] = Pyro4.Proxy(url)
 
  xarray = numpy.zeros(shape=(16, 16, 32768))
  yarray = numpy.zeros(shape=(16, 16, 32768))
@@ -106,8 +106,8 @@ def point_azel( az=0.00, el=90.00 ) :
                    }
            }
 #      kproxy.notify(obsid=0, starttime=stime, stoptime=stime + 8, clientid='Kaelus', rclass='pointing', values=values)
- for clientid, proxy in bfproxies.items():
-     proxy.notify(obsid=0, starttime=stime, stoptime=stime + 8, clientid=clientid, rclass='pointing', values=values)
+# for clientid, proxy in bfproxies.items():
+#     proxy.notify(obsid=0, starttime=stime, stoptime=stime + 8, clientid=clientid, rclass='pointing', values=values)
 
  print("Test finished, EDA-1 / TPM-17 pointed at (az,el) = (%.2f,%.2f) [deg]" % (az,el))
 #  time.sleep(8)
