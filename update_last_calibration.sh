@@ -67,3 +67,14 @@ do
    echo "cp -a ${txt_full_path} ${file_name}"
    cp -a ${txt_full_path} ${file_name}
 done
+
+
+# create pickle files for station calibration :
+date
+echo "~/aavs-calibration/station/create_pickle_files.sh"
+~/aavs-calibration/station/create_pickle_files.sh
+
+
+echo "update_last_calibration.sh finished at:"
+date
+
