@@ -1,9 +1,10 @@
 #!/bin/bash
 
-ch=204 # means update all channels 
+station_name=eda2
 if [[ -n "$1" && "$1" != "-" ]]; then
-   ch=$1
+   station_name=$1
 fi
+
 
 cal_path=/data/real_time_calibration/
 
@@ -71,8 +72,8 @@ done
 
 # create pickle files for station calibration :
 date
-echo "~/aavs-calibration/station/create_pickle_files.sh"
-~/aavs-calibration/station/create_pickle_files.sh
+echo "~/aavs-calibration/station/create_pickle_files.sh ${station_name}"
+~/aavs-calibration/station/create_pickle_files.sh ${station_name}
 
 
 echo "update_last_calibration.sh finished at:"
