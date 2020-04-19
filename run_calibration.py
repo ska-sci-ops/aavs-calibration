@@ -136,7 +136,7 @@ def run_calibration(directory, nof_channels, threads, station_name="EDA2" ):
             calibrate_channel(channel,station_name=station_name)
   
     # All done, first update last calibration :
-    subprocess.check_call(['update_last_calibration.sh'])
+    subprocess.check_call(['update_last_calibration.sh',station_name])
     
     # then cleanup up temporary files
     subprocess.check_call(['cleanup_temp_files.sh', '-D', directory])
