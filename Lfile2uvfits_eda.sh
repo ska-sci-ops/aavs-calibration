@@ -16,6 +16,7 @@ chan=204
 ra_hrs="-"
 dec_degs="-"
 debug="" # or -d
+fractional_seconds=0
 
 function print_usage {
   echo "Usage: "
@@ -27,6 +28,8 @@ function print_usage {
   echo "    -N n_inputs   Default: $ninp"
   echo "    -C n_chan     Default: $nchan"
   echo "    -f freq_chan  Default: $chan"
+  echo "    -F allow fractional seconds -> different .uvfits file name, Default: $fractional_seconds"
+  echo "    -d : enable debugging"
   exit
 }
 
@@ -86,10 +89,16 @@ fi
 
 # parse command-line args
 if [ $# -lt 1 ] ; then print_usage ; fi
-while getopts "hi:R:D:n:N:C:f:" opt; do
+while getopts "hi:R:D:n:N:C:f:dF" opt; do
   case $opt in
     h)
         print_usage
+        ;;
+    d)
+        debug="-d"
+        ;;
+    F)
+        fractional_seconds=1
         ;;
     n)
         nchunks=$OPTARG
@@ -198,8 +207,14 @@ for t in `seq 0 $((ntimes-1))` ; do
 #         echo "nice corr2uvfits -d -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits"
 #         nice corr2uvfits -d -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits
 
-        echo "nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}${frac_int}.uvfits"
-        nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}${frac_int}.uvfits
+        if [[ $fractional_seconds -gt 0 ]]; then
+           echo "nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}${frac_int}.uvfits"
+           nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}${frac_int}.uvfits
+        else
+           # this is default for backward compatibility if -F not enabled 
+           echo "nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.fits"
+           nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.fits
+        fi
         
         echo "s -al $lacspc $lccspc $header *.uvfits"
         ls -al $lacspc $lccspc $header *.uvfits
