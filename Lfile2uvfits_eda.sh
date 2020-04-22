@@ -13,6 +13,8 @@ nchunks=90
 useradec=0
 inttime=${dump_time}
 chan=204
+ra_hrs="-"
+dec_degs="-"
 
 function print_usage {
   echo "Usage: "
@@ -38,8 +40,11 @@ function generate_header_file
    useradec=$6
    ra_hrs=$7
    dec_degs=$8
+   frac=$9
+   frac_int=`echo $frac | awk '{printf("%02d",($1*100));}'`
    
-   
+   echo "PARAMS : $header_file / $frac"
+      
 
    # generate header file here (not copy from repo):
    echo "# AUTO-GENERATED $header_file file" > ${header_file}
@@ -68,7 +73,7 @@ function generate_header_file
    echo "CONJUGATE 1     # conjugate the raw data to fix sign convention problem if necessary" >> ${header_file}
    echo "GEOM_CORRECT 1  # apply geometric phase corrections when 1. Don't when 0" >> ${header_file}         
    
-   echo "TIME    $tstart" >> ${header_file}
+   echo "TIME    ${tstart}.${frac_int}" >> ${header_file}
    echo "DATE    $dstart" >> ${header_file}
    echo "FREQCENT ${cent_freq}" >> ${header_file}
    echo "INT_TIME $inttime" >> ${header_file}
@@ -161,20 +166,24 @@ for t in `seq 0 $((ntimes-1))` ; do
 #      cp header_ph1.txt $header 
 #    fi
 
+    echo "offset := $t * $timeinc"
     offset=`echo $t $timeinc | awk '{ printf "%.0f\n",$1*$2 }'`
+    frac=`echo $t $timeinc $offset | awk '{ printf("%.2f\n",($1*$2-$3)); }'`
+    frac_int=`echo $frac | awk '{printf("%02d",($1*100));}'`
     start=$((startunix + offset))
     tstart=`date -u --date="@$start" +"%H%M%S"`
     dstart=`date -u --date="@$start" +"%Y%m%d"`
-    echo "Making header for chunk $t. Time offset: $offset. Start time: $dstart $tstart"
+    echo "Making header for chunk $t. Time offset: $offset. Fraction: $frac Start time: $dstart $tstart"
     
-    echo "generate_header_file $header $tstart $dstart ${cent_freq} $inttime $useradec $ra_hrs $dec_degs"
-    generate_header_file $header $tstart $dstart ${cent_freq} $inttime $useradec $ra_hrs $dec_degs
+    echo "generate_header_file $header $tstart $dstart ${cent_freq} $inttime $useradec $ra_hrs $dec_degs $frac"
+    generate_header_file $header $tstart $dstart ${cent_freq} $inttime $useradec $ra_hrs $dec_degs $frac
         
     # chop out relevant section of L-files
     dd bs=${la_chunksize} skip=$((nchunks*t)) count=$nchunks if=$bname.LACSPC > $lacspc
     dd bs=${lc_chunksize} skip=$((nchunks*t)) count=$nchunks if=$bname.LCCSPC > $lccspc
     # convert to uvfits
     startutc=`date -u --date=@${start} "+%Y%m%dT%H%M%S"`
+    
 
 # TODO : can we fix the time to have fractional seconds ?    
 #    if [[ -s ${oname}_${startutc}.uvfits ]]; then
@@ -184,8 +193,18 @@ for t in `seq 0 $((ntimes-1))` ; do
 #        echo "nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}_${next_str}.uvfits"
 #        nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}_${next_str}.uvfits
 #    else
-        echo "nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits"
-        nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits
+
+#         echo "nice corr2uvfits -d -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits"
+#         nice corr2uvfits -d -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits
+
+        echo "nice corr2uvfits -d -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}${frac_int}.uvfits"
+        nice corr2uvfits -d -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}${frac_int}.uvfits
+        
+        echo "s -al $lacspc $lccspc $header *.uvfits"
+        ls -al $lacspc $lccspc $header *.uvfits
+        
+        echo "$t : $header"
+        cat $header
 #    fi 
 done
 
