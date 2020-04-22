@@ -57,7 +57,7 @@ shift $(expr $OPTIND - 1 )
 
 lacspc=`mktemp`
 lccspc=`mktemp`
-header=`mktemp`
+# header=`mktemp`
 
 hdffile="$1"
 chan=`echo $hdffile | cut -f 3 -d _`
@@ -66,6 +66,7 @@ if [ $chan -lt 1 ] ; then
   exit 1
 fi
 cent_freq=`echo $chan |  awk '{ printf "%f\n",$1*0.781250 }'`
+header=${hdffile}.hdr
 
 if [ $# -gt 1 ] ; then
   inttime=$2
@@ -119,4 +120,4 @@ done
 
 rm $lacspc
 rm $lccspc
-rm $header
+# rm $header

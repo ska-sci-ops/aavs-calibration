@@ -4,9 +4,10 @@
 # 2: integration time in L-file
 # 3: RA hours (optional, default is zenith)
 # 4: DEC degs (optional, default is zenith)
-dump_time=1.38240	# basic correlator integration time for 40000 averages
-dump_time=2.00016	# basic correlator integration time for 57875 averages
-ninp=96
+# dump_time=1.38240	# basic correlator integration time for 40000 averages
+# dump_time=2.00016	# basic correlator integration time for 57875 averages
+dump_time=1.9818086	# basic correlator integration time
+ninp=512
 nchan=32
 nchunks=90
 useradec=0
@@ -24,6 +25,53 @@ function print_usage {
   echo "    -C n_chan     Default: $nchan"
   echo "    -f freq_chan  Default: $chan"
   exit
+}
+
+function generate_header_file 
+{
+#   n_scans=$1
+   header_file=$1
+   tstart=$2 
+   dstart=$3 
+   cent_freq=$4 
+   inttime=$5
+   useradec=$6
+   ra_hrs=$7
+   dec_degs=$8
+   
+   
+
+   # generate header file here (not copy from repo):
+   echo "# AUTO-GENERATED $header_file file" > ${header_file}
+   echo "FIELDNAME eda2cal" >> ${header_file}
+   echo "TELESCOPE EDA2      # telescope name like MWA, MOST, ATCA etc" >> ${header_file}
+   echo "N_SCANS   $nchunks  # number of scans (time instants) in correlation products" >> ${header_file}
+   echo "N_INPUTS  $ninp     # number of inputs into the correlation products" >> ${header_file}
+   echo "N_CHANS   $nchan    # number of channels in spectrum" >> ${header_file}
+   echo "CORRTYPE  B     # correlation type to use. 'C'(cross), 'B'(both), or 'A'(auto)" >> ${header_file}
+   
+# QUESTION to be sorted if it should be (400/512) or (400/512)*(32/27) - due to oversampling I am leaving at (400/512) for now ...   
+#   echo "BANDWIDTH 0.925926  # total bandwidth in MHz" >> ${header_file}
+   echo "BANDWIDTH 0.78125  # total bandwidth in MHz" >> ${header_file}
+   
+   if [ $useradec -ne 0 ] ; then
+      # use values provided by user :
+      echo "RA_HRS    $ra_hrs  # the RA at the *start* of the scan. (hours)" >> ${header_file}
+      echo "DEC_DEGS  $dec_degs # the DEC of the desired phase centre (degs)" >> ${header_file}
+   else
+      # use default values
+      echo "HA_HRS    -0.00833333  # the HA at the *start* of the scan. (hours)" >> ${header_file}
+      echo "DEC_DEGS  -26.7033 # the DEC of the desired phase centre (degs)" >> ${header_file}
+   fi   
+   
+   echo "INVERT_FREQ 0   # 1 if the freq decreases with channel number" >> ${header_file}
+   echo "CONJUGATE 1     # conjugate the raw data to fix sign convention problem if necessary" >> ${header_file}
+   echo "GEOM_CORRECT 1  # apply geometric phase corrections when 1. Don't when 0" >> ${header_file}         
+   
+   echo "TIME    $tstart" >> ${header_file}
+   echo "DATE    $dstart" >> ${header_file}
+   echo "FREQCENT ${cent_freq}" >> ${header_file}
+   echo "INT_TIME $inttime" >> ${header_file}
 }
 
 if [ $# -eq 0 ] ; then
@@ -73,9 +121,11 @@ lc_chunksize=$((ninp*(ninp-1)*nchan*8/2))
 
 lacspc=`mktemp`
 lccspc=`mktemp`
-header=`mktemp`
+# header=`mktemp`
+
 
 Lfilebase="$1"
+header=${Lfilebase}.hdr
 cent_freq=`echo $chan |  awk '{ printf "%f\n",$1*0.781250 }'`
 
 if [ $# -gt 1 ]; then
@@ -105,32 +155,21 @@ if [ $ntimes -lt 1 ] ; then ntimes=1 ; fi
 echo "Processing file $Lfilebase. There are $ntimes times. Start unix time: $startunix"
 for t in `seq 0 $((ntimes-1))` ; do
     # create a temporary header file for this dataset
-    if [ -e header.txt ] ; then
-      cp header.txt $header
-    else
-      cp header_ph1.txt $header 
-    fi
+#    if [ -e header.txt ] ; then
+#      cp header.txt $header
+#    else
+#      cp header_ph1.txt $header 
+#    fi
+
     offset=`echo $t $timeinc | awk '{ printf "%.0f\n",$1*$2 }'`
     start=$((startunix + offset))
     tstart=`date -u --date="@$start" +"%H%M%S"`
     dstart=`date -u --date="@$start" +"%Y%m%d"`
     echo "Making header for chunk $t. Time offset: $offset. Start time: $dstart $tstart"
-    echo -e "\nTIME    $tstart" >> $header
-    echo "DATE    $dstart" >> $header
-    echo "FREQCENT ${cent_freq}" >> $header
-    echo "INT_TIME $inttime" >> $header
-    # update the number of scans in file
-    sed -i 's/^N_SCANS/#N_SCANS/' $header
-    echo "N_SCANS $nchunks" >> $header
-    echo "N_CHANS $nchan" >> $header
-    if [ $useradec -ne 0 ] ; then
-      # remove any existing default HA setting
-      sed -i 's/^HA_HRS/#&/' $header
-      sed -i 's/^DEC_DEGS/#&/' $header
-      # insert new coords for phase centre
-      echo "RA_HRS $ra_hrs" >> $header
-      echo "DEC_DEGS $dec_degs" >> $header
-    fi
+    
+    echo "generate_header_file $header $tstart $dstart ${cent_freq} $inttime $useradec $ra_hrs $dec_degs"
+    generate_header_file $header $tstart $dstart ${cent_freq} $inttime $useradec $ra_hrs $dec_degs
+        
     # chop out relevant section of L-files
     dd bs=${la_chunksize} skip=$((nchunks*t)) count=$nchunks if=$bname.LACSPC > $lacspc
     dd bs=${lc_chunksize} skip=$((nchunks*t)) count=$nchunks if=$bname.LCCSPC > $lccspc
@@ -152,4 +191,6 @@ done
 
 rm $lacspc
 rm $lccspc
+
+# keep headers for debugging 
 #rm $header
