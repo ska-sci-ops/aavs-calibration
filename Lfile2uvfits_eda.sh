@@ -15,6 +15,7 @@ inttime=${dump_time}
 chan=204
 ra_hrs="-"
 dec_degs="-"
+debug="" # or -d
 
 function print_usage {
   echo "Usage: "
@@ -197,8 +198,8 @@ for t in `seq 0 $((ntimes-1))` ; do
 #         echo "nice corr2uvfits -d -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits"
 #         nice corr2uvfits -d -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits
 
-        echo "nice corr2uvfits -d -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}${frac_int}.uvfits"
-        nice corr2uvfits -d -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}${frac_int}.uvfits
+        echo "nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}${frac_int}.uvfits"
+        nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}${frac_int}.uvfits
         
         echo "s -al $lacspc $lccspc $header *.uvfits"
         ls -al $lacspc $lccspc $header *.uvfits
