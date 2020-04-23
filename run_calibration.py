@@ -99,15 +99,19 @@ def calibrate_channel(channel) : # ,station_name="EDA2"): - parameters do not wo
                "-T", str(dump_time),
                "-N", str(nof_integrations),
                "-S", station_name,
-               "-k", str(channel) # WARNING : channel MUST GO LAST ADD PARAMETERS EARLIER BUT NOT AFTER !!!
-               # WARNING : channel MUST GO LAST ADD PARAMETERS EARLIER BUT NOT AFTER !!!
+               "-k"
               ]
               
+    # dynamically added if required by options :
     if options.calibration_object is not None :
        command.append( "-m" )
        command.append( options.calibration_object )
        logging.info("Added calibration object option -m {}".format(options.calibration_object))
-
+       
+    # WARNING : channel MUST GO LAST ADD PARAMETERS EARLIER BUT NOT AFTER !!!
+    #           that's why I've moved it here to avoid coding errors :
+    command.append( str(channel) )
+    
     cmdline=""
     for i in range(0,len(command)):
         cmdline += command[i]
