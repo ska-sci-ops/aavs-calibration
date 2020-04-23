@@ -130,8 +130,10 @@ def calibrate_channel(channel) : # ,station_name="EDA2"): - parameters do not wo
 def run_calibration(directory, nof_channels, threads, station_name="EDA2" ):
     """ Calibrate channels """
     global g_station_name
+    global conf
     # set value of global variable before call to calibrate_channel in either single or multi-threaded version 
     g_station_name = station_name 
+    options      = conf
 
     # If more than 1 thread is required, use process pool
     if threads > 1:
@@ -151,7 +153,12 @@ def run_calibration(directory, nof_channels, threads, station_name="EDA2" ):
     subprocess.check_call(['update_last_calibration.sh',station_name])
     
     # then cleanup up temporary files
-    subprocess.check_call(['cleanup_temp_files.sh', '-D', directory])
+    cleanup_parameters = ['cleanup_temp_files.sh', '-D', directory]
+    if options.keep_uv_files :
+       cleanup_parameters.append("-u")
+       cleanup_parameters.append("1")
+       
+    subprocess.check_call( cleanup_parameters )
 
 def get_acquisition_time(conf):
     """ Get acqusition time from directory """
@@ -292,6 +299,9 @@ if __name__ == "__main__":
     parser.add_option("-P", "--plots", '--do_plots', '--plot_solutions', action="store_true", dest="plot_solutions", default=True,
                       help="Plot calibration solutions and fits from the database [default: %defualt]")
     parser.add_option("-m","--model","--calibrator",dest="calibration_object",default=None,help="Calibrator object [default: %]")
+    parser.add_option("--keep_uv", '--keep_uv_files','--uv', '--do_not_remove_uv_file', action="store_true", dest="keep_uv_files", default=False,
+                      help="Keep UV files (.uv) [default: %]")                      
+
     (conf, args) = parser.parse_args(argv[1:])
     
     
