@@ -60,7 +60,7 @@ while getopts ":D:T:N:ksS:R:m:" opt; do
       reference_antenna=${OPTARG}
       ;;
     m)
-      do_mfcal_object=${OPTARG}
+      do_mfcal_object=`echo ${OPTARG} | awk '{print tolower($1);}'`
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -179,8 +179,8 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
           # power law at low vs high freqs
           if [[ $channel -gt 192 ]]; then # f > 150 MHz (192 *(400/512) = 150 MHz ) :
              echo "Channel = $channel > 192 -> using the high-frequency power law:"
-             echo "mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"
-             mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
+#             echo "mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"
+#             mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
 
              # mfcal on XX and YY or rather uvcat to split .uv -> _XX.uv and _YY.uv ?
              # current way is a bit in-efficient, so I will change it later
@@ -190,13 +190,18 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
              echo "mfcal vis=${src}_YY.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"  
              mfcal vis=${src}_YY.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
           else
+             # verifyed on 2020-04-23 :
+             # Lower limit of 0.005 kLambda means 10m at 150 MHz to make it 10 m everywhere use the following formula
+             #    It comes from B_min = 10m expressed in kLambda -> (B_min/Lambda[m])*Lambda[m] = (B_min/Lambda[m])*(kLambda/1000.00) as kLambda = Lambda[m]/1000.00
+             #    and Lambda[m] = 300 / ( (400/512)*ch ) [m] 
              # below 150 MHz the uvrange has to be different as otherwise we can end up with 0 baselines 
              # I set limit to B>10m and calculate 
              min_klambda=`echo $channel | awk '{print ($1*(400.00/512.00))/30000.00;}'`
+             
                        
              echo "Channel = $channel <= 192 -> using the low-frequency power law, lower uvrange limit = $min_klambda kLambda"             
-             echo "mfcal vis=${src}.uv flux=51000,0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
-             mfcal vis=${src}.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
+ #            echo "mfcal vis=${src}.uv flux=51000,0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
+ #            mfcal vis=${src}.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
              
              # mfcal on XX and YY or rather uvcat to split .uv -> _XX.uv and _YY.uv ?
              # current way is a bit in-efficient, so I will change it later

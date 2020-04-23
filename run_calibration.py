@@ -31,6 +31,7 @@ nof_integrations = 1
 directory = '.'
 
 g_station_name = "EDA2"
+conf = None # command line options
 
 def read_gain_solution_file(filepath):
     """ Read coefficients from filepath """
@@ -86,8 +87,10 @@ def load_coefficients(directory, channel):
 def calibrate_channel(channel) : # ,station_name="EDA2"): - parameters do not work in multi-threaded version, I used global variable to pass correct station_name (the same for the whole processing)
     """ Run calibration process on channel"""
     global g_station_name
+    global conf 
     
     station_name = g_station_name
+    options      = conf         
 
     logging.info("Processing channel {}".format(channel))
     # test if with full path it will work :
@@ -99,6 +102,11 @@ def calibrate_channel(channel) : # ,station_name="EDA2"): - parameters do not wo
                "-k", str(channel) # WARNING : channel MUST GO LAST ADD PARAMETERS EARLIER BUT NOT AFTER !!!
                # WARNING : channel MUST GO LAST ADD PARAMETERS EARLIER BUT NOT AFTER !!!
               ]
+              
+    if options.calibration_object is not None :
+       command.append( "-m" )
+       command.append( options.calibration_object )
+       logging.info("Added calibration object option -m {}".format(options.calibration_object))
 
     cmdline=""
     for i in range(0,len(command)):
@@ -279,7 +287,12 @@ if __name__ == "__main__":
                       help="Station ID (as in the station configuratio file) [default: %]" )                      
     parser.add_option("-P", "--plots", '--do_plots', '--plot_solutions', action="store_true", dest="plot_solutions", default=True,
                       help="Plot calibration solutions and fits from the database [default: %defualt]")
+    parser.add_option("-m","--model","--calibrator",dest="calibration_object",default=None,help="Calibrator object [default: %]")
     (conf, args) = parser.parse_args(argv[1:])
+    
+    
+    logging.info("PARAMETERS:")
+    logging.info("calibration_object = %s" % (conf.calibration_object))
 
     # Set current thread name
     threading.currentThread().name = "Run calibration"
