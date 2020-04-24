@@ -178,7 +178,8 @@ for t in `seq 0 $((ntimes-1))` ; do
 
     echo "offset := $t * $timeinc"
     offset=`echo $t $timeinc | awk '{ printf "%.0f\n",$1*$2 }'`
-    frac=`echo $t $timeinc $offset | awk '{ printf("%.2f\n",($1*$2-$3)); }'`
+    offset_int=`echo $t $timeinc | awk '{ printf "%d\n",$1*$2 }'`
+    frac=`echo $t $timeinc $offset_int | awk '{ printf("%.2f\n",($1*$2-$3)); }'` # offset_int used to avoid negative fractions as "%.0f\n",$1*$2 rounds to the nearest integer (can go UP !)
     frac_int=`echo $frac | awk '{printf("%02d",($1*100));}'`
     start=$((startunix + offset))
     tstart=`date -u --date="@$start" +"%H%M%S"`
