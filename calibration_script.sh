@@ -13,7 +13,7 @@ reference_antenna=3 # 2020-02-07 - back to antenna 3 from 5 (most of data with A
                     # 2020-01-29 - antenna 3 broken after storm -> using 5 for now (at least for the EDA2)
                     # Changed 2->3 for EDA2 (2 is not working) there might be some issue with EDA2 antenna 2 (index based from 1) or 1 (index based 0), So I might need to test another one
 
-do_mfcal_object="" # use mfcal with proper solar flux scale (as in Randall's script to get SEFD and other proper flux scale)
+do_mfcal_object="sun" # use mfcal with proper solar flux scale (as in Randall's script to get SEFD and other proper flux scale)
 
 # Include binaries in calibration directory
 #export PATH=$PATH:/home/aavs/randall_calibration

@@ -298,7 +298,7 @@ if __name__ == "__main__":
                       help="Station ID (as in the station configuratio file) [default: %]" )                      
     parser.add_option("-P", "--plots", '--do_plots', '--plot_solutions', action="store_true", dest="plot_solutions", default=True,
                       help="Plot calibration solutions and fits from the database [default: %defualt]")
-    parser.add_option("-m","--model","--calibrator",dest="calibration_object",default=None,help="Calibrator object [default: %]")
+    parser.add_option("-m","--model","--calibrator",dest="calibration_object",default="sun",help="Calibrator object [default: %]")
     parser.add_option("--keep_uv", '--keep_uv_files','--uv', '--do_not_remove_uv_file', action="store_true", dest="keep_uv_files", default=False,
                       help="Keep UV files (.uv) [default: %]")                      
 
