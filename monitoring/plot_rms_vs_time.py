@@ -96,14 +96,14 @@ def plotfile( filename_base,
               y_auto_median = False,
               y_auto_median_range = 1.00,
               publication = False,
-              db          = False,
+              db          = False
             ) :
               
    if y_axis_title is None :
        y_axis_title = ( "Power %s" % power_unit ) 
             
-   filename_x = filename_base + "_X.txt"            
-   filename_y = filename_base + "_Y.txt"                                 
+   filename_x = filename_base + "_XX.txt"            
+   filename_y = filename_base + "_YY.txt"                                 
    pngfile=filename_base + ".png"
    
    alldata_x = np.loadtxt(filename_x,usecols=[0,1])
