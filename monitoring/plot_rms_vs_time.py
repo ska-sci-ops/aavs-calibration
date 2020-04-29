@@ -105,9 +105,9 @@ def plotfile( filename_base,
    if y_axis_title is None :
        y_axis_title = ( "Power %s" % power_unit ) 
             
-   filename_x = outfile_base + "_XX.txt"            
-   filename_y = outfile_base + "_YY.txt"                                 
-   pngfile=filename_base + ".png"
+   filename_x = filename_base + "_XX.txt"            
+   filename_y = filename_base + "_YY.txt"                                 
+   pngfile    = outfile_base  + ".png"
    
    alldata_x = np.loadtxt(filename_x,usecols=[0,1])
    alldata_y = None
