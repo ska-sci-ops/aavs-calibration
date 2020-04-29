@@ -96,9 +96,12 @@ def plotfile( filename_base,
               y_auto_median = False,
               y_auto_median_range = 1.00,
               publication = False,
-              db          = False
+              db          = False,
+              outfile_base = None
             ) :
               
+   if outfile_base is None :
+       outfile_base = filename_base
    if y_axis_title is None :
        y_axis_title = ( "Power %s" % power_unit ) 
             
@@ -396,7 +399,8 @@ def main() :
                 outdir       = options.outdir,
                 y_auto_median = options.y_auto_median,
                 y_auto_median_range = options.y_auto_median_range,
-                publication = options.publication
+                publication = options.publication,
+                outfile_base = options.outfile
               )
 #   else :
 #      print "ERROR : file %s is empty !" % filename
