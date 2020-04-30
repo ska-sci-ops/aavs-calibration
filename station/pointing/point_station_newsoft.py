@@ -379,18 +379,28 @@ if __name__ == "__main__":
               logging.info("Pointing to the sun uxtime = %d" % (time.time()))
               pointing.point_to_sun(pointing_time)
               
+              # Download coefficients to station
+              pointing.download_delays()
+              
               if opts.tracking_resolution > 0 :
                  logging.info("Waiting {} seconds before next pointing command".format(opts.tracking_resolution))
                  time.sleep( opts.tracking_resolution )
         else :
            logging.info("Pointing to the sun")
            pointing.point_to_sun(pointing_time)
+           
+           # Download coefficients to station
+           pointing.download_delays()
+
     elif opts.static:
         opts.alt, opts.az = Angle(opts.alt,"degree"), Angle(opts.az,"degree")
 #        logging.info("Pointing to ALT {}, AZ {}".format(opts.alt, opts.az))
         logging.info("Pointing to ALT {}, AZ {} vs. radians {} , {}".format(opts.alt, opts.az,opts.alt.rad,opts.az.rad))
 #        print("Pointing (az,el) = (%.4f,%.4f) [deg] = (%.4f,%.4f) [radians]" % (opts.alt,opts.az,opts.alt.rad,opts.az.rad))
         pointing.point_array_static(opts.alt, opts.az)
+        
+        # Download coefficients to station
+        pointing.download_delays()
     else:        
         opts.ra, opts.dec = Angle(opts.ra,"degree"), Angle(opts.dec,"degree")
         
@@ -401,6 +411,9 @@ if __name__ == "__main__":
            while time.time() < ( start_uxtime + opts.tracking_time ) :
               logging.info("Pointing to RA {}, DEC {} at unix_time {}".format(opts.ra, opts.dec,time.time()))
               pointing.point_array(opts.ra, opts.dec,  pointing_time=pointing_time, delta_time=0)
+              
+              # Download coefficients to station
+              pointing.download_delays()
 
               if opts.tracking_resolution > 0 :
                  logging.info("Waiting {} seconds before next pointing command".format(opts.tracking_resolution))
@@ -409,5 +422,5 @@ if __name__ == "__main__":
            logging.info("Pointing to RA {}, DEC {}".format(opts.ra, opts.dec))
            pointing.point_array(opts.ra, opts.dec,  pointing_time=pointing_time, delta_time=0)
 
-    # Download coefficients to station
-    pointing.download_delays()
+           # Download coefficients to station
+           pointing.download_delays()
