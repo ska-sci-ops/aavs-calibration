@@ -126,6 +126,9 @@ class Pointing(object):
         alt, az = self._ra_dec_to_alt_az(sun_position.ra, sun_position.dec,
                                          pointing_time, self._reference_antenna_loc)
 
+        # show alt,az :
+        logging.info("Pointing to sun at (azim,elev) = ({},{}) [deg]".format(az,alt))
+
         # Compute delays
         self.point_array_static(alt, az)
 
