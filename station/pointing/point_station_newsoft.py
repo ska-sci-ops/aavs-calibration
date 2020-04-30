@@ -380,6 +380,7 @@ if __name__ == "__main__":
               pointing.point_to_sun(pointing_time)
               
               if opts.tracking_resolution > 0 :
+                 logging.info("Waiting {} seconds before next pointing command".format(opts.tracking_resolution))
                  time.sleep( opts.tracking_resolution )
         else :
            logging.info("Pointing to the sun")
@@ -402,6 +403,7 @@ if __name__ == "__main__":
               pointing.point_array(opts.ra, opts.dec,  pointing_time=pointing_time, delta_time=0)
 
               if opts.tracking_resolution > 0 :
+                 logging.info("Waiting {} seconds before next pointing command".format(opts.tracking_resolution))
                  time.sleep( opts.tracking_resolution )
         else :        
            logging.info("Pointing to RA {}, DEC {}".format(opts.ra, opts.dec))
