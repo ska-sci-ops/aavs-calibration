@@ -343,6 +343,12 @@ if __name__ == "__main__":
                       help="Time at which to generate pointing delays. Format: dd/mm/yyyy_hh:mm [default: now]")
     parser.add_option("--antenna_locations", "--antenna_file","--locations", action="store", dest="antenna_location_file", default=None,
                       help="Antenna location file [default: %]")                      
+    parser.add_option("--interval", "--track_time", "--tracking_time", dest="tracking_time", default=None,
+                      help="How long to track in seconds, <0 -> infinite [default: %default]",type="int")
+    parser.add_option("--sleep_time", "--track_delta", "--track_resolution", dest="tracking_resolution", default=30,
+                      help="Tracking resolution in seconds [default: %default]",type="int")
+                      
+                      
 
     (opts, args) = parser.parse_args(argv[1:])
 
@@ -365,18 +371,41 @@ if __name__ == "__main__":
 
     # Generate delay and delay rates
     if opts.sun:
-        logging.info("Pointing to the sun")
-        pointing.point_to_sun(pointing_time)
+        if opts.tracking_time is not None :
+           if opts.tracking_time < 0 :
+              opts.tracking_time = 86400*365 # one year is close enough to inifinity
+           start_uxtime = time.time()
+           while time.time() < ( start_uxtime + opts.tracking_time ) :
+              logging.info("Pointing to the sun uxtime = %d" % (time.time()))
+              pointing.point_to_sun(pointing_time)
+              
+              if opts.tracking_resolution > 0 :
+                 time.sleep( tracking_resolution )
+        else :
+           logging.info("Pointing to the sun")
+           pointing.point_to_sun(pointing_time)
     elif opts.static:
         opts.alt, opts.az = Angle(opts.alt,"degree"), Angle(opts.az,"degree")
 #        logging.info("Pointing to ALT {}, AZ {}".format(opts.alt, opts.az))
         logging.info("Pointing to ALT {}, AZ {} vs. radians {} , {}".format(opts.alt, opts.az,opts.alt.rad,opts.az.rad))
 #        print("Pointing (az,el) = (%.4f,%.4f) [deg] = (%.4f,%.4f) [radians]" % (opts.alt,opts.az,opts.alt.rad,opts.az.rad))
         pointing.point_array_static(opts.alt, opts.az)
-    else:
+    else:        
         opts.ra, opts.dec = Angle(opts.ra,"degree"), Angle(opts.dec,"degree")
-        logging.info("Pointing to RA {}, DEC {}".format(opts.ra, opts.dec))
-        pointing.point_array(opts.ra, opts.dec,  pointing_time=pointing_time, delta_time=0)
+        
+        if opts.tracking_time is not None :
+           if opts.tracking_time < 0 :
+              opts.tracking_time = 86400*365 # one year is close enough to inifinity
+           start_uxtime = time.time()
+           while time.time() < ( start_uxtime + opts.tracking_time ) :
+              logging.info("Pointing to RA {}, DEC {} at unix_time {}".format(opts.ra, opts.dec,time.time()))
+              pointing.point_array(opts.ra, opts.dec,  pointing_time=pointing_time, delta_time=0)
+
+              if opts.tracking_resolution > 0 :
+                 time.sleep( tracking_resolution )
+        else :        
+           logging.info("Pointing to RA {}, DEC {}".format(opts.ra, opts.dec))
+           pointing.point_array(opts.ra, opts.dec,  pointing_time=pointing_time, delta_time=0)
 
     # Download coefficients to station
     pointing.download_delays()
