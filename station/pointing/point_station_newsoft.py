@@ -374,7 +374,7 @@ if __name__ == "__main__":
 #        print("Pointing (az,el) = (%.4f,%.4f) [deg] = (%.4f,%.4f) [radians]" % (opts.alt,opts.az,opts.alt.rad,opts.az.rad))
         pointing.point_array_static(opts.alt, opts.az)
     else:
-        opts.ra, opts.dec = Angle(opts.ra), Angle(opts.dec)
+        opts.ra, opts.dec = Angle(opts.ra,"degree"), Angle(opts.dec,"degree")
         logging.info("Pointing to RA {}, DEC {}".format(opts.ra, opts.dec))
         pointing.point_array(opts.ra, opts.dec,  pointing_time=pointing_time, delta_time=0)
 
