@@ -55,11 +55,11 @@ do
    echo "cp -a ${uv_full_path} ${file_name}"
    cp -a ${uv_full_path} ${file_name}
    
-   echo "cp -a ${uv_dir}/${uv_file_XX} file_name_XX"
-   cp -a ${uv_dir}/${uv_file_XX} file_name_XX
+   echo "cp -a ${uv_dir}/${uv_file_XX} ${file_name_XX}"
+   cp -a ${uv_dir}/${uv_file_XX} ${file_name_XX}
    
-   echo "cp -a ${uv_dir}/${uv_file_YY} file_name_YY"
-   cp -a ${uv_dir}/${uv_file_YY} file_name_YY
+   echo "cp -a ${uv_dir}/${uv_file_YY} ${file_name_YY}"
+   cp -a ${uv_dir}/${uv_file_YY} ${file_name_YY}
 done
 
 # copying X and Y :
