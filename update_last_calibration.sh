@@ -39,16 +39,27 @@ echo "$last_cal_dir" > last_cal_info.txt
 for uv_full_path in `ls -d ${last_cal_dir}/chan_*_????????T??????.uv`
 do
    uv_file=`basename $uv_full_path`
+   uv_dir=`dirname $uv_full_path`
+   uv_file_XX=${uv_file%%.uv}_XX.uv
+   uv_file_YY=${uv_file%%.uv}_YY.uv
 
    # chan_204_20200227T044851.uv
    channel=`echo $uv_file | awk '{start=index($1,"_");s=substr($1,start+1);end=index(s,"_");ch=substr(s,1,end-1);print ch;}'`
 
    echo "$uv_full_path -> $uv_file -> $channel"   
    file_name=`echo $channel | awk '{printf("chan_%03d.uv",$1);}'`
+   file_name_XX=`echo $channel | awk '{printf("chan_%03d_XX.uv",$1);}'`
+   file_name_YY=`echo $channel | awk '{printf("chan_%03d_YY.uv",$1);}'`
 
 
    echo "cp -a ${uv_full_path} ${file_name}"
    cp -a ${uv_full_path} ${file_name}
+   
+   echo "cp -a ${uv_dir}/${uv_file_XX} file_name_XX"
+   cp -a ${uv_dir}/${uv_file_XX} file_name_XX
+   
+   echo "cp -a ${uv_dir}/${uv_file_YY} file_name_YY"
+   cp -a ${uv_dir}/${uv_file_YY} file_name_YY
 done
 
 # copying X and Y :
