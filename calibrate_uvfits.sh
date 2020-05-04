@@ -5,7 +5,10 @@ do_mfcal_object="sun" # use mfcal with proper solar flux scale (as in Randall's 
 channel=204
 reference_antenna=3
 control_image=1
+save_calsolutions=1
 do_xx_yy=0 # WARNING : do not use =1 as this when applied to other observation (calibration transfer) produces wrong flux scale !!!
+
+export PATH=~/aavs-calibration:$PATH
 
 if [[ ! -s ${list_file} ]]; then
    echo "WARNING : UV FITS file list does not exist -> using all"
@@ -15,7 +18,8 @@ if [[ ! -s ${list_file} ]]; then
 fi
 
 # 
-for uvfitsfile in `cat ${list_file}` ; do
+for uvfitsfile in `cat ${list_file}` ; 
+do
     src=`basename $uvfitsfile .uvfits`
     echo "Processing $uvfitsfile to ${src}.uv"
     
@@ -94,7 +98,7 @@ for uvfitsfile in `cat ${list_file}` ; do
        puthd in=${src}.uv/interval value=365   
     fi
 
-    if [[ $control_image -gt 0 ]]; then
+    if [[ $control_image -gt 0 || $save_calsolutions -gt 0 ]]; then
        if [[ ! -d ${src}_XX.uv ]]; then
           echo "uvcat vis=${src}.uv stokes=xx out=${src}_XX.uv"
           uvcat vis=${src}.uv stokes=xx out=${src}_XX.uv
@@ -104,18 +108,40 @@ for uvfitsfile in `cat ${list_file}` ; do
           echo "uvcat vis=${src}.uv stokes=xx out=${src}_YY.uv"
           uvcat vis=${src}.uv stokes=xx out=${src}_YY.uv
        fi
+
+       if [[ $save_calsolutions -gt 0 ]]; then
+          echo "INFO : saving calibration solutions to *.txt files"
        
-       rm -fr ${src}_XX.map ${src}_XX.beam ${src}_YY.map ${src}_YY.beam
-       echo "invert vis=${src}_XX.uv map=${src}_XX.map imsize=180,180 beam=${src}_XX.beam robust=-0.5 options=double,mfs" 
-       invert vis=${src}_XX.uv map=${src}_XX.map imsize=180,180 beam=${src}_XX.beam robust=-0.5 options=double,mfs
+          # save solutions :
+          for stokes in `echo "XX YY"`
+          do
+             gpplt vis=${src}_${stokes}.uv log=aavs_gain_${stokes}_amp.txt
+             gpplt vis=${src}_${stokes}.uv log=aavs_gain_${stokes}_pha.txt yaxis=phase
+             gain_extract_selfcal.sh aavs_gain_${stokes}_amp.txt >> "amp_${stokes}.txt"
+             gain_extract_selfcal.sh aavs_gain_${stokes}_pha.txt >> "phase_${stokes}.txt"
+          done
+       else
+          echo "WARNING : saving calibration solutions to text files is not required"
+       fi
+
+
+       if [[ $control_image -gt 0 ]]; then       
+          echo "INFO : creating control images"
+        
+          rm -fr ${src}_XX.map ${src}_XX.beam ${src}_YY.map ${src}_YY.beam
+          echo "invert vis=${src}_XX.uv map=${src}_XX.map imsize=180,180 beam=${src}_XX.beam robust=-0.5 options=double,mfs" 
+          invert vis=${src}_XX.uv map=${src}_XX.map imsize=180,180 beam=${src}_XX.beam robust=-0.5 options=double,mfs
        
-       echo "invert vis=${src}_YY.uv map=${src}_YY.map imsize=180,180 beam=${src}_YY.beam robust=-0.5 options=double,mfs" 
-       invert vis=${src}_YY.uv map=${src}_YY.map imsize=180,180 beam=${src}_YY.beam robust=-0.5 options=double,mfs
+          echo "invert vis=${src}_YY.uv map=${src}_YY.map imsize=180,180 beam=${src}_YY.beam robust=-0.5 options=double,mfs" 
+          invert vis=${src}_YY.uv map=${src}_YY.map imsize=180,180 beam=${src}_YY.beam robust=-0.5 options=double,mfs
        
-       echo "fits op=xyout in=${src}_XX.map out=${src}_XX.fits"
-       fits op=xyout in=${src}_XX.map out=${src}_XX.fits
+          echo "fits op=xyout in=${src}_XX.map out=${src}_XX.fits"
+          fits op=xyout in=${src}_XX.map out=${src}_XX.fits
        
-       echo "fits op=xyout in=${src}_YY.map out=${src}_YY.fits"
-       fits op=xyout in=${src}_YY.map out=${src}_YY.fits
+          echo "fits op=xyout in=${src}_YY.map out=${src}_YY.fits"
+          fits op=xyout in=${src}_YY.map out=${src}_YY.fits
+       else
+          echo "WARNING : control images are not required"       
+       fi
     fi
 done
