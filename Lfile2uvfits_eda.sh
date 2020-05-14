@@ -16,6 +16,7 @@ chan=204
 ra_hrs="-"
 dec_degs="-"
 debug="" # or -d
+debug_flag=0
 fractional_seconds=0
 
 function print_usage {
@@ -96,6 +97,7 @@ while getopts "hi:R:D:n:N:C:f:dF" opt; do
         ;;
     d)
         debug="-d"
+        debug_flag=1
         ;;
     F)
         fractional_seconds=1
@@ -217,16 +219,24 @@ for t in `seq 0 $((ntimes-1))` ; do
            nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits
         fi
         
-        echo "s -al $lacspc $lccspc $header *.uvfits"
-        ls -al $lacspc $lccspc $header *.uvfits
-        
-        echo "$t : $header"
-        cat $header
+        if [[ $debug_flag -gt 0 ]]; then
+           # ls created files for debug purposes 
+           echo "ls -al $lacspc $lccspc $header *.uvfits"
+           ls -al $lacspc $lccspc $header *.uvfits
+
+           echo "$t : $header"
+           cat $header
+        fi
 #    fi 
 done
 
-rm $lacspc
-rm $lccspc
+echo "rm -f $lacspc $lccspc"
+rm -f $lacspc $lccspc
+
+if [[ $debug_flag -le 0 ]]; then
+   echo "rm -f ${header}"
+   rm -f ${header}
+fi
 
 # keep headers for debugging 
 #rm $header
