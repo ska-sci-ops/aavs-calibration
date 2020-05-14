@@ -18,6 +18,7 @@ dec_degs="-"
 debug="" # or -d
 debug_flag=0
 fractional_seconds=0
+station_name=eda2
 
 function print_usage {
   echo "Usage: "
@@ -31,6 +32,7 @@ function print_usage {
   echo "    -f freq_chan  Default: $chan"
   echo "    -F allow fractional seconds -> different .uvfits file name, Default: $fractional_seconds"
   echo "    -d : enable debugging"
+  echo "    -s station name Default: $station_name"
   exit
 }
 
@@ -48,13 +50,15 @@ function generate_header_file
    frac=$9
    frac_int=`echo $frac | awk '{printf("%02d",($1*100));}'`
    
+   station_name_upper=`echo ${station_name} | awk '{print toupper($1)}'`
+   
    echo "PARAMS : $header_file / $frac"
       
 
    # generate header file here (not copy from repo):
    echo "# AUTO-GENERATED $header_file file" > ${header_file}
    echo "FIELDNAME eda2cal" >> ${header_file}
-   echo "TELESCOPE EDA2      # telescope name like MWA, MOST, ATCA etc" >> ${header_file}
+   echo "TELESCOPE $station_name_upper      # telescope name like MWA, MOST, ATCA etc" >> ${header_file}
    echo "N_SCANS   $nchunks  # number of scans (time instants) in correlation products" >> ${header_file}
    echo "N_INPUTS  $ninp     # number of inputs into the correlation products" >> ${header_file}
    echo "N_CHANS   $nchan    # number of channels in spectrum" >> ${header_file}
