@@ -94,7 +94,7 @@ fi
 
 # parse command-line args
 if [ $# -lt 1 ] ; then print_usage ; fi
-while getopts "hi:R:D:n:N:C:f:dF" opt; do
+while getopts "hi:R:D:n:N:C:f:s:dF" opt; do
   case $opt in
     h)
         print_usage
