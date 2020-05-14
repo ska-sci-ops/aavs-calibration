@@ -33,6 +33,10 @@ if [[ -n "$6" && "$6" != "-" ]]; then
    interval=$6
 fi
 
+start_uxtime=-1
+if [[ -n "$7" && "$7" != "-" ]]; then
+   start_uxtime=$7
+fi
 
 echo "###################################################"
 echo "PARAMETERS:"
@@ -42,8 +46,16 @@ echo "(ra,dec) = ( $ra , $dec ) [deg]"
 echo "freq_channel = $freq_channel"
 echo "data_dir     = $data_dir"
 echo "interval     = $interval"
+echo "start_uxtime = $start_uxtime"
 echo "###################################################"
 
+ux=`date +%s`
+if [[ $start_uxtime -gt $ux ]]; then
+   echo "Start unix time = $start_uxtime -> waiting ..."
+   which wait_for_unixtime.sh
+   echo "wait_for_unixtime.sh $start_uxtime"
+   wait_for_unixtime.sh $start_uxtime
+fi
 
 do_init_station=0
 calibrate_station=1
