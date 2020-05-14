@@ -2,7 +2,7 @@
 
 export PATH=~/aavs-calibration/station/pointing:$PATH
 
-freq_channel=294
+freq_channel=204
 if [[ -n "$1" && "$1" != "-" ]]; then
    freq_channel=$1
 fi
@@ -13,13 +13,34 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    data_dir=$2
 fi
 
+object=J0437
+if [[ -n "$3" && "$3" != "-" ]]; then
+   object=$3
+fi
+
+ra=69.3166
+if [[ -n "$4" && "$4" != "-" ]]; then
+  ra=$4
+fi
+
+dec=-47.2525
+if [[ -n "$5" && "$5" != "-" ]]; then
+  dec=$5
+fi
+
+echo "###################################################"
+echo "PARAMETERS:"
+echo "###################################################"
+echo "Object = $object"
+echo "(ra,dec) = ( $ra , $dec ) [deg]"
+echo "freq_channel = $freq_channel"
+echo "data_dir     = $data_dir"
+echo "###################################################"
+
+
 do_init_station=0
 calibrate_station=1
 station=eda2
-
-object=J0437
-ra=69.3166
-dec=-47.2525
 interval=1800
 
 mkdir -p ${data_dir}
