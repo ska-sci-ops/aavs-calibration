@@ -28,6 +28,12 @@ if [[ -n "$5" && "$5" != "-" ]]; then
   dec=$5
 fi
 
+interval=1800
+if [[ -n "$6" && "$6" != "-" ]]; then
+   interval=$6
+fi
+
+
 echo "###################################################"
 echo "PARAMETERS:"
 echo "###################################################"
@@ -35,13 +41,13 @@ echo "Object = $object"
 echo "(ra,dec) = ( $ra , $dec ) [deg]"
 echo "freq_channel = $freq_channel"
 echo "data_dir     = $data_dir"
+echo "interval     = $interval"
 echo "###################################################"
 
 
 do_init_station=0
 calibrate_station=1
 station=eda2
-interval=1800
 
 mkdir -p ${data_dir}
 cd ${data_dir}
@@ -51,7 +57,7 @@ if [[ $do_init_station -gt 0 ]]; then
 
    # do initialisation :
    echo "python /opt/aavs/bin/station.py --config=/opt/aavs/config/eda2.yml -IPB"
-   # python /opt/aavs/bin/station.py --config=/opt/aavs/config/eda2.yml -IPB
+   python /opt/aavs/bin/station.py --config=/opt/aavs/config/eda2.yml -IPB
 else
   echo "WARNING : station initialisation is not required"
 fi   
