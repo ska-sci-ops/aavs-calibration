@@ -2,21 +2,28 @@
 
 export PATH=~/aavs-calibration/station/pointing:$PATH
 
+freq_channel=294
+if [[ -n "$1" && "$1" != "-" ]]; then
+   freq_channel=$1
+fi
+
+dir=`date +%Y_%m_%d_$object`
+data_dir=/data/${data_dir}
+if [[ -n "$2" && "$2" != "-" ]]; then
+   data_dir=$2
+fi
 
 do_init_station=0
 calibrate_station=1
-freq_channel=294
 station=eda2
 
 object=J0437
 ra=69.3166
 dec=-47.2525
-interval=3600
-data_dir=`date +%Y_%m_%d_$object`
+interval=1800
 
-
-mkdir -p /data/${data_dir}
-cd /data/${data_dir}
+mkdir -p ${data_dir}
+cd ${data_dir}
 
 if [[ $do_init_station -gt 0 ]]; then
    echo "Initialising the station"
