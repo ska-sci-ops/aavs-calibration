@@ -128,6 +128,9 @@ while getopts "hi:R:D:n:N:C:f:s:dF" opt; do
     D)
         dec_degs=$OPTARG
         ;;
+    s)
+        station_name=$OPTARG
+        ;;        
     \?)
       echo "Invalid option: -$OPTARG" 1>&2
       print_usage
