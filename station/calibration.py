@@ -236,7 +236,7 @@ def parse_options(idx=0):
    parser.add_option('-f','--filebase',dest="filebase",default="phase_vs_antenna", help="Base file name , just _X.txt and _Y.txt are added to load [default %]")
    parser.add_option('-o','--outfile','--out_file','--pklfile','--out_pklfile','--out_pkl',dest="outfile",default=None, help="Output .pkl filename [default same as filebase]")
    parser.add_option('-t','--test_pickle_file',"--test_pickle",dest="test_pickle_file",default=None, help="Read pickle file and compare to text files (phase_vs_antenna_X.txt and phase_vs_antenna_Y.txt) [default %]")
-   parser.add_option('-d','--debug','--verbose','--verb',maction="store_true",dest="debug",default=False, help="More debugging information [default %]")
+   parser.add_option('-d','--debug','--verbose','--verb',action="store_true",dest="debug",default=False, help="More debugging information [default %]")
 #   parser.add_option('-c','--cal','--calibrator',dest="calibrator",default="HerA", help="Calibrator name [default %]")
 #   parser.add_option('--meta_fits','--metafits',dest="metafits",default=None, help="Metafits file [default %]")
 
