@@ -159,16 +159,7 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
     puthd in=${src}.uv/jyperk value=1310.0
     puthd in=${src}.uv/systemp value=200.0
     uvcat vis=${src}.uv stokes=xx out=${src}_XX.uv
-    uvcat vis=${src}.uv stokes=yy out=${src}_YY.uv
-    
-    echo "puthd in=${src}.uv/interval value=365"
-    puthd in=${src}.uv/interval value=365
-    
-    echo "puthd in=${src}_XX.uv/interval value=365"    
-    puthd in=${src}_XX.uv/interval value=365
-    
-    echo "puthd in=${src}_YY.uv/interval value=365"
-    puthd in=${src}_YY.uv/interval value=365
+    uvcat vis=${src}.uv stokes=yy out=${src}_YY.uv    
 done
 
 # Perform self calibration on data
@@ -224,7 +215,7 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
           fi
        else
           echo "WARNING : object $mfcal_ok of unknown flux specified -> will use standard selfcal"
-       fi
+       fi       
     else
        echo "INFO : no mfcal object specified -> will use normal selfcal"
     fi
@@ -235,6 +226,16 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
        selfcal vis=${src}_XX.uv select='uvrange(0.005,10)' options=amplitude,noscale refant=${reference_antenna} flux=100000
        selfcal vis=${src}_YY.uv select='uvrange(0.005,10)' options=amplitude,noscale refant=${reference_antenna} flux=100000
     fi
+    
+    # set calibration solution validity interval to 365 days :
+    echo "puthd in=${src}.uv/interval value=365"
+    puthd in=${src}.uv/interval value=365
+
+    echo "puthd in=${src}_XX.uv/interval value=365"
+    puthd in=${src}_XX.uv/interval value=365
+
+    echo "puthd in=${src}_YY.uv/interval value=365"
+    puthd in=${src}_YY.uv/interval value=365
 done
 
 # Extract calibration solutions
