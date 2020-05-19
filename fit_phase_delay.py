@@ -19,7 +19,8 @@ def zeroBadFreqs(phases):
     # below 50 MHz
     phases[0:64] *= 0.0
     # below 110 MHz, because there is typically low SNR in this range
-    phases[0:140] *= 0.0
+    # 2020-05-19 - MS modified to exclude even below 115 MHz    
+    phases[0:148] *= 0.0
     # Orbcomm
     phases[176:178] *= 0.0
     # satellites @ 240-280:
