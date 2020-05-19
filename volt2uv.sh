@@ -143,7 +143,7 @@ puthd in=${src}.uv/interval value=2.5
 robust=0.5
 stokes=xx
 imsize=256
-if [ $cc_ind -lt 300 ] ; then
+if [ $cc_ind -gt 300 ] ; then
   imsize=512
 fi
 rm -rf ${src}_${stokes}.map ${src}.beam
