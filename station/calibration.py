@@ -126,7 +126,7 @@ def read_phase_offsets( filename ) :
     return (antenna_arr,phase_offset_arr,count)
 
 
-def read_calibration_phase_offsets( phase_offset_file_X=None, phase_offset_file_Y=None, n_channels=8, n_pols=4 ) :
+def read_calibration_phase_offsets( phase_offset_file_X=None, phase_offset_file_Y=None, n_channels=8, n_pols=4, debug=False ) :
     
     calibration_coef = None 
 
@@ -146,12 +146,13 @@ def read_calibration_phase_offsets( phase_offset_file_X=None, phase_offset_file_
     
     if count_x == count_y :
        calibration_coef = numpy.zeros( (count_x, n_channels, n_pols ) , dtype=numpy.complex128)
-       print("calibration_coef.shape = %d x %d x %d" % (calibration_coef.shape[0],calibration_coef.shape[1],calibration_coef.shape[2]))
-
-    
-       print("Number of phase offsets agree between X and Y and is %d" % (count_x))
+       
+       if debug : 
+          print("calibration_coef.shape = %d x %d x %d" % (calibration_coef.shape[0],calibration_coef.shape[1],calibration_coef.shape[2]))   
+          print("Number of phase offsets agree between X and Y and is %d" % (count_x))
                                    
-       print("# ANT   |     X[deg]      |     Y[deg]       |    X_complex    |    Y_complex    |")
+          print("# ANT   |     X[deg]      |     Y[deg]       |    X_complex    |    Y_complex    |")
+          
        for i in range(0,count_x) :       
           phase_x_rad = phase_offset_arr_x[i]*(math.pi / 180.00)
           phase_y_rad = phase_offset_arr_y[i]*(math.pi / 180.00)
@@ -163,7 +164,8 @@ def read_calibration_phase_offsets( phase_offset_file_X=None, phase_offset_file_
           calibration_coef[i,:,0] = coeff_arr_x[i] 
           calibration_coef[i,:,3] = coeff_arr_y[i]
        
-          print(" %03d    |    %09.4f    |    %09.4f     |  %s  |  %s  |" % (i,phase_offset_arr_x[i],phase_offset_arr_y[i],coeff_arr_x[i],coeff_arr_y[i]))
+          if debug : 
+             print(" %03d    |    %09.4f    |    %09.4f     |  %s  |  %s  |" % (i,phase_offset_arr_x[i],phase_offset_arr_y[i],coeff_arr_x[i],coeff_arr_y[i]))
           
           
           
@@ -236,7 +238,7 @@ def parse_options(idx=0):
    parser.add_option('-f','--filebase',dest="filebase",default="phase_vs_antenna", help="Base file name , just _X.txt and _Y.txt are added to load [default %]")
    parser.add_option('-o','--outfile','--out_file','--pklfile','--out_pklfile','--out_pkl',dest="outfile",default=None, help="Output .pkl filename [default same as filebase]")
    parser.add_option('-t','--test_pickle_file',"--test_pickle",dest="test_pickle_file",default=None, help="Read pickle file and compare to text files (phase_vs_antenna_X.txt and phase_vs_antenna_Y.txt) [default %]")
-#   parser.add_option('--no_mean_cc',action="store_false",dest="mean_cc",default=True, help="Turn off calculation of mean of coarse channels [default %]")
+   parser.add_option('-d','--debug','--verbose','--verb',action="store_true",dest="debug",default=False, help="More debugging information [default %]")
 #   parser.add_option('-c','--cal','--calibrator',dest="calibrator",default="HerA", help="Calibrator name [default %]")
 #   parser.add_option('--meta_fits','--metafits',dest="metafits",default=None, help="Metafits file [default %]")
 
@@ -325,17 +327,18 @@ if __name__ == '__main__':
     if options.test_pickle_file is not None :
         test_calibration( options.test_pickle_file )
     else :
-        (calibration_coef) = read_calibration_phase_offsets( phase_offset_file_X , phase_offset_file_Y )
+        (calibration_coef) = read_calibration_phase_offsets( phase_offset_file_X , phase_offset_file_Y, debug=options.debug )
         ant_count = calibration_coef.shape[0]
-        print("Complex EDA-1 calibration coefficients:")
-        for ant in range(0,ant_count) :
-            print("X  pol antenna%02d : %s" % (ant,calibration_coef[ant,:,0]))    
-            print("XY pol antenna%02d : %s" % (ant,calibration_coef[ant,:,1]))
-            print("YX pol antenna%02d : %s" % (ant,calibration_coef[ant,:,2]))
-            print("Y  pol antenna%02d : %s" % (ant,calibration_coef[ant,:,3]))
-            print()
-            print()
-
+        
+        if options.debug :
+           print("Complex EDA-1 calibration coefficients:")
+           for ant in range(0,ant_count) :
+               print("X  pol antenna%02d : %s" % (ant,calibration_coef[ant,:,0]))    
+               print("XY pol antenna%02d : %s" % (ant,calibration_coef[ant,:,1]))
+               print("YX pol antenna%02d : %s" % (ant,calibration_coef[ant,:,2]))
+               print("Y  pol antenna%02d : %s" % (ant,calibration_coef[ant,:,3]))
+               print()
+               print()
 
         save_coeff( calibration_coef, options.outfile )
     

@@ -142,6 +142,8 @@ if [[ $convert_hdf5_files -gt 0 ]]; then
       unixtime=`cat ${bname}_ts_unix.txt`
       echo "python ~/aavs-calibration/sunpos.py $unixtime"
       radec=`python ~/aavs-calibration/sunpos.py $unixtime`
+
+      echo "Lfile2uvfits.sh \"$hdffile\" $int_time $radec"
       Lfile2uvfits.sh "$hdffile" $int_time $radec
    done
 else
@@ -157,7 +159,7 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
     puthd in=${src}.uv/jyperk value=1310.0
     puthd in=${src}.uv/systemp value=200.0
     uvcat vis=${src}.uv stokes=xx out=${src}_XX.uv
-    uvcat vis=${src}.uv stokes=yy out=${src}_YY.uv
+    uvcat vis=${src}.uv stokes=yy out=${src}_YY.uv    
 done
 
 # Perform self calibration on data
@@ -179,8 +181,8 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
           # power law at low vs high freqs
           if [[ $channel -gt 192 ]]; then # f > 150 MHz (192 *(400/512) = 150 MHz ) :
              echo "Channel = $channel > 192 -> using the high-frequency power law:"
-#             echo "mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"
-#             mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
+             echo "mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"
+             mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
 
              # mfcal on XX and YY or rather uvcat to split .uv -> _XX.uv and _YY.uv ?
              # current way is a bit in-efficient, so I will change it later
@@ -200,8 +202,8 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
              
                        
              echo "Channel = $channel <= 192 -> using the low-frequency power law, lower uvrange limit = $min_klambda kLambda"             
- #            echo "mfcal vis=${src}.uv flux=51000,0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
- #            mfcal vis=${src}.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
+             echo "mfcal vis=${src}.uv flux=51000,0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
+             mfcal vis=${src}.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
              
              # mfcal on XX and YY or rather uvcat to split .uv -> _XX.uv and _YY.uv ?
              # current way is a bit in-efficient, so I will change it later
@@ -213,7 +215,7 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
           fi
        else
           echo "WARNING : object $mfcal_ok of unknown flux specified -> will use standard selfcal"
-       fi
+       fi       
     else
        echo "INFO : no mfcal object specified -> will use normal selfcal"
     fi
@@ -224,6 +226,16 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
        selfcal vis=${src}_XX.uv select='uvrange(0.005,10)' options=amplitude,noscale refant=${reference_antenna} flux=100000
        selfcal vis=${src}_YY.uv select='uvrange(0.005,10)' options=amplitude,noscale refant=${reference_antenna} flux=100000
     fi
+    
+    # set calibration solution validity interval to 365 days :
+    echo "puthd in=${src}.uv/interval value=365"
+    puthd in=${src}.uv/interval value=365
+
+    echo "puthd in=${src}_XX.uv/interval value=365"
+    puthd in=${src}_XX.uv/interval value=365
+
+    echo "puthd in=${src}_YY.uv/interval value=365"
+    puthd in=${src}_YY.uv/interval value=365
 done
 
 # Extract calibration solutions
