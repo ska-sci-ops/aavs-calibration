@@ -42,6 +42,10 @@ if [[ -n "$8" && "$8" != "-" ]]; then
    options="$8"
 fi
 
+time_per_channel=28
+if [[ -n "$9" && "$9" != "-" ]]; then
+   time_per_channel=$9
+fi
 
 rm -f current_channel.txt
 
@@ -62,8 +66,8 @@ do
    fi
    
    # just one iteration over channels :      
-   echo "python ~/aavs-calibration/sensitivity/daq/channels_sweep.py --config=${config_file} --time_per_channel=28 --start_channel=${start_channel} --end_channel=${end_channel} --step-channel=${step} --n_iterations=1 $extra_options"
-   python ~/aavs-calibration/sensitivity/daq/channels_sweep.py --config=${config_file} --time_per_channel=28 --start_channel=${start_channel} --end_channel=${end_channel} --step-channel=${step} --n_iterations=1 $extra_options
+   echo "python ~/aavs-calibration/sensitivity/daq/channels_sweep.py --config=${config_file} --time_per_channel=${time_per_channel} --start_channel=${start_channel} --end_channel=${end_channel} --step-channel=${step} --n_iterations=1 $extra_options"
+   python ~/aavs-calibration/sensitivity/daq/channels_sweep.py --config=${config_file} --time_per_channel=${time_per_channel} --start_channel=${start_channel} --end_channel=${end_channel} --step-channel=${step} --n_iterations=1 $extra_options
    
    echo "rm -f current_channel.txt"
    rm -f current_channel.txt   
