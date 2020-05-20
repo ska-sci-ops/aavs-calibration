@@ -19,8 +19,8 @@ def zeroBadFreqs(phases):
     # below 50 MHz
     phases[0:64] *= 0.0
     # below 110 MHz, because there is typically low SNR in this range
-    # 2020-05-19 - MS modified to exclude even below 115 MHz    
-    phases[0:148] *= 0.0
+    # 2020-05-19/20 - MS back to 140. I've tested 148, but realised it's only the plotting script which needs an update 
+    phases[0:140] *= 0.0
     # Orbcomm
     phases[176:178] *= 0.0
     # satellites @ 240-280:

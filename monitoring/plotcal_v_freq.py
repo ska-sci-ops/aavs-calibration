@@ -46,9 +46,12 @@ def do_plots( station_id ):
    cchan_freqs=numpy.arange(512)*400./512. # channel central freqs in MHz
    # do not plot some freqs
    cchan_flag = numpy.copy(cchan_freqs)
-   cchan_flag[0:127]=0	# do not plot below 100 MHz
-   cchan_flag[310:364]=0	# do not plot the satellite freqs
-   cchan_flag[440:486]=0  # do not plot the mystery RFI above 350 MHz
+   
+   # MS : 2020-05-20 : changing this to reflect def zeroBadFreqs in ../fit_phase_delay.py in order to see only the channels being used for fitting :
+   cchan_flag[0:140]=0	# do not plot below 100 MHz
+   cchan_flag[176:178]=0 # ORBCOMM
+   cchan_flag[308:364]=0	# do not plot the satellite freqs
+   cchan_flag[461:487]=0  # do not plot the mystery RFI above 350 MHz
    c_ind = numpy.nonzero(cchan_flag)
 
    # divide antennas into groups of 16 and plot phases for each group
