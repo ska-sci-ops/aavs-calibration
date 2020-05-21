@@ -2,6 +2,18 @@
 
 export PATH=~/aavs-calibration/station/pointing:$PATH
 
+object_radec()
+{
+   object=$1
+   
+   ret=""
+   if [[ $object == "B0950" || $object == "J0950" ]]; then
+      ra=148.28879042
+      dec=7.92659722
+   fi 
+}
+
+
 freq_channel=204
 if [[ -n "$1" && "$1" != "-" ]]; then
    freq_channel=$1
@@ -14,16 +26,19 @@ if [[ -n "$2" && "$2" != "-" ]]; then
 fi
 
 object=J0437
+ra=69.3166
+dec=-47.2525
 if [[ -n "$3" && "$3" != "-" ]]; then
    object=$3
 fi
+object_radec $object
+echo "DEBUG : $object -> ra,dec = $ra , $dec"
+exit;
 
-ra=69.3166
 if [[ -n "$4" && "$4" != "-" ]]; then
   ra=$4
 fi
 
-dec=-47.2525
 if [[ -n "$5" && "$5" != "-" ]]; then
   dec=$5
 fi
