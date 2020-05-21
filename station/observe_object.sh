@@ -33,7 +33,6 @@ if [[ -n "$3" && "$3" != "-" ]]; then
 fi
 object_radec $object
 echo "DEBUG : $object -> ra,dec = $ra , $dec"
-exit;
 
 if [[ -n "$4" && "$4" != "-" ]]; then
   ra=$4
