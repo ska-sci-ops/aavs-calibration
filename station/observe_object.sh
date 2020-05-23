@@ -62,6 +62,16 @@ if [[ -n "$7" && "$7" != "-" ]]; then
    start_uxtime=$7
 fi
 
+n_iter=1
+if [[ -n "$8" && "$8" != "-" ]]; then
+   n_iter=$8
+fi
+
+sleep_time=1800
+if [[ -n "$9" && "$9" != "-" ]]; then
+   sleep_time=$9
+fi
+
 echo "###################################################"
 echo "PARAMETERS:"
 echo "###################################################"
@@ -71,6 +81,8 @@ echo "freq_channel = $freq_channel"
 echo "data_dir     = $data_dir"
 echo "interval     = $interval"
 echo "start_uxtime = $start_uxtime"
+echo "n_iter       = $n_iter"
+echo "sleep_time   = $sleep_time"
 echo "###################################################"
 
 ux=`date +%s`
@@ -107,19 +119,38 @@ else
 fi   
 
 # kill old and start new pointing 
-echo "killall point_station_radec_loop.sh"
-killall point_station_radec_loop.sh 
+echo "killall point_station_radec_loop.sh acquire_station_beam"
+killall point_station_radec_loop.sh acquire_station_beam 
+echo "sleep 5"
 sleep 5 
 
-# start pointing :
-echo "nohup point_station_radec_loop.sh ${ra} ${dec} ${interval} 30 ${station} >> pointing.out 2>&1 &"
-nohup point_station_radec_loop.sh ${ra} ${dec} ${interval} 30 ${station} >> pointing.out 2>&1 &
+$i
+while [[ $i -lt $n_iter ]];
+do
+   echo
+   echo "------------------------------------------------- i = $i -------------------------------------------------"
+   date
 
-# waiting for pointing to start - not to collect data earlier !
-echo "sleep 30"
-sleep 30
+   # start pointing :
+   echo "nohup point_station_radec_loop.sh ${ra} ${dec} ${interval} 30 ${station} >> pointing.out 2>&1 &"
+   nohup point_station_radec_loop.sh ${ra} ${dec} ${interval} 30 ${station} >> pointing.out 2>&1 &
 
-# start acuisition :
-echo "nohup /home/aavs/Software/aavs-system/src/build_new/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p 10.0.10.190 >> daq.out 2>&1 &"
-nohup /home/aavs/Software/aavs-system/src/build_new/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p 10.0.10.190 >> daq.out 2>&1 &
+   # waiting for pointing to start - not to collect data earlier !
+   echo "sleep 30"
+   sleep 30
+
+   # start acuisition :
+   echo "/home/aavs/Software/aavs-system/src/build_new/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p 10.0.10.190 >> daq.out 2>&1"
+   /home/aavs/Software/aavs-system/src/build_new/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p 10.0.10.190 >> daq.out 2>&1
+   
+   i=$(($i+1))
+   
+   if [[ $i -lt $n_iter ]]; then
+      echo "i= $i < $n_iter -> sleep $sleep_time"
+      sleep $sleep_time
+   else
+      echo "Iterations finished i = $i ( >= $n_iter ) at :"
+      date
+   fi
+done
 
