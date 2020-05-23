@@ -115,6 +115,10 @@ sleep 5
 echo "nohup point_station_radec_loop.sh ${ra} ${dec} ${interval} 30 ${station} >> pointing.out 2>&1 &"
 nohup point_station_radec_loop.sh ${ra} ${dec} ${interval} 30 ${station} >> pointing.out 2>&1 &
 
+# waiting for pointing to start - not to collect data earlier !
+echo "sleep 30"
+sleep 30
+
 # start acuisition :
 echo "nohup /home/aavs/Software/aavs-system/src/build_new/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p 10.0.10.190 >> daq.out 2>&1 &"
 nohup /home/aavs/Software/aavs-system/src/build_new/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p 10.0.10.190 >> daq.out 2>&1 &
