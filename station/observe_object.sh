@@ -132,8 +132,11 @@ do
    sleep 5 
 
    # start pointing :
-   echo "nohup point_station_radec_loop.sh ${ra} ${dec} ${interval} 30 ${station} >> pointing.out 2>&1 &"
-   nohup point_station_radec_loop.sh ${ra} ${dec} ${interval} 30 ${station} >> pointing.out 2>&1 &
+   pwd   
+   echo "nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${interval} 30 ${station} >> pointing.out 2>&1 &"
+   nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${interval} 30 ${station} >> pointing.out 2>&1 &
+   pwd
+   ps
 
    # waiting for pointing to start - not to collect data earlier !
    echo "sleep 30"
