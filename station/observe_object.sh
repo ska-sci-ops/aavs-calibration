@@ -118,18 +118,18 @@ else
   echo "WARNING : station calibration is not required"
 fi   
 
-# kill old and start new pointing 
-echo "killall point_station_radec_loop.sh acquire_station_beam"
-killall point_station_radec_loop.sh acquire_station_beam 
-echo "sleep 5"
-sleep 5 
-
-$i
+i=0
 while [[ $i -lt $n_iter ]];
 do
    echo
    echo "------------------------------------------------- i = $i -------------------------------------------------"
    date
+
+   # kill old and start new pointing 
+   echo "killall point_station_radec_loop.sh acquire_station_beam"
+   killall point_station_radec_loop.sh acquire_station_beam 
+   echo "sleep 5"
+   sleep 5 
 
    # start pointing :
    echo "nohup point_station_radec_loop.sh ${ra} ${dec} ${interval} 30 ${station} >> pointing.out 2>&1 &"
