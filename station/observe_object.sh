@@ -133,8 +133,8 @@ do
 
    # start pointing :
    pwd   
-   echo "nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${interval} 30 ${station} >> pointing.out 2>&1 &"
-   nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${interval} 30 ${station} >> pointing.out 2>&1 &
+   echo "nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${interval} 10 ${station} >> pointing.out 2>&1 &"
+   nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${interval} 10 ${station} >> pointing.out 2>&1 &
    pwd
    ps
 
