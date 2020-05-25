@@ -40,3 +40,6 @@ do
    
    ux=`date +%s`
 done
+
+echo "Pointing loop finished at :"
+date
