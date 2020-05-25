@@ -77,6 +77,12 @@ if [[ -n "${10}" && "${10}" != "-" ]]; then
    pointing_interval=${10}
 fi
 
+repointing_resolution=30
+if [[ -n "${11}" && "${11}" != "-" ]]; then
+   repointing_resolution=${11}
+fi
+
+
 echo "###################################################"
 echo "PARAMETERS:"
 echo "###################################################"
@@ -89,6 +95,7 @@ echo "pointing_interval = $pointing_interval"
 echo "start_uxtime = $start_uxtime"
 echo "n_iter       = $n_iter"
 echo "sleep_time   = $sleep_time"
+echo "repointing_resolution = $repointing_resolution"
 echo "###################################################"
 
 ux=`date +%s`
@@ -139,8 +146,8 @@ do
 
    # start pointing :
    pwd   
-   echo "nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} 10 ${station} >> pointing.out 2>&1 &"
-   nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} 10 ${station} >> pointing.out 2>&1 &
+   echo "nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} ${repointing_resolution} ${station} >> pointing.out 2>&1 &"
+   nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} ${repointing_resolution} ${station} >> pointing.out 2>&1 &
    pwd
    ps
 
