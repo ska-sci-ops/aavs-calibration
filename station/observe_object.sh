@@ -146,6 +146,10 @@ do
    echo "/home/aavs/Software/aavs-system/src/build_new/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p 10.0.10.190 >> daq.out 2>&1"
    /home/aavs/Software/aavs-system/src/build_new/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p 10.0.10.190 >> daq.out 2>&1
    
+   # temporary due to the fact that that the program acquire_station_beam ends up with .dat files without group read permission:
+   echo "chmod +r *.dat"
+   chmod +r *.dat
+   
    i=$(($i+1))
    
    if [[ $i -lt $n_iter ]]; then
