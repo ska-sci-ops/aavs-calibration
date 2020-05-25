@@ -72,6 +72,11 @@ if [[ -n "$9" && "$9" != "-" ]]; then
    sleep_time=$9
 fi
 
+pointing_interval=${interval}
+if [[ -n "${10}" && "${10}" != "-" ]]; then
+   pointing_interval=${10}
+fi
+
 echo "###################################################"
 echo "PARAMETERS:"
 echo "###################################################"
@@ -80,6 +85,7 @@ echo "(ra,dec) = ( $ra , $dec ) [deg]"
 echo "freq_channel = $freq_channel"
 echo "data_dir     = $data_dir"
 echo "interval     = $interval"
+echo "pointing_interval = $pointing_interval"
 echo "start_uxtime = $start_uxtime"
 echo "n_iter       = $n_iter"
 echo "sleep_time   = $sleep_time"
@@ -133,8 +139,8 @@ do
 
    # start pointing :
    pwd   
-   echo "nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${interval} 10 ${station} >> pointing.out 2>&1 &"
-   nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${interval} 10 ${station} >> pointing.out 2>&1 &
+   echo "nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} 10 ${station} >> pointing.out 2>&1 &"
+   nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} 10 ${station} >> pointing.out 2>&1 &
    pwd
    ps
 
