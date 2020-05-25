@@ -19,7 +19,8 @@ station_name_lower=`echo $station_name | awk '{print tolower($1);}'`
 antfile=~/aavs-calibration/config/${station_name_lower}/antenna_locations.txt
 config_file=/opt/aavs/config/${station_name_lower}.yml
 
-cd ~/aavs-calibration/station/pointing
 date
-echo "python ./point_station_newsoft.py --static --azimuth=$AZIM_deg --altitude=$ELEV_deg --antenna_locations=${antfile} --config=${config_file}"
-python ./point_station_newsoft.py --static --azimuth=$AZIM_deg --altitude=$ELEV_deg --antenna_locations=${antfile} --config=${config_file}
+echo "python ~/aavs-calibration/station/pointing/point_station_newsoft.py --static --azimuth=$AZIM_deg --altitude=$ELEV_deg --antenna_locations=${antfile} --config=${config_file}"
+python ~/aavs-calibration/station/pointing/point_station_newsoft.py --static --azimuth=$AZIM_deg --altitude=$ELEV_deg --antenna_locations=${antfile} --config=${config_file}
+
+
