@@ -82,10 +82,16 @@ if [[ -n "${11}" && "${11}" != "-" ]]; then
    repointing_resolution=${11}
 fi
 
+station=eda2
+if [[ -n "${12}" && "${12}" != "-" ]]; then
+   station=${12}
+fi
+
 
 echo "###################################################"
 echo "PARAMETERS:"
 echo "###################################################"
+echo "station = $station"
 echo "Object = $object"
 echo "(ra,dec) = ( $ra , $dec ) [deg]"
 echo "freq_channel = $freq_channel"
@@ -108,7 +114,6 @@ fi
 
 do_init_station=0
 calibrate_station=1
-station=eda2
 
 mkdir -p ${data_dir}
 cd ${data_dir}
@@ -117,8 +122,8 @@ if [[ $do_init_station -gt 0 ]]; then
    echo "Initialising the station"
 
    # do initialisation :
-   echo "python /opt/aavs/bin/station.py --config=/opt/aavs/config/eda2.yml -IPB"
-   python /opt/aavs/bin/station.py --config=/opt/aavs/config/eda2.yml -IPB
+   echo "python /opt/aavs/bin/station.py --config=/opt/aavs/config/${station}.yml -IPB"
+   python /opt/aavs/bin/station.py --config=/opt/aavs/config/${station}.yml -IPB
 else
   echo "WARNING : station initialisation is not required"
 fi   
