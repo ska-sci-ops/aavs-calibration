@@ -87,11 +87,16 @@ if [[ -n "${12}" && "${12}" != "-" ]]; then
    station=${12}
 fi
 
+ip=10.0.10.190
+if [[ ${station} == "aavs2" ]]; then
+   ip=10.0.10.210
+fi
+
 
 echo "###################################################"
 echo "PARAMETERS:"
 echo "###################################################"
-echo "station = $station"
+echo "station = $station (ip = $ip)"
 echo "Object = $object"
 echo "(ra,dec) = ( $ra , $dec ) [deg]"
 echo "freq_channel = $freq_channel"
