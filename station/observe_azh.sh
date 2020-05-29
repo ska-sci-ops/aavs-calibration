@@ -73,6 +73,15 @@ if [[ -n "$9" && "$9" != "-" ]]; then
 fi
 
 station_name=eda2
+if [[ -n "${10}" && "${10}" != "-" ]]; then
+   station_name=${10}
+fi
+
+full_time_resolution=1
+if [[ -n "${11}" && "${11}" != "-" ]]; then
+   full_time_resolution=${11}
+fi
+
 
 echo "###################################################"
 echo "PARAMETERS:"
@@ -86,6 +95,7 @@ echo "start_uxtime = $start_uxtime"
 echo "n_iter       = $n_iter"
 echo "sleep_time   = $sleep_time"
 echo "station      = $station_name"
+echo "full_time_resolution = ${full_time_resolution}"
 echo "###################################################"
 
 ux=`date +%s`
@@ -121,8 +131,13 @@ else
 fi   
 
 # starting monitoring :
-echo "nohup ~/Software/hdf5_correlator/scripts/process_station_beam_loop.sh 204 - - 43000 > power.out 2>&1 &"
-nohup ~/Software/hdf5_correlator/scripts/process_station_beam_loop.sh 204 - - 43000 > power.out 2>&1 &
+if [[ $full_time_resolution -le 0 ]];
+   echo "INFO : starting real-time beam monitoring"
+   echo "nohup ~/Software/hdf5_correlator/scripts/process_station_beam_loop.sh 204 - - 43000 > power.out 2>&1 &"
+   nohup ~/Software/hdf5_correlator/scripts/process_station_beam_loop.sh 204 - - 43000 > power.out 2>&1 &
+else
+   echo "WARNING : real-time station beam monitoring is not implemented in full time resolution mode"
+fi   
 
 i=0
 while [[ $i -lt $n_iter ]];
@@ -144,13 +159,15 @@ do
    pwd
    ps
 
-   # interval
-   # WAS :
-   # echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -S --channel_samples=262144 --beam_channels=8 --station_samples=1048576 --acquisition_duration=${interval}"
-   # python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -S --channel_samples=262144 --beam_channels=8 --station_samples=1048576 --acquisition_duration=${interval}
-   
-   echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p 10.0.10.190"
-   /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p 10.0.10.190 
+   if [[ $full_time_resolution -gt 0 ]]; then   
+      echo "INFO : running full resolution acquisition"
+      echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p 10.0.10.190"
+      /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p 10.0.10.190 
+   else
+      echo "INFO : running normal station beam in very low time resolution"
+      echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -S --channel_samples=262144 --beam_channels=8 --station_samples=1048576 --acquisition_duration=${interval}"
+      python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -S --channel_samples=262144 --beam_channels=8 --station_samples=1048576 --acquisition_duration=${interval}
+   fi
    
    i=$(($i+1))
    
