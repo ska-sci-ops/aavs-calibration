@@ -114,6 +114,7 @@ def plotfile( filename_base,
    if os.path.exists( filename_y ) :
       alldata_y = np.loadtxt(filename_y,usecols=[0,1])
 
+   print("DEBUG : read %d points from file %s and %d points from file %s" % (len(alldata_x),filename_x,len(alldata_y),filename_y))
 
    if len(alldata_x)>0 :     
       uxtime_x=alldata_x[:,0]   
