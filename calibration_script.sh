@@ -15,6 +15,17 @@ reference_antenna=3 # 2020-02-07 - back to antenna 3 from 5 (most of data with A
 
 do_mfcal_object="sun" # use mfcal with proper solar flux scale (as in Randall's script to get SEFD and other proper flux scale)
 
+# Quiet sun (http://extras.springer.com/2009/978-3-540-88054-7/06_vi4b_4116.pdf
+# 4.1.1.6 Quiet and slowly varying radio emissions of the sun
+# Ref. p. 88] 4.1.1.6 Quiet and slowly varying radio emissions of the sun 81 Table 1. Flux density, F, and brightness temperature, T rad, of the quiet sun. F = radio ﬂux density of the quiet sun during sunspot minimum in units of 10 −22 Wm 2Hz −1=1019 erg cm Hz s−1 = solar ﬂux unit (sfu) T rad = brightness temperature of an optical solar disk with a diameter of 32
+# extras.springer.com )
+# note change in spectral index of sun around 150 MHz, so better to use different
+# power law at low vs high freqs
+# MFCAL flux parameters : 51000,0.15,1.6
+solar_flux=51000
+beam_on_sun=1.00
+
+
 # Include binaries in calibration directory
 #export PATH=$PATH:/home/aavs/randall_calibration
 function print_usage {
@@ -28,6 +39,7 @@ function print_usage {
   echo -e "\t-S STATION_NAME , name of the station the data was collected with. Default: ${station_name}"
   echo -e "\t-R REFERENCE ANTENNA , default = ${reference_antenna} (miriad index is 1-based)"
   echo -e "\t-m MFCAL_OBJECT , use mfcal instead of selfcal to calibrate, pass object name (at the moment only sun is allowed), by default it is disabled (no object set = empty string)"
+  echo -e "\t-b BEAM value on sun [default $beam_on_sun]"
 }
 
 #echo "Command line: $@"
@@ -36,6 +48,10 @@ function print_usage {
 while getopts ":D:T:N:ksS:R:m:" opt; do
   echo "Parsing option ${opt} , argument = ${OPTARG}"
   case ${opt} in
+    b)
+      beam_on_sun=${OPTARG}
+      ;;
+
     D)
       data_dir=${OPTARG}
       echo "user specified directory ${data_dir}"
@@ -91,6 +107,9 @@ if [ $? -ne 0 ] ; then
 fi
 echo "channel: $channel. PWD: $PWD"
 
+# calculate apparent solar flux 
+apparent_solar_flux=`echo $solar_flux" "$beam_on_sun | awk '{print ($1*$2);}'` 
+
 echo "######################################################################################################"
 echo "PARAMETERS :"
 echo "######################################################################################################"
@@ -100,6 +119,7 @@ echo "station_name      = $station_name"
 if [[ -n "do_mfcal_object" ]]; then
    echo "do_mfcal_object   = $do_mfcal_object"
 fi
+echo "Apparent solar flux = $apparent_solar_flux ( from $solar_flux * beam_on_sun = $beam_on_sun )"
 echo "######################################################################################################"
 
 
@@ -181,16 +201,16 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
           # power law at low vs high freqs
           if [[ $channel -gt 192 ]]; then # f > 150 MHz (192 *(400/512) = 150 MHz ) :
              echo "Channel = $channel > 192 -> using the high-frequency power law:"
-             echo "mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"
-             mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
+             echo "mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"
+             mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
 
              # mfcal on XX and YY or rather uvcat to split .uv -> _XX.uv and _YY.uv ?
              # current way is a bit in-efficient, so I will change it later
-             echo "mfcal vis=${src}_XX.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"  
-             mfcal vis=${src}_XX.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
+             echo "mfcal vis=${src}_XX.uv flux=${apparent_solar_flux},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"  
+             mfcal vis=${src}_XX.uv flux=${apparent_solar_flux},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
 
-             echo "mfcal vis=${src}_YY.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"  
-             mfcal vis=${src}_YY.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
+             echo "mfcal vis=${src}_YY.uv flux=${apparent_solar_flux},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"  
+             mfcal vis=${src}_YY.uv flux=${apparent_solar_flux},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
           else
              # verifyed on 2020-04-23 :
              # Lower limit of 0.005 kLambda means 10m at 150 MHz to make it 10 m everywhere use the following formula
@@ -202,16 +222,16 @@ for uvfitsfile in `ls -tr chan_${channel}_*.uvfits` ; do
              
                        
              echo "Channel = $channel <= 192 -> using the low-frequency power law, lower uvrange limit = $min_klambda kLambda"             
-             echo "mfcal vis=${src}.uv flux=51000,0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
-             mfcal vis=${src}.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
+             echo "mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
+             mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
              
              # mfcal on XX and YY or rather uvcat to split .uv -> _XX.uv and _YY.uv ?
              # current way is a bit in-efficient, so I will change it later
-             echo "mfcal vis=${src}_XX.uv flux=51000,0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
-             mfcal vis=${src}_XX.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
+             echo "mfcal vis=${src}_XX.uv flux=${apparent_solar_flux},0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
+             mfcal vis=${src}_XX.uv flux=${apparent_solar_flux},0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
 
-             echo "mfcal vis=${src}_YY.uv flux=51000,0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
-             mfcal vis=${src}_YY.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz                          
+             echo "mfcal vis=${src}_YY.uv flux=${apparent_solar_flux},0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
+             mfcal vis=${src}_YY.uv flux=${apparent_solar_flux},0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz                          
           fi
        else
           echo "WARNING : object $mfcal_ok of unknown flux specified -> will use standard selfcal"
