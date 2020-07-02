@@ -61,7 +61,7 @@ def print_coeff_pol( obj, pol ) :
          offline_beamformer_opt += ","
       
    print("------------------------------------------------")
-   print("-X %s" % (offline_beamformer_opt))      
+   print("-%s %s" % (pol_str,offline_beamformer_opt))      
    print("------------------------------------------------")       
 
 
