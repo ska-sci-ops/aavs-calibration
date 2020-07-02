@@ -21,6 +21,16 @@ object_radec()
       ra=268.1475
       dec=23.99672222
    fi
+
+   if [[ $object == "J2145" || $object == "2145" ]]; then
+      ra=326.45833333 
+      dec=-7.83333333
+   fi
+
+   if [[ $object == "CRAB" || $object == "B0531" || $object == "0531" || $object == "J0534" || $object == "0534" ]]; then
+      ra=83.6334
+      dec=22.01444444
+   fi
 }
 
 
