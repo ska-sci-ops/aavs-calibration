@@ -328,6 +328,7 @@ if __name__ == '__main__':
     print("####################################################")
     print("File base       = %s -> files %s / %s" % (options.filebase,phase_offset_file_X,phase_offset_file_Y))
     print("Output pkl file = %s" % (options.outfile))
+    print("polarisation_swap = %s" % (options.polarisation_swap))
     print("####################################################")
     
     if options.test_pickle_file is not None :
