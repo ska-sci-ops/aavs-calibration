@@ -239,6 +239,7 @@ def parse_options(idx=0):
    parser.add_option('-o','--outfile','--out_file','--pklfile','--out_pklfile','--out_pkl',dest="outfile",default=None, help="Output .pkl filename [default same as filebase]")
    parser.add_option('-t','--test_pickle_file',"--test_pickle",dest="test_pickle_file",default=None, help="Read pickle file and compare to text files (phase_vs_antenna_X.txt and phase_vs_antenna_Y.txt) [default %]")
    parser.add_option('-d','--debug','--verbose','--verb',action="store_true",dest="debug",default=False, help="More debugging information [default %]")
+   parser.add_option('--pol_swap','--polarisation_swap','--swap_pols',action="store_true",dest="polarisation_swap",default=False, help="Swap polarisations as done in EDA2 [default %]")
 #   parser.add_option('-c','--cal','--calibrator',dest="calibrator",default="HerA", help="Calibrator name [default %]")
 #   parser.add_option('--meta_fits','--metafits',dest="metafits",default=None, help="Metafits file [default %]")
 
@@ -313,6 +314,11 @@ if __name__ == '__main__':
 
     phase_offset_file_X = options.filebase + "_X.txt"
     phase_offset_file_Y = options.filebase + "_Y.txt"
+    
+    if options.polarisation_swap :
+       phase_offset_file_tmp = phase_offset_file_X
+       phase_offset_file_X = phase_offset_file_Y
+       phase_offset_file_Y = phase_offset_file_tmp
 
     if options.outfile is None :
         options.outfile = options.filebase
