@@ -99,8 +99,10 @@ def calibrate_channel(channel) : # ,station_name="EDA2"): - parameters do not wo
                "-T", str(dump_time),
                "-N", str(nof_integrations),
                "-S", station_name,
-               "-k"
+               "-k"               
               ]
+    # WARNING : do not add -x and -y options here as they are channel dependent and need to be calculated for each channel (cannot use global value good for all channels !!!)              
+    #           this should really be done inside the calibration_script.sh 
               
     # dynamically added if required by options :
     if options.calibration_object is not None :
@@ -147,7 +149,7 @@ def run_calibration(directory, nof_channels, threads, station_name="EDA2" ):
     else:
         logging.info('Serial processing of channels')
         for channel in range(start_channel, nof_channels):
-            calibrate_channel(channel,station_name=station_name)
+            calibrate_channel(channel) # removed this parameters and use global now : station_name=station_name)
   
     # All done, first update last calibration :
     subprocess.check_call(['update_last_calibration.sh',station_name])
