@@ -47,7 +47,7 @@ function print_usage {
 #echo "Command line: $@"
 
 # parse command-line options
-while getopts ":D:T:N:ksS:R:m:" opt; do
+while getopts ":D:T:N:ksS:R:m:x:y:" opt; do
   echo "Parsing option ${opt} , argument = ${OPTARG}"
   case ${opt} in
     x)
