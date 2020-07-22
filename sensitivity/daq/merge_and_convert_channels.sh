@@ -10,6 +10,11 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    station_name=$2
 fi
 
+phase_center_sun=1
+if [[ -n "$3" && "$3" != "-" ]]; then
+   phase_center_sun=$3
+fi
+
 pwd
 
 for ch in `ls -d ${template}`
@@ -29,8 +34,13 @@ do
    
    # move to separate sub-channel dirs :
    cd merged/
-   echo "/usr/local/bin/hdf2uvfits_zenith.sh \"-f ${ch} -s ${station_name}\""
-   /usr/local/bin/hdf2uvfits_zenith.sh "-f ${ch} -s ${station_name}"   
+   if [[ $phase_center_sun -gt 0 ]]; then
+      echo "/usr/local/bin/hdf2uvfits_sun.sh \"-f ${ch} -s ${station_name}\""
+      /usr/local/bin/hdf2uvfits_sun.sh "-f ${ch} -s ${station_name}"
+   else
+      echo "/usr/local/bin/hdf2uvfits_zenith.sh \"-f ${ch} -s ${station_name}\""
+      /usr/local/bin/hdf2uvfits_zenith.sh "-f ${ch} -s ${station_name}"   
+   fi
    cd ../
       
 
