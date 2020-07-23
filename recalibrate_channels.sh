@@ -30,6 +30,34 @@ if [[ -n "$6" && "$6" != "-" ]]; then
    do_copy=$6
 fi
 
+outdir="SunCal"
+if [[ -n "$7" && "$7" != "-" ]]; then
+   outdir=$7
+fi
+
+mkdir -p ${outdir}
+cd ${outdir}
+
+if [[ $do_copy -gt 0 ]]; then
+   echo "DEBUG : copying files to re-calibrate"
+   # correlation_burst_60_
+   ch=${start_ch}
+   while [[ $ch -le ${end_ch} ]];
+   do
+      hdf5_count=`ls correlation_burst_${ch}_*hdf5 | wc -l`
+      if [[ $hdf5_count -gt 0 ]]; then
+         echo "DEBUG : $hdf5_count files correlation_burst_${ch}_*hdf5 found -> no copying required"
+      else
+         echo "cp ../correlation_burst_${ch}_*hdf5 ."
+         cp ../correlation_burst_${ch}_*hdf5 .
+      fi
+      
+      ch=$(($ch+1))
+   done
+else
+   echo "WARNING : copying data is not required"
+fi
+
 
 ch=${start_ch}
 while [[ $ch -le ${end_ch} ]];
