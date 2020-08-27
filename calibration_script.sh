@@ -55,12 +55,12 @@ while getopts ":D:T:N:ksS:R:m:x:y:" opt; do
   case ${opt} in
     x)
       beam_on_sun_x=${OPTARG}
-      beam_set_by_params=1
+      beam_set_by_params=`echo ${beam_on_sun_x} | awk '{if($1!=1.00){print 1;}else{print 0;}}'`
       ;;
 
     y)
       beam_on_sun_y=${OPTARG}
-      beam_set_by_params=1
+      beam_set_by_params=`echo ${beam_on_sun_y} | awk '{if($1!=1.00){print 1;}else{print 0;}}'`
       ;;
 
     D)
