@@ -25,6 +25,9 @@ do_mfcal_object="sun" # use mfcal with proper solar flux scale (as in Randall's 
 solar_flux=51000
 beam_on_sun_x=1.00 # TODO : add option -b which will calculate this two automatically based on sun position at the time of data collection and beam value in this direction
 beam_on_sun_y=1.00 # TODO : as above 
+beam_set_by_params=0
+
+beam_on_sun_file=beam_on_sun.txt
 
 
 # Include binaries in calibration directory
@@ -52,10 +55,12 @@ while getopts ":D:T:N:ksS:R:m:x:y:" opt; do
   case ${opt} in
     x)
       beam_on_sun_x=${OPTARG}
+      beam_set_by_params=1
       ;;
 
     y)
       beam_on_sun_y=${OPTARG}
+      beam_set_by_params=1
       ;;
 
     D)
@@ -112,6 +117,26 @@ if [ $? -ne 0 ] ; then
   exit 1
 fi
 echo "channel: $channel. PWD: $PWD"
+
+if [[ $beam_set_by_params -le 0 ]]; then
+   echo "DEBUG : experimental version, beam not set by external parameters -> checking text file ${beam_on_sun_file} ..."
+   if [[ -s ${beam_on_sun_file} ]]; then
+       echo "DEBUG : file ${beam_on_sun_file} exists -> trying to find beam-on-sun values for the specific channel"
+       line=`awk -v channel=${channel} '{if($1!="#" && $1==channel){print $0;}}' ${beam_on_sun_file}`
+       
+       if [[ -n $line ]]; then
+          beam_on_sun_x=`echo $line | awk '{print $2;}'`
+          beam_on_sun_y=`echo $line | awk '{print $3;}'`
+          echo "DEBUG : Sun beam information = |$line| -> Beam on sun values beam_x = $beam_on_sun_x , beam_y = $beam_on_sun_y"          
+       else       
+          echo "WARNING : beam values not calculated for channel = $channel -> will use the default beam settings for the Sun location beam_x/beam_y = $beam_on_sun_x / $beam_on_sun_y -> no Sun beam correction"
+       fi
+   else
+       echo "WARNING : file $beam_on_sun_file does not exist -> will use the default beam settings for the Sun location beam_x/beam_y = $beam_on_sun_x / $beam_on_sun_y -> no Sun beam correction"
+   fi
+fi
+
+
 
 # calculate apparent solar flux 
 apparent_solar_flux_x=`echo $solar_flux" "$beam_on_sun_x | awk '{print ($1*$2);}'` 
