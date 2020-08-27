@@ -42,6 +42,14 @@ if [[ $do_copy -gt 0 ]]; then
    echo "DEBUG : copying files to re-calibrate to directory :"
    pwd
    
+   if [[ ! -s beam_on_sun.txt ]]; then
+      echo "DEBUG : file beam_on_sun.txt does not exist -> checking main data directory ..."
+      echo "cp ../beam_on_sun.txt ."
+      cp ../beam_on_sun.txt .
+   else
+      echo "DEBUG : file beam_on_sun.txt exists -> using it"   
+   fi
+   
    
    # correlation_burst_60_
    ch=${start_ch}
