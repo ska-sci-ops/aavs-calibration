@@ -39,12 +39,15 @@ mkdir -p ${outdir}
 cd ${outdir}
 
 if [[ $do_copy -gt 0 ]]; then
-   echo "DEBUG : copying files to re-calibrate"
+   echo "DEBUG : copying files to re-calibrate to directory :"
+   pwd
+   
+   
    # correlation_burst_60_
    ch=${start_ch}
    while [[ $ch -le ${end_ch} ]];
    do
-      hdf5_count=`ls correlation_burst_${ch}_*hdf5 | wc -l`
+      hdf5_count=`ls correlation_burst_${ch}_*hdf5 2>/dev/null | wc -l`
       if [[ $hdf5_count -gt 0 ]]; then
          echo "DEBUG : $hdf5_count files correlation_burst_${ch}_*hdf5 found -> no copying required"
       else
