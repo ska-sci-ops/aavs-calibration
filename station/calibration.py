@@ -89,6 +89,7 @@ def load_coeff( pickle_file, show=True, swap_pols=False ) :
        obj = pickle.load(f)
 
    if swap_pols :
+      print("WARNING : polarisation swap is required -> swapping now")
       n_ants=obj.shape[0]
       n_ch=obj.shape[1]
       
