@@ -14,7 +14,7 @@ fi
 
 # WARNING : should be later in the script, but this value is required earlier :
 pol_swap_options=""
-if [[ $station == "eda2" ]]; then
+if [[ $station_name == "eda2" ]]; then
    echo "EDA2 station -> polarisation swap required (please make sure the .pkl was not swapped at the time of creation)"
    pol_swap_options="--pol_swap"
 fi
