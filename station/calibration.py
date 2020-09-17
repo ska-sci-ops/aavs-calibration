@@ -82,11 +82,25 @@ def save_coeff( obj , name ):
         
     print("Saved coefficients to file %s" % (pickle_file))    
 
-def load_coeff( pickle_file, show=True ) :
+def load_coeff( pickle_file, show=True, swap_pols=False ) :
    obj = None
  
    with open( pickle_file, 'rb') as f:
        obj = pickle.load(f)
+
+   if swap_pols :
+      n_ants=obj.shape[0]
+      n_ch=obj.shape[1]
+      
+      for ant in range(0,n_ants):
+         for ch in range(0,n_ch):
+            xx=cal[ant,ch,0]
+            yy=cal[ant,ch,3]
+       
+            # swap :
+            cal[ant,ch,0]=yy
+            cal[ant,ch,3]=xx
+
        
    if show :
       print_coeff( obj, pickle_file )
@@ -176,13 +190,13 @@ def read_calibration_phase_offsets( phase_offset_file_X=None, phase_offset_file_
 
     return calibration_coef
 
-def get_calibration_coeff( calibration_file = None ) : # Pickle file with calibration coefficients or phase_vs_antenna.pkl can be used 
+def get_calibration_coeff( calibration_file = None , swap_pols=False ) : # Pickle file with calibration coefficients or phase_vs_antenna.pkl can be used 
 
     calib_coeff = None
     
     if calibration_file is not None :
         # if pickle file is provided load it and return :
-        calib_coeff = load_coeff( calibration_file )
+        calib_coeff = load_coeff( calibration_file , swap_pols=swap_pols )
     else :
         # if pickle file is not provided use hardcoded defaults (see description above )
         calib_coeff = read_calibration_phase_offsets()

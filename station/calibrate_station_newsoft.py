@@ -33,6 +33,8 @@ if __name__ == "__main__":
     # station calibration :
     parser.add_option('--calibrate_station','--cal_station','--calst', action="store_true", dest="calibrate_station",   default=False,  help="Calibrate station [default: %]")
     parser.add_option('--calibrate_file','--cal_file','--calfile', action="store", dest="calibration_file",   default=None,  help="Calibration file [default: %]")
+    
+    parser.add_option('--pol_swap','--polarisation_swap','--swap_pols',action="store_true",dest="polarisation_swap",default=False, help="Swap polarisations as done in EDA2 [default %]")
 
     (conf, args) = parser.parse_args(argv[1:])
     
