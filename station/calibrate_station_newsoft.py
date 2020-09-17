@@ -41,8 +41,9 @@ if __name__ == "__main__":
     print("##############################################################################################")
     print("PARAMETERS:")
     print("##############################################################################################")
-    print("calibrate_station = %s" % (conf.calibrate_station))
+    print("calibrate_station = %s" % (conf.calibrate_station))    
     print("calibration file  = %s" % (conf.calibration_file))
+    print("polarisation swap = %s" % (conf.polarisation_swap))
     print("##############################################################################################")
                       
     # Connect to station
@@ -55,7 +56,7 @@ if __name__ == "__main__":
     if conf.calibrate_station :
         print("ACTION : just calibrating EDA1/TPM station using file = %s" % (conf.calibration_file))
         
-        calibration_coefficients = calibration.get_calibration_coeff( calibration_file = conf.calibration_file )
+        calibration_coefficients = calibration.get_calibration_coeff( calibration_file = conf.calibration_file , swap_pols=conf.polarisation_swap )
 
         # send coefficients to the station : 
         station.calibrate_station( calibration_coefficients )                      
