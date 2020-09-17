@@ -95,12 +95,12 @@ def load_coeff( pickle_file, show=True, swap_pols=False ) :
       
       for ant in range(0,n_ants):
          for ch in range(0,n_ch):
-            xx=cal[ant,ch,0]
-            yy=cal[ant,ch,3]
+            xx=obj[ant,ch,0]
+            yy=obj[ant,ch,3]
        
             # swap :
-            cal[ant,ch,0]=yy
-            cal[ant,ch,3]=xx
+            obj[ant,ch,0]=yy
+            obj[ant,ch,3]=xx
 
        
    if show :
