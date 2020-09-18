@@ -148,10 +148,15 @@ if [[ $do_init_station -gt 0 ]]; then
    
    if [[ $use_config_per_freq -gt 0 ]]; then
       freq_config_file=/opt/aavs/config/freq/${station}_ch${freq_channel}.yml
-      
+                  
       if [[ ! -s ${freq_config_file} ]]; then
-         echo "ERROR : configuration file $freq_config_file for freq_channel = $freq_channel does not exist"
-         exit;
+         if [[ -s /opt/aavs/config/freq/${station}.template ]]; then
+            # generate station config file for a specified frequency if does not exist already 
+            awk -v ch=${freq_channel} 'BEGIN{freq_mhz=ch*(400/512);print "observation:"; printf("   start_frequency_channel: %.3fe6\n",freq_mhz);print"   bandwidth: 6.25e6";}{print $0;}' /opt/aavs/config/freq/${station}.template > ${freq_config_file}
+         else 
+            echo "ERROR : configuration file $freq_config_file for freq_channel = $freq_channel does not exist and neither the template file /opt/aavs/config/freq/${station}.template -> cannot continue"
+            exit;
+         fi
       fi
       
       config_file=${freq_config_file}
