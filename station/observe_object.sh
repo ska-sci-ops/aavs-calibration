@@ -134,7 +134,7 @@ if [[ $start_uxtime -gt $ux ]]; then
    wait_for_unixtime.sh $start_uxtime
 fi
 
-do_init_station=0
+do_init_station=1
 calibrate_station=1
 
 mkdir -p ${data_dir}
@@ -143,9 +143,25 @@ cd ${data_dir}
 if [[ $do_init_station -gt 0 ]]; then
    echo "Initialising the station"
 
+   config_file=/opt/aavs/config/${station}.yml   
+   use_config_per_freq=1
+   
+   if [[ $use_config_per_freq -gt 0 ]]; then
+      freq_config_file=/opt/aavs/config/freq/${station}_ch${freq_channel}.yml
+      
+      if [[ ! -s ${freq_config_file} ]]; then
+         echo "ERROR : configuration file $freq_config_file for freq_channel = $freq_channel does not exist"
+         exit;
+      fi
+      
+      config_file=${freq_config_file}
+   else
+      echo "DEBUG : initialising station using config file = $config_file"
+   fi
+
    # do initialisation :
-   echo "python /opt/aavs/bin/station.py --config=/opt/aavs/config/${station}.yml -IPB"
-   python /opt/aavs/bin/station.py --config=/opt/aavs/config/${station}.yml -IPB
+   echo "python /opt/aavs/bin/station.py --config=$config_file -IPB"
+   python /opt/aavs/bin/station.py --config=$config_file -IPB
 else
   echo "WARNING : station initialisation is not required"
 fi   
