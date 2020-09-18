@@ -162,6 +162,11 @@ if [[ $do_init_station -gt 0 ]]; then
    # do initialisation :
    echo "python /opt/aavs/bin/station.py --config=$config_file -IPB"
    python /opt/aavs/bin/station.py --config=$config_file -IPB
+   
+   # TO BE FIXED !!!
+   # TWICE DUE TO BUG !!!
+   echo "python /opt/aavs/bin/station.py --config=$config_file -IPB"
+   python /opt/aavs/bin/station.py --config=$config_file -IPB
 else
   echo "WARNING : station initialisation is not required"
 fi   
