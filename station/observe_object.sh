@@ -12,7 +12,7 @@ object_radec()
       dec=7.92659722
    fi 
    
-   if [[ $object == "VELA" || $object == "J0835" || $object == "0835" ]]; then
+   if [[ $object == "VELA" || $object == "J0835" || $object == "0835" || $object == "Vela" ]]; then
       ra=128.83583333
       dec=-45.17633333
    fi
