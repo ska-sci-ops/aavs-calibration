@@ -54,11 +54,25 @@ if [[ -n "${10}" && "${10}" != "-" ]]; then
    repointing_resolution=${10}
 fi
 
+# config_file=/opt/aavs/config/${station}.yml
+# do initialisation :
+# echo "python /opt/aavs/bin/station.py --config=$config_file -IPB"
+# python /opt/aavs/bin/station.py --config=$config_file -IPB
+
+# BUG WORKAROUND :
+# first observation has 2 station initialisation (due to bug), but the next ones can do just one
+n_init=2
+
 freq_ch=${start_freq_channel}
 while [[ $freq_ch -le ${stop_freq_channel} ]]; 
 do
-   echo "observe_object.sh ${freq_ch} ${data_dir} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution}"
-   observe_object.sh ${freq_ch} ${data_dir} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution}
+   # 1 - for single -IPB (1st is done before the loop)
+   echo "observe_object.sh ${freq_ch} ${data_dir} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution} - $n_init"
+   observe_object.sh ${freq_ch} ${data_dir} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution} - $n_init 
+   
+   # BUG WORKAROUND :
+   # first observation has 2 station initialisation (due to bug), but the next ones can do just one
+   n_init=1
 
    freq_ch=$(($freq_ch+1))
    sleep 10
