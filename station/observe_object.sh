@@ -174,13 +174,14 @@ if [[ $do_init_station -gt 0 ]]; then
    fi
  
    # do_init_station=2 for the first time to accomdate for the bug
-   while [[ $do_init_station -gt 0 ];;
+   while [[ $do_init_station -gt 0 ];
+   do
       # do initialisation :
       echo "python /opt/aavs/bin/station.py --config=$config_file -IPB"
       python /opt/aavs/bin/station.py --config=$config_file -IPB
       
       do_init_station=$(($do_init_station-1))
-   fi
+   done
    
    # TO BE FIXED !!!
    # TWICE DUE TO BUG !!!
