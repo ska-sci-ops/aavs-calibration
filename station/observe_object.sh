@@ -45,7 +45,7 @@ if [[ -n "$3" && "$3" != "-" ]]; then
 fi
 
 dir=`date +%Y_%m_%d`
-data_dir=/data/${data_dir}/${object}
+data_dir=/data/${dir}_pulsars/${object}
 if [[ -n "$2" && "$2" != "-" ]]; then
    data_dir=$2
 fi
