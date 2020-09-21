@@ -81,7 +81,7 @@ do
    # first observation has 2 station initialisation (due to bug), but the next ones can do just one
    n_init=1
 
-   freq_ch=$(($freq_ch+1))
+   freq_ch=$(($freq_ch+$freq_step_ch))
    sleep 10
 done
 
