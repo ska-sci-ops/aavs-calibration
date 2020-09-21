@@ -67,8 +67,12 @@ freq_ch=${start_freq_channel}
 while [[ $freq_ch -le ${stop_freq_channel} ]]; 
 do
    # 1 - for single -IPB (1st is done before the loop)
-   echo "observe_object.sh ${freq_ch} ${data_dir} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution} - $n_init"
-   observe_object.sh ${freq_ch} ${data_dir} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution} - $n_init 
+   freq_str=`echo $freq_ch | awk '{printf("%03d",$1);}'`
+   mkdir -p ${freq_str}
+   cd ${freq_str}
+   echo "observe_object.sh ${freq_ch} ${data_dir} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution} - $n_init > out"
+   observe_object.sh ${freq_ch} ${data_dir} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution} - $n_init  > out 
+   cd ../
    
    # BUG WORKAROUND :
    # first observation has 2 station initialisation (due to bug), but the next ones can do just one
