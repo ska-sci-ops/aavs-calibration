@@ -110,6 +110,12 @@ if [[ ${station} == "aavs2" ]]; then
 fi
 
 
+do_init_station=2
+if [[ -n "${13}" && "${13}" != "-" ]]; then
+   do_init_station=${13}
+fi
+
+
 echo "###################################################"
 echo "PARAMETERS:"
 echo "###################################################"
@@ -124,6 +130,7 @@ echo "start_uxtime = $start_uxtime"
 echo "n_iter       = $n_iter"
 echo "sleep_time   = $sleep_time"
 echo "repointing_resolution = $repointing_resolution"
+echo "do_init_station = $do_init_station"
 echo "###################################################"
 
 ux=`date +%s`
@@ -134,7 +141,6 @@ if [[ $start_uxtime -gt $ux ]]; then
    wait_for_unixtime.sh $start_uxtime
 fi
 
-do_init_station=1
 calibrate_station=1
 
 mkdir -p ${data_dir}
@@ -163,15 +169,20 @@ if [[ $do_init_station -gt 0 ]]; then
    else
       echo "DEBUG : initialising station using config file = $config_file"
    fi
-
-   # do initialisation :
-   echo "python /opt/aavs/bin/station.py --config=$config_file -IPB"
-   python /opt/aavs/bin/station.py --config=$config_file -IPB
+ 
+   # do_init_station=2 for the first time to accomdate for the bug
+   while [[ $do_init_station -gt 0 ];;
+      # do initialisation :
+      echo "python /opt/aavs/bin/station.py --config=$config_file -IPB"
+      python /opt/aavs/bin/station.py --config=$config_file -IPB
+      
+      do_init_station=$(($do_init_station-1))
+   fi
    
    # TO BE FIXED !!!
    # TWICE DUE TO BUG !!!
-   echo "python /opt/aavs/bin/station.py --config=$config_file -IPB"
-   python /opt/aavs/bin/station.py --config=$config_file -IPB
+   # echo "python /opt/aavs/bin/station.py --config=$config_file -IPB"
+   # python /opt/aavs/bin/station.py --config=$config_file -IPB
 else
   echo "WARNING : station initialisation is not required"
 fi   
