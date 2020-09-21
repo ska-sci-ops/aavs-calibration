@@ -39,18 +39,21 @@ if [[ -n "$1" && "$1" != "-" ]]; then
    freq_channel=$1
 fi
 
-dir=`date +%Y_%m_%d_$object`
-data_dir=/data/${data_dir}
+object=J0437
+if [[ -n "$3" && "$3" != "-" ]]; then
+   object=$3
+fi
+
+dir=`date +%Y_%m_%d`
+data_dir=/data/${data_dir}/${object}
 if [[ -n "$2" && "$2" != "-" ]]; then
    data_dir=$2
 fi
+mkdir -p ${data_dir}
 
 object=J0437
 ra=69.3166
 dec=-47.2525
-if [[ -n "$3" && "$3" != "-" ]]; then
-   object=$3
-fi
 object_radec $object
 echo "DEBUG : $object -> ra,dec = $ra , $dec"
 
