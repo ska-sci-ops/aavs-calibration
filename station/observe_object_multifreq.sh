@@ -23,8 +23,8 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    freq_step_ch=$4
 fi
 
-dir=`date +%Y_%m_%d_$object`
-data_dir=/data/${data_dir}
+dir=`date +%Y_%m_%d_pulsars`
+data_dir=/data/${dir}/${object}/
 if [[ -n "$5" && "$5" != "-" ]]; then
    data_dir=$5
 fi
@@ -59,6 +59,9 @@ fi
 # echo "python /opt/aavs/bin/station.py --config=$config_file -IPB"
 # python /opt/aavs/bin/station.py --config=$config_file -IPB
 
+cd ${data_dir}
+pwd
+
 # BUG WORKAROUND :
 # first observation has 2 station initialisation (due to bug), but the next ones can do just one
 n_init=2
@@ -70,8 +73,8 @@ do
    freq_str=`echo $freq_ch | awk '{printf("%03d",$1);}'`
    mkdir -p ${freq_str}
    cd ${freq_str}
-   echo "observe_object.sh ${freq_ch} ${data_dir} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution} - $n_init > out"
-   observe_object.sh ${freq_ch} ${data_dir} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution} - $n_init  > out 
+   echo "observe_object.sh ${freq_ch} ${data_dir}/${freq_str} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution} - $n_init > out"
+   observe_object.sh ${freq_ch} ${data_dir}/${freq_str} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution} - $n_init  > out 
    cd ../
    
    # BUG WORKAROUND :
