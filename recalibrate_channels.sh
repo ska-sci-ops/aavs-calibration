@@ -10,7 +10,7 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    start_ch=$2
 fi
 
-end_ch=400
+end_ch=450
 if [[ -n "$3" && "$3" != "-" ]]; then
    end_ch=$3
 fi
