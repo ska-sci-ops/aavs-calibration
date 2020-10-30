@@ -129,7 +129,7 @@ def calibrate_channel(channel) : # ,station_name="EDA2"): - parameters do not wo
             subprocess.call(command, stdout=output, stderr=subprocess.STDOUT)
 
 
-def run_calibration(directory, nof_channels, threads, station_name="EDA2" ):
+def run_calibration(directory, nof_channels, threads, station_name="EDA2", update_last_calibration=True ):
     """ Calibrate channels """
     global g_station_name
     global conf
@@ -152,7 +152,10 @@ def run_calibration(directory, nof_channels, threads, station_name="EDA2" ):
             calibrate_channel(channel) # removed this parameters and use global now : station_name=station_name)
   
     # All done, first update last calibration :
-    subprocess.check_call(['update_last_calibration.sh',station_name])
+    if update_last_calibration :
+       subprocess.check_call(['update_last_calibration.sh',station_name])
+    else :
+       logging.info('Do not updating last calibration')
     
     # then cleanup up temporary files
     cleanup_parameters = ['cleanup_temp_files.sh', '-D', directory]
@@ -304,6 +307,10 @@ if __name__ == "__main__":
     parser.add_option("--keep_uv", '--keep_uv_files','--uv', '--do_not_remove_uv_file', action="store_true", dest="keep_uv_files", default=False,
                       help="Keep UV files (.uv) [default: %]")                      
 
+    parser.add_option("--do_not_update", "--do_not_update_last_cal", action="store_false", dest="update_last_calibration", default=True,
+                      help="Do not update last calibration [default: False]")
+
+
     (conf, args) = parser.parse_args(argv[1:])
     
     
@@ -338,7 +345,7 @@ if __name__ == "__main__":
 
     # If not skipping calibration, generate calibration solutions
     if conf.skip is False:
-        run_calibration(conf.directory, nof_channels, conf.threads, station_name=conf.station_name )
+        run_calibration(conf.directory, nof_channels, conf.threads, station_name=conf.station_name, update_last_calibration=conf.update_last_calibration )
 
     # At this point calibration solutions should be ready, read files and save locally
     for channel in range(start_channel, nof_channels):
