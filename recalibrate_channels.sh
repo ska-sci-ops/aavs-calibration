@@ -35,6 +35,12 @@ if [[ -n "$7" && "$7" != "-" ]]; then
    outdir=$7
 fi
 
+update_last_calibration=0
+if [[ -n "$8" && "$8" != "-" ]]; then
+   update_last_calibration=$8
+fi
+
+
 mkdir -p ${outdir}
 cd ${outdir}
 
@@ -82,3 +88,12 @@ do
 
    ch=$(($ch+1))
 done
+
+
+if [[ $update_last_calibration -gt 0 ]]; then
+   echo "Updating last calibration"
+   echo "update_last_calibration.sh ${station}"
+   update_last_calibration.sh ${station}
+else
+   echo "WARNING : update of last calibration is not required"
+fi
