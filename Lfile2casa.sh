@@ -83,6 +83,14 @@ while getopts "hi:R:D:n:N:C:f:A:I:" opt; do
 done
 shift $(expr $OPTIND - 1 )
 
+echo "##################################"
+echo "PARAMETERS:"
+echo "##################################"
+echo "instr_path = $instr_path"
+echo "##################################"
+
+
+
 
 la_chunksize=$((ninp*nchan*4))
 lc_chunksize=$((ninp*(ninp-1)*nchan*8/2))
