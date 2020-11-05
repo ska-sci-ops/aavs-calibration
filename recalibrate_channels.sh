@@ -75,6 +75,24 @@ else
    echo "WARNING : copying data is not required"
 fi
 
+hdf5_count=`ls *.hdf5 | wc -l`
+
+if [[ $hdf5_count -le 0 ]]; then
+   echo "WARNING : no hdf5 files - trying to de-compress ..."
+   echo "gzip -df *.hdf5.gz"
+   gzip -df *.hdf5.gz
+fi
+
+hdf5_count=`ls *.hdf5 | wc -l`
+
+if [[ $hdf5_count -le 0 ]]; then
+  echo "ERROR : no hdf5 files in (gzip -df did not help) :"
+  pwd
+  echo "ERROR : exiting re-calibration script now"
+  exit -1
+else
+  echo "DEBUG : hdf5_count = $hdf5_count"
+fi
 
 ch=${start_ch}
 while [[ $ch -le ${end_ch} ]];
