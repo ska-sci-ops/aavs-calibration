@@ -10,6 +10,9 @@ mkdir -p ${backup_dir}
 echo "mv *.txt ${backup_dir}/"
 mv *.txt ${backup_dir}/
 
+echo "cp ${backup_dir}/beam_on_sun.txt ."
+cp ${backup_dir}/beam_on_sun.txt .
+
 echo "mv *.png ${backup_dir}/"
 mv *.png ${backup_dir}/
 

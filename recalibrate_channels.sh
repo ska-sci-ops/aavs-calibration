@@ -25,7 +25,7 @@ if [[ -n "$5" && "$5" != "-" ]]; then
    beam_y=$5
 fi
 
-do_copy=1
+do_copy=0
 if [[ -n "$6" && "$6" != "-" ]]; then
    do_copy=$6
 fi
@@ -40,6 +40,22 @@ if [[ -n "$8" && "$8" != "-" ]]; then
    update_last_calibration=$8
 fi
 
+
+echo "backup_calibration.sh"
+backup_calibration.sh
+
+if [[ ! -s beam_on_sun.txt ]]; then
+   # temporary solution - until beam values are generated on the server :
+   if [[ -s /tmp/msok/beam_on_sun.txt ]]; then     
+      echo "cp /tmp/msok/beam_on_sun.txt"
+      cp /tmp/msok/beam_on_sun.txt
+   else
+      echo "ERROR : file /tmp/msok/beam_on_sun.txt does not exist -> re-calibration will not be able to use correct beam-correction beam values"
+      exit -1
+   fi
+else
+   echo "WARNING : local file beam_on_sun.txt found -> using existing one (not overwritting)"
+fi
 
 mkdir -p ${outdir}
 cd ${outdir}
