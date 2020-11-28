@@ -72,9 +72,16 @@ if [[ -n "$9" && "$9" != "-" ]]; then
    sleep_time=$9
 fi
 
-station_name=eda2
+station=eda2
+if [[ -s /opt/aavs/config/station.yml ]]; then
+   station=`awk -v station_section=0 '{if(index($1,":")>0 && NF==1){if(index($1,"station")>0 ){station_section=1;}else{station_section=0;}}if(station_section>0){if($1=="name:"){station_name=$2;gsub("\"","",station_name);gsub("\r","",station_name);print tolower(station_name);}}}' /opt/aavs/config/station.yml`
+   echo "Station config file (or symbolik link) exists -> getting station_name = $station"
+else
+   echo "ERROR : /opt/aavs/config/station.yml file or symbolic link does not exist will use default station_name = $station or value passed in parameter -s"   
+   exit;
+fi
 if [[ -n "${10}" && "${10}" != "-" ]]; then
-   station_name=${10}
+   station=${10}
 fi
 
 full_time_resolution=1
@@ -82,10 +89,21 @@ if [[ -n "${11}" && "${11}" != "-" ]]; then
    full_time_resolution=${11}
 fi
 
+ip=10.0.10.190
+if [[ ${station} == "aavs2" ]]; then
+   ip=10.0.10.210
+fi
+
+do_init_station=2
+if [[ -n "${12}" && "${12}" != "-" ]]; then
+   do_init_station=${12}
+fi
+
 
 echo "###################################################"
 echo "PARAMETERS:"
 echo "###################################################"
+echo "station      = $station ( ip = $ip )"
 echo "Object = $object"
 echo "(az,h) = ( $az , $h ) [deg]"
 echo "freq_channel = $freq_channel"
@@ -94,7 +112,6 @@ echo "interval     = $interval"
 echo "start_uxtime = $start_uxtime"
 echo "n_iter       = $n_iter"
 echo "sleep_time   = $sleep_time"
-echo "station      = $station_name"
 echo "full_time_resolution = ${full_time_resolution}"
 echo "###################################################"
 
@@ -106,18 +123,58 @@ if [[ $start_uxtime -gt $ux ]]; then
    wait_for_unixtime.sh $start_uxtime
 fi
 
-do_init_station=0
 calibrate_station=1
 
 mkdir -p ${data_dir}
 cd ${data_dir}
 
+# if [[ $do_init_station -gt 0 ]]; then
+#   echo "Initialising the station"
+#
+#   # do initialisation :
+#   echo "python /opt/aavs/bin/station.py --config=/opt/aavs/config/eda2.yml -IPB"
+#   python /opt/aavs/bin/station.py --config=/opt/aavs/config/eda2.yml -IPB
+#else
+#  echo "WARNING : station initialisation is not required"
+#fi   
 if [[ $do_init_station -gt 0 ]]; then
    echo "Initialising the station"
 
-   # do initialisation :
-   echo "python /opt/aavs/bin/station.py --config=/opt/aavs/config/eda2.yml -IPB"
-   python /opt/aavs/bin/station.py --config=/opt/aavs/config/eda2.yml -IPB
+   config_file=/opt/aavs/config/${station}.yml   
+   use_config_per_freq=1
+   
+   if [[ $use_config_per_freq -gt 0 ]]; then
+      freq_config_file=/opt/aavs/config/freq/${station}_ch${freq_channel}.yml
+                  
+      if [[ ! -s ${freq_config_file} ]]; then
+         if [[ -s /opt/aavs/config/freq/${station}.template ]]; then
+            # generate station config file for a specified frequency if does not exist already 
+            awk -v ch=${freq_channel} 'BEGIN{freq_mhz=ch*(400/512);print "observation:"; printf("   start_frequency_channel: %.3fe6\n",freq_mhz);print"   bandwidth: 6.25e6";}{print $0;}' /opt/aavs/config/freq/${station}.template > ${freq_config_file}
+         else 
+            echo "ERROR : configuration file $freq_config_file for freq_channel = $freq_channel does not exist and neither the template file /opt/aavs/config/freq/${station}.template -> cannot continue"
+            exit;
+         fi
+      fi
+      
+      config_file=${freq_config_file}
+   else
+      echo "DEBUG : initialising station using config file = $config_file"
+   fi
+ 
+   # do_init_station=2 for the first time to accomdate for the bug
+   while [[ $do_init_station -gt 0 ]];
+   do
+      # do initialisation :
+      echo "python /opt/aavs/bin/station.py --config=$config_file -IPB"
+      python /opt/aavs/bin/station.py --config=$config_file -IPB
+      
+      do_init_station=$(($do_init_station-1))
+   done
+   
+   # TO BE FIXED !!!
+   # TWICE DUE TO BUG !!!
+   # echo "python /opt/aavs/bin/station.py --config=$config_file -IPB"
+   # python /opt/aavs/bin/station.py --config=$config_file -IPB
 else
   echo "WARNING : station initialisation is not required"
 fi   
@@ -154,8 +211,8 @@ do
 
    # start pointing :
    pwd   
-   echo "~/aavs-calibration/station/pointing/point_station_azh.sh ${az} ${h} ${station_name}"
-   ~/aavs-calibration/station/pointing/point_station_azh.sh ${az} ${h} ${station_name}
+   echo "~/aavs-calibration/station/pointing/point_station_azh.sh ${az} ${h} ${station}"
+   ~/aavs-calibration/station/pointing/point_station_azh.sh ${az} ${h} ${station}
    pwd
    ps
 
