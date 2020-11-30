@@ -118,22 +118,24 @@ if [[ -n "${13}" && "${13}" != "-" ]]; then
    do_init_station=${13}
 fi
 
+channel_from_start=4
 
 echo "###################################################"
 echo "PARAMETERS:"
 echo "###################################################"
-echo "station = $station (ip = $ip)"
-echo "Object = $object"
-echo "(ra,dec) = ( $ra , $dec ) [deg]"
-echo "freq_channel = $freq_channel"
-echo "data_dir     = $data_dir"
-echo "interval     = $interval"
-echo "pointing_interval = $pointing_interval"
-echo "start_uxtime = $start_uxtime"
-echo "n_iter       = $n_iter"
-echo "sleep_time   = $sleep_time"
+echo "station               = $station (ip = $ip)"
+echo "Object                = $object"
+echo "(ra,dec)              = ( $ra , $dec ) [deg]"
+echo "freq_channel          = $freq_channel"
+echo "data_dir              = $data_dir"
+echo "interval              = $interval"
+echo "pointing_interval     = $pointing_interval"
+echo "start_uxtime          = $start_uxtime"
+echo "n_iter                = $n_iter"
+echo "sleep_time            = $sleep_time"
 echo "repointing_resolution = $repointing_resolution"
-echo "do_init_station = $do_init_station"
+echo "do_init_station       = $do_init_station"
+echo "channel_from_start    = $channel_from_start"
 echo "###################################################"
 
 ux=`date +%s`
@@ -161,7 +163,7 @@ if [[ $do_init_station -gt 0 ]]; then
       if [[ ! -s ${freq_config_file} ]]; then
          if [[ -s /opt/aavs/config/freq/${station}.template ]]; then
             # generate station config file for a specified frequency if does not exist already 
-            awk -v ch=${freq_channel} 'BEGIN{freq_mhz=ch*(400/512);print "observation:"; printf("   start_frequency_channel: %.3fe6\n",freq_mhz);print"   bandwidth: 6.25e6";}{print $0;}' /opt/aavs/config/freq/${station}.template > ${freq_config_file}
+            awk -v ch=${freq_channel} -v channel_from_start=${channel_from_start} 'BEGIN{freq_mhz=(ch-channel_from_start)*(400/512);print "observation:"; printf("   start_frequency_channel: %.3fe6\n",freq_mhz);print"   bandwidth: 6.25e6";}{print $0;}' /opt/aavs/config/freq/${station}.template > ${freq_config_file}
          else 
             echo "ERROR : configuration file $freq_config_file for freq_channel = $freq_channel does not exist and neither the template file /opt/aavs/config/freq/${station}.template -> cannot continue"
             exit;
@@ -225,8 +227,8 @@ do
 
    # start acuisition :
    # WAS : /home/aavs/Software/aavs-system/src/build_new/acquire_station_beam
-   echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p ${ip} >> daq.out 2>&1"
-   /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p ${ip} >> daq.out 2>&1
+   echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} >> daq.out 2>&1"
+   /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} >> daq.out 2>&1
    
    # temporary due to the fact that that the program acquire_station_beam ends up with .dat files without group read permission:
    echo "chmod +r *.dat"

@@ -103,16 +103,17 @@ fi
 echo "###################################################"
 echo "PARAMETERS:"
 echo "###################################################"
-echo "station      = $station ( ip = $ip )"
-echo "Object = $object"
-echo "(az,h) = ( $az , $h ) [deg]"
-echo "freq_channel = $freq_channel"
-echo "data_dir     = $data_dir"
-echo "interval     = $interval"
-echo "start_uxtime = $start_uxtime"
-echo "n_iter       = $n_iter"
-echo "sleep_time   = $sleep_time"
+echo "station              = $station ( ip = $ip )"
+echo "Object               = $object"
+echo "(az,h)               = ( $az , $h ) [deg]"
+echo "freq_channel         = $freq_channel"
+echo "data_dir             = $data_dir"
+echo "interval             = $interval"
+echo "start_uxtime         = $start_uxtime"
+echo "n_iter               = $n_iter"
+echo "sleep_time           = $sleep_time"
 echo "full_time_resolution = ${full_time_resolution}"
+echo "channel_from_start   = $channel_from_start"
 echo "###################################################"
 
 ux=`date +%s`
@@ -124,6 +125,7 @@ if [[ $start_uxtime -gt $ux ]]; then
 fi
 
 calibrate_station=1
+channel_from_start=4
 
 mkdir -p ${data_dir}
 cd ${data_dir}
@@ -149,7 +151,7 @@ if [[ $do_init_station -gt 0 ]]; then
       if [[ ! -s ${freq_config_file} ]]; then
          if [[ -s /opt/aavs/config/freq/${station}.template ]]; then
             # generate station config file for a specified frequency if does not exist already 
-            awk -v ch=${freq_channel} 'BEGIN{freq_mhz=ch*(400/512);print "observation:"; printf("   start_frequency_channel: %.3fe6\n",freq_mhz);print"   bandwidth: 6.25e6";}{print $0;}' /opt/aavs/config/freq/${station}.template > ${freq_config_file}
+            awk -v ch=${freq_channel} -v channel_from_start=${channel_from_start} 'BEGIN{freq_mhz=(ch-channel_from_start)*(400/512);print "observation:"; printf("   start_frequency_channel: %.3fe6\n",freq_mhz);print"   bandwidth: 6.25e6";}{print $0;}' /opt/aavs/config/freq/${station}.template > ${freq_config_file}
          else 
             echo "ERROR : configuration file $freq_config_file for freq_channel = $freq_channel does not exist and neither the template file /opt/aavs/config/freq/${station}.template -> cannot continue"
             exit;
@@ -218,8 +220,8 @@ do
 
    if [[ $full_time_resolution -gt 0 ]]; then   
       echo "INFO : running full resolution acquisition"
-      echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p 10.0.10.190"
-      /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c 4  -i enp216s0f0 -p 10.0.10.190 
+      echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p 10.0.10.190"
+      /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p 10.0.10.190 
    else
       echo "INFO : running normal station beam in very low time resolution"
       echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -S --channel_samples=262144 --beam_channels=8 --station_samples=1048576 --acquisition_duration=${interval}"
