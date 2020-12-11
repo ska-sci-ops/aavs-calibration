@@ -117,12 +117,14 @@ echo "channel_from_start   = $channel_from_start"
 echo "###################################################"
 
 ux=`date +%s`
-if [[ $start_uxtime -gt $ux ]]; then
-   echo "Start unix time = $start_uxtime -> waiting ..."
+start_uxtime_int=`echo $start_uxtime | awk '{printf("%d",$1);}'`
+if [[ $start_uxtime_int -gt $ux ]]; then
+   echo "Start unix time = $start_uxtime ($start_uxtime_int) -> waiting ..."
    which wait_for_unixtime.sh
-   echo "wait_for_unixtime.sh $start_uxtime"
-   wait_for_unixtime.sh $start_uxtime
+   echo "wait_for_unixtime.sh $start_uxtime_int"
+   wait_for_unixtime.sh $start_uxtime_int
 fi
+
 
 calibrate_station=1
 channel_from_start=4
