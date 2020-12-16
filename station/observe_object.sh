@@ -222,9 +222,12 @@ do
    pwd
    ps
 
+   echo "echo ${freq_channel} > channel.txt"
+   echo ${freq_channel} > channel.txt
+
    # waiting for pointing to start - not to collect data earlier !
    echo "sleep 30"
-   sleep 30
+   sleep 30      
 
    # start acuisition :
    # WAS : /home/aavs/Software/aavs-system/src/build_new/acquire_station_beam

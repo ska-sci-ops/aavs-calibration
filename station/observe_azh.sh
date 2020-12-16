@@ -99,6 +99,7 @@ if [[ -n "${12}" && "${12}" != "-" ]]; then
    do_init_station=${12}
 fi
 
+channel_from_start=4
 
 echo "###################################################"
 echo "PARAMETERS:"
@@ -127,7 +128,6 @@ fi
 
 
 calibrate_station=1
-channel_from_start=4
 
 mkdir -p ${data_dir}
 cd ${data_dir}
@@ -219,6 +219,9 @@ do
    ~/aavs-calibration/station/pointing/point_station_azh.sh ${az} ${h} ${station}
    pwd
    ps
+   
+   echo "echo ${freq_channel} > channel.txt"
+   echo ${freq_channel} > channel.txt
 
    if [[ $full_time_resolution -gt 0 ]]; then   
       echo "INFO : running full resolution acquisition"
