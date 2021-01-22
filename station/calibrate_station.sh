@@ -13,6 +13,11 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    station_name=$2
 fi
 
+config=/opt/aavs/config/${station_name}.yml
+if [[ -n "$3" && "$3" != "-" ]]; then
+   config=$3
+fi
+
 # WARNING : should be later in the script, but this value is required earlier :
 pol_swap_options=""
 if [[ $station_name == "eda2" ]]; then
@@ -29,8 +34,8 @@ cd ${cal_dir}
 last_calib=`ls -tr *_ch${channel_str}*.pkl | tail -1`
 echo "Last calibration pickle file is $last_calib"
 
-echo "python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=/opt/aavs/config/${station_name}.yml  --calibrate_station --calibrate_file=${last_calib} ${pol_swap_options}"
+echo "python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} ${pol_swap_options}"
 sleep 5
-python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=/opt/aavs/config/${station_name}.yml  --calibrate_station --calibrate_file=${last_calib} ${pol_swap_options}
+python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} ${pol_swap_options}
 
 cd -

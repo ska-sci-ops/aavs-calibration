@@ -203,8 +203,8 @@ fi
 
 
 if [[ $calibrate_station -gt 0 ]]; then
-  echo "~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station}"
-  ~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station}
+  echo "~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file}"
+  ~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file}
 else
   echo "WARNING : station calibration is not required"
 fi   
@@ -253,8 +253,8 @@ do
       echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} >> daq.out 2>&1"
       /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} >> daq.out 2>&1
    else
-      echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -SX --channel_samples=262144 --continuous_period=300 --beam_channels=8 --station_samples=1048576 --description=\"DAQ acquisition channel $freq_channel voltages and station beam\" --station-config=$config_file"
-      python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -SX --channel_samples=262144 --continuous_period=300 --beam_channels=8 --station_samples=1048576 --description="DAQ acquisition channel $freq_channel voltages and station beam" --station-config=$config_file
+      echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -SX --channel_samples=262144 --continuous_period=300 --beam_channels=8 --station_samples=1048576 --description=\"DAQ acquisition channel $freq_channel voltages and station beam\" --station-config=$config_file --acquisition_duration=${interval}"
+      python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -SX --channel_samples=262144 --continuous_period=300 --beam_channels=8 --station_samples=1048576 --description="DAQ acquisition channel $freq_channel voltages and station beam" --station-config=$config_file --acquisition_duration=${interval}
    fi
    
    # temporary due to the fact that that the program acquire_station_beam ends up with .dat files without group read permission:
