@@ -118,6 +118,12 @@ if [[ -n "${13}" && "${13}" != "-" ]]; then
    do_init_station=${13}
 fi
 
+full_time_resolution=1
+if [[ -n "${14}" && "${14}" != "-" ]]; then
+   full_time_resolution=${14}
+fi
+
+
 channel_from_start=4
 
 echo "###################################################"
@@ -136,6 +142,7 @@ echo "sleep_time            = $sleep_time"
 echo "repointing_resolution = $repointing_resolution"
 echo "do_init_station       = $do_init_station"
 echo "channel_from_start    = $channel_from_start"
+echo "full_time_resolution  = $full_time_resolution"
 echo "###################################################"
 
 ux=`date +%s`
@@ -202,6 +209,16 @@ else
   echo "WARNING : station calibration is not required"
 fi   
 
+# starting monitoring :
+if [[ $full_time_resolution -le 0 ]]; then
+   echo "INFO : starting real-time beam monitoring"
+   echo "nohup ~/Software/hdf5_correlator/scripts/process_station_beam_loop.sh ${freq_channel} - - 43000 > power.out 2>&1 &"
+   nohup ~/Software/hdf5_correlator/scripts/process_station_beam_loop.sh ${freq_channel} - - 43000 > power.out 2>&1 &
+else
+   echo "WARNING : real-time station beam monitoring is not implemented in full time resolution mode"
+fi   
+
+
 i=0
 while [[ $i -lt $n_iter ]];
 do
@@ -231,8 +248,14 @@ do
 
    # start acuisition :
    # WAS : /home/aavs/Software/aavs-system/src/build_new/acquire_station_beam
-   echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} >> daq.out 2>&1"
-   /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} >> daq.out 2>&1
+   
+   if [[ $full_time_resolution -gt 0 ]]; then
+      echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} >> daq.out 2>&1"
+      /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} >> daq.out 2>&1
+   else
+      echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -SX --channel_samples=262144 --continuous_period=300 --beam_channels=8 --station_samples=1048576 --description=\"DAQ acquisition channel $freq_channel voltages and station beam\" --station-config=$config_file"
+      python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -SX --channel_samples=262144 --continuous_period=300 --beam_channels=8 --station_samples=1048576 --description="DAQ acquisition channel $freq_channel voltages and station beam" --station-config=$config_file
+   fi
    
    # temporary due to the fact that that the program acquire_station_beam ends up with .dat files without group read permission:
    echo "chmod +r *.dat"

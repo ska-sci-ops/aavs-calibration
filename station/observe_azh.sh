@@ -192,10 +192,10 @@ else
 fi   
 
 # starting monitoring :
-if [[ $full_time_resolution -le 0 ]];
+if [[ $full_time_resolution -le 0 ]]; then
    echo "INFO : starting real-time beam monitoring"
-   echo "nohup ~/Software/hdf5_correlator/scripts/process_station_beam_loop.sh 204 - - 43000 > power.out 2>&1 &"
-   nohup ~/Software/hdf5_correlator/scripts/process_station_beam_loop.sh 204 - - 43000 > power.out 2>&1 &
+   echo "nohup ~/Software/hdf5_correlator/scripts/process_station_beam_loop.sh ${freq_channel} - - 43000 > power.out 2>&1 &"
+   nohup ~/Software/hdf5_correlator/scripts/process_station_beam_loop.sh ${freq_channel} - - 43000 > power.out 2>&1 &
 else
    echo "WARNING : real-time station beam monitoring is not implemented in full time resolution mode"
 fi   
