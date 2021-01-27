@@ -163,6 +163,7 @@ echo "Creating links to config files for a default station (station name = $stat
 if [[ $station_name == "eda2" || $station_name == "EDA2" ]]; then
    echo "Creating links to config files for station $station_name"
          
+   echo "cp ~/aavs-calibration/instr_config_eda2.txt instr_config.txt"                    
    cp ~/aavs-calibration/instr_config_eda2.txt instr_config.txt
    cp ~/aavs-calibration/antenna_locations_eda2.txt antenna_locations.txt
    cp ~/aavs-calibration/header_eda2_cal.txt header.txt
@@ -170,7 +171,9 @@ else
    if [[ $station_name == "aavs2" || $station_name == "AAVS2" ]]; then
       echo "Creating links to config files for station AAVS2"
       
-      cp ~/aavs-calibration/config/aavs2/instr_config_aavs2_20191129.txt instr_config.txt
+      # cp ~/aavs-calibration/config/aavs2/instr_config_aavs2_20191129.txt instr_config.txt
+      echo "cp ~/aavs-calibration/config/aavs2/instr_config.txt instr_config.txt"
+      cp ~/aavs-calibration/config/aavs2/instr_config.txt instr_config.txt
       cp ~/aavs-calibration/config/aavs2/antenna_locations_20191202.txt antenna_locations.txt
       cp ~/aavs-calibration/header_cal.txt header.txt 
    else
