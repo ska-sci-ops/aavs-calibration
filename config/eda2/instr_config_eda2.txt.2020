@@ -63,8 +63,8 @@
 37       18       X      0      0
 38       19       Y      0      1      #      Ant153 , flagged on 2020-10-30 - flat line both pols.
 39       19       X      0      1
-40       20       Y      0      1      #      Ant201
-41       20       X      0      1
+40       20       Y      0      0      #      Ant201
+41       20       X      0      0
 42       21       Y      0      0      #      Ant200
 43       21       X      0      0
 44       22       Y      0      0      #      Ant199
@@ -157,8 +157,8 @@
 131      65       X      0      0
 132      66       Y      0      0      #      Ant008
 133      66       X      0      0
-134      67       Y      0      1      #      Ant021
-135      67       X      0      1
+134      67       Y      0      0      #      Ant021
+135      67       X      0      0
 136      68       Y      0      0      #      Ant062
 137      68       X      0      0
 138      69       Y      0      0      #      Ant053
@@ -195,8 +195,8 @@
 169      84       X      0      0
 170      85       Y      0      0      #      Ant095
 171      85       X      0      0
-172      86       Y      0      0      #      Ant091 , 20191205 still flatline
-173      86       X      0      0
+172      86       Y      0      1      #      Ant091 , 20191205 still flatline
+173      86       X      0      1
 174      87       Y      0      0      #      Ant090
 175      87       X      0      0
 176      88       Y      0      0      #      Ant056
@@ -213,14 +213,14 @@
 187      93       X      0      0
 188      94       Y      0      0      #      Ant087
 189      94       X      0      0
-190      95       Y      0      0      #      Ant060 , flagged on 20191205 ???, very low signal level on monitoring page
-191      95       X      0      0
+190      95       Y      0      1      #      Ant060 , flagged on 20191205 ???, very low signal level on monitoring page
+191      95       X      0      1
 192      96       Y      0      0      #      Ant092
 193      96       X      0      0
 194      97       Y      0      0      #      Ant093
 195      97       X      0      0
-196      98       Y      0      1      #      Ant094
-197      98       X      0      1
+196      98       Y      0      0      #      Ant094
+197      98       X      0      0
 198      99       Y      0      0      #      Ant125
 199      99       X      0      0
 200      100      Y      0      0      #      Ant162
@@ -247,8 +247,8 @@
 221      110      X      0      0
 222      111      Y      0      0      #      Ant130
 223      111      X      0      0
-224      112      Y      0      1      #      Ant157 - 20210127 one pol is 1/2 of the other in PPD plots
-225      112      X      0      1
+224      112      Y      0      0      #      Ant157
+225      112      X      0      0
 226      113      Y      0      0      #      Ant158
 227      113      X      0      0
 228      114      Y      0      0      #      Ant163
@@ -407,8 +407,8 @@
 381      190      X      0      0
 382      191      Y      0      0      #      Ant180
 383      191      X      0      0
-384      192      Y      0      0      #      Ant073 , flat both pols
-385      192      X      0      0
+384      192      Y      0      1      #      Ant073 , flat both pols
+385      192      X      0      1
 386      193      Y      0      0      #      Ant107
 387      193      X      0      0
 388      194      Y      0      0      #      Ant108
@@ -481,8 +481,8 @@
 455      227      X      0      0
 456      228      Y      0      0      #      Ant067
 457      228      X      0      0
-458      229      Y      0      0      #      Ant048 , flagged on 20191205 , both pols flat line
-459      229      X      0      0
+458      229      Y      0      1      #      Ant048 , flagged on 20191205 , both pols flat line
+459      229      X      0      1
 460      230      Y      0      0      #      Ant047
 461      230      X      0      0
 462      231      Y      0      0      #      Ant046
@@ -503,8 +503,8 @@
 477      238      X      0      0
 478      239      Y      0      0      #      Ant037
 479      239      X      0      0
-480      240      Y      0      1      #      Ant002
-481      240      X      0      1
+480      240      Y      0      0      #      Ant002
+481      240      X      0      0
 482      241      Y      0      0      #      Ant003
 483      241      X      0      0
 484      242      Y      0      0      #      Ant004
@@ -513,8 +513,8 @@
 487      243      X      0      0
 488      244      Y      0      0      #      Ant050
 489      244      X      0      0
-490      245      Y      0      0      #      Ant049 , flagged on 2020-10-30 - flat line both pols.
-491      245      X      0      0
+490      245      Y      0      1      #      Ant049 , flagged on 2020-10-30 - flat line both pols.
+491      245      X      0      1
 492      246      Y      0      0      #      Ant035
 493      246      X      0      0
 494      247      Y      0      0      #      Ant034

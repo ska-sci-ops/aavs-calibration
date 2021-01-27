@@ -63,8 +63,8 @@
 37       18       X      0      0
 38       19       Y      0      1      #      Ant153 , flagged on 2020-10-30 - flat line both pols.
 39       19       X      0      1
-40       20       Y      0      1      #      Ant201
-41       20       X      0      1
+40       20       Y      0      0      #      Ant201
+41       20       X      0      0
 42       21       Y      0      0      #      Ant200
 43       21       X      0      0
 44       22       Y      0      0      #      Ant199
@@ -247,8 +247,8 @@
 221      110      X      0      0
 222      111      Y      0      0      #      Ant130
 223      111      X      0      0
-224      112      Y      0      1      #      Ant157 - 20210127 one pol is 1/2 of the other in PPD plots
-225      112      X      0      1
+224      112      Y      0      0      #      Ant157
+225      112      X      0      0
 226      113      Y      0      0      #      Ant158
 227      113      X      0      0
 228      114      Y      0      0      #      Ant163
@@ -339,8 +339,8 @@
 313      156      X      0      0
 314      157      Y      0      0      #      Ant243
 315      157      X      0      0
-316      158      Y      0      1      #      Ant242, 1 polarisation (BLUE=X) is broken
-317      158      X      0      1
+316      158      Y      0      0      #      Ant242, 1 polarisation (BLUE=X) is broken
+317      158      X      0      0
 318      159      Y      0      1      #      Ant241, 1 polarisation (GREEN=Y) is broken
 319      159      X      0      1
 320      160      Y      0      0      #      Ant205
@@ -383,8 +383,8 @@
 357      178      X      0      0
 358      179      Y      0      0      #      Ant173
 359      179      X      0      0
-360      180      Y      0      1      #      Ant211 , flagged on 2020-10-30 - flat line both pols.
-361      180      X      0      1
+360      180      Y      0      0      #      Ant211 , flagged on 2020-10-30 - flat line both pols.
+361      180      X      0      0
 362      181      Y      0      0      #      Ant210
 363      181      X      0      0
 364      182      Y      0      0      #      Ant209
@@ -503,8 +503,8 @@
 477      238      X      0      0
 478      239      Y      0      0      #      Ant037
 479      239      X      0      0
-480      240      Y      0      1      #      Ant002
-481      240      X      0      1
+480      240      Y      0      0      #      Ant002
+481      240      X      0      0
 482      241      Y      0      0      #      Ant003
 483      241      X      0      0
 484      242      Y      0      0      #      Ant004
