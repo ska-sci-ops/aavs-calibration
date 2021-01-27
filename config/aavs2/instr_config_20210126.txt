@@ -293,8 +293,8 @@
 269	134	Y	0	0
 270	135	X	0	0		# Ant249
 271	135	Y	0	0
-272	136	Y	0	0		# Ant224
-273	136	X	0	0
+272	136	Y	0	1		# Ant224 - seems to have some issue, but looks on PPD plots, commented out for a test
+273	136	X	0	1
 274	137	X	0	0		# Ant225
 275	137	Y	0	0
 276	138	X	0	0		# Ant226
