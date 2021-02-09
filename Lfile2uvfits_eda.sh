@@ -173,10 +173,11 @@ else
   startunix=`date -u -d "$dt $tm" +%s`
 fi
 oname="chan_${chan}"
-lacsize=` stat --printf="%s" $bname.LACSPC`
+echo "stat -L --printf=\"%s\" $bname.LACSPC"
+lacsize=`stat -L --printf="%s" $bname.LACSPC`
 ntimes=$((lacsize/la_chunksize/nchunks))
 if [ $ntimes -lt 1 ] ; then ntimes=1 ; fi
-echo "Processing file $Lfilebase. There are $ntimes times. Start unix time: $startunix"
+echo "Processing file $Lfilebase. There are $ntimes times ( = $lacsize / $la_chunksize / $nchunks ). Start unix time: $startunix"
 for t in `seq 0 $((ntimes-1))` ; do
     # create a temporary header file for this dataset
 #    if [ -e header.txt ] ; then

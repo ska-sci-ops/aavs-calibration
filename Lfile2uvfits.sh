@@ -83,7 +83,8 @@ bname=`basename $hdffile .hdf5`
 # extract start unix time for data:
 startunix=`cat ${bname}_ts_unix.txt`
 oname="chan_${chan}"
-lacsize=` stat --printf="%s" $bname.LACSPC`
+echo "stat -L --printf=\"%s\" $bname.LACSPC"
+lacsize=`stat -L --printf="%s" $bname.LACSPC`
 ntimes=$((lacsize/la_chunksize/nchunks))
 echo "INFO : ntimes = $ntimes, lacsize = $lacsize , la_chunksize = $la_chunksize , nchunks = $nchunks , inttime = $inttime , timeinc = $timeinc"
 if [ $ntimes -lt 1 ] ; then ntimes=1 ; fi
