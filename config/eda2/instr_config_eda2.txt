@@ -195,8 +195,8 @@
 169      84       X      0      0
 170      85       Y      0      0      #      Ant095
 171      85       X      0      0
-172      86       Y      0      0      #      Ant091 , 20191205 still flatline
-173      86       X      0      0
+172      86       Y      0      1      #      Ant091 , 20191205 still flatline, 2021-02-23 not calibrated
+173      86       X      0      1
 174      87       Y      0      0      #      Ant090
 175      87       X      0      0
 176      88       Y      0      0      #      Ant056
