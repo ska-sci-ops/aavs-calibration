@@ -214,6 +214,66 @@ def is_there_new_calibration( last_calibration_date=-1000, station_id=2 ) :
    return False
                
 
+def read_delays( filename ) : 
+   print("read_data(%s) ..." % (filename))
+
+   if not os.path.exists( filename ) :
+      print("ERROR : could not read satellite info file %s" % (filename))
+      return (None,0.00,None,None,None,None)
+
+   file=open(filename,'r')
+
+   # reads the entire file into a list of strings variable data :
+   data=file.readlines()
+   # print data
+
+   delays_x = []
+   delays_y = []
+
+   for line in data : 
+      line=line.rstrip()
+      words = line.split(' ')
+
+      if line[0] == '#' or line[0]=='\n' or len(line) <= 0 or len(words)<4 :
+         continue
+
+#      print "line = %s , words = %d" % (line,len(words))
+
+      if line[0] != "#" :
+         ux       = float( words[0+0] )
+         delay_x  = float ( words[1+0] )
+         delay_y  = float ( words[2+0] )
+         dt       = words[3+0]
+         t        = words[4+0]
+         
+         delays_x.append( delay_x )
+         delays_y.append( delay_y )
+         
+   
+   delays_x = numpy.array( delays_x )
+   delays_y = numpy.array( delays_y )
+   
+   return ( delays_x , delays_y )
+
+
+def read_all_delays( outfile="eda2_mean_stddev_delay.txt") :
+   out_f = open( outfile, "w" )
+
+   for ant in range(0,256):
+      filename = ('calsol_delay_antid%03d.txt' % (ant))
+      (x_delays,y_delays) = read_delays( filename )
+      
+      rms_x = x_delays.std()
+      mean_x = x_delays.mean()
+      rms_y = y_delays.std()
+      mean_y = y_delays.mean()      
+      
+      line = ("%d %.8f %.8f %8f %.8f %.8f %.8f\n" % ((ant+1),mean_x,rms_x,(rms_x/mean_x),mean_y,rms_y,(rms_y/mean_y)))
+      out_f.write( line )
+      
+      
+   out_f.close()
+
 if __name__ == "__main__":
    # OLD TEST :
    # gridpoint=gridpoint(1117271016)
@@ -231,6 +291,7 @@ if __name__ == "__main__":
    parser.add_option("--station_name", dest="station_name", default="EDA2", help="Station ID (as in the station configuratio file) [default: %]" )
    parser.add_option("--start_date", dest="start_date", default=None, help="Start date to select data [default %]" )
    parser.add_option("--get_mean_stddev_delay","--mean_stddev",action="store_true",dest="get_mean_stddev_delay", default=False, help="Get mean/stddev from the database [default %]" )
+   parser.add_option("--no_db","--nodb",action="store_true",dest="no_db", default=False, help="Do not use database [default %]" )
    
 
 #   parser.add_option('-s','--short_dipole_obsids',dest='short_dipole_obsid',default=None,help='Find obsIDs of short dipole tests for a given obsID [default %default]',type="int")
@@ -239,6 +300,10 @@ if __name__ == "__main__":
    (options, args) = parser.parse_args()
 #   mkdir_p( options.outdir )
        
+
+   if options.no_db :
+      print("No using database - just plotting using text files")
+      
 
    conn = db_connect()   
    
