@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # print RA and DEC of sun given a unix time
 from __future__ import print_function
 from astropy.time import Time
