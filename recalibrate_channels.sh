@@ -50,8 +50,8 @@ if [[ ! -s beam_on_sun.txt ]]; then
       echo "cp /tmp/msok/beam_on_sun.txt"
       cp /tmp/msok/beam_on_sun.txt
    else
-      echo "ERROR : file /tmp/msok/beam_on_sun.txt does not exist -> re-calibration will not be able to use correct beam-correction beam values"
-      exit -1
+      echo "WARNING : file /tmp/msok/beam_on_sun.txt does not exist -> re-calibration will not be able to use correct beam-correction beam values"
+#      exit -1
    fi
 else
    echo "WARNING : local file beam_on_sun.txt found -> using existing one (not overwritting)"
