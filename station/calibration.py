@@ -200,7 +200,7 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
     
 
     if debug : 
-       print("DEBUG - calibration solutions from the MCCS database")   
+       print("DEBUG - calibration solutions from the MCCS database (swap_pols = %s)" % (swap_pols))   
        print("# ANT   |     X[deg]      |     Y[deg]       |    X_complex    |    Y_complex    |")
 
     calibration_coef = numpy.zeros( (nof_antennas, n_channels, n_pols ) , dtype=numpy.complex128)
