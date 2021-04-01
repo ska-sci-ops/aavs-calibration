@@ -199,6 +199,7 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
     (x_delays,y_delays) = calibration_db.get_latest_delays( station_id=station_id, nof_antennas=256 )
     
 
+    print("get_calibration_coeff_from_db( start_frequency_channel=%d , station_id=%d )" % (start_frequency_channel,station_id))
     if debug : 
        print("DEBUG - calibration solutions from the MCCS database (swap_pols = %s)" % (swap_pols))   
        print("# ANT   |     X[deg]      |     Y[deg]       |    X_complex    |    Y_complex    |")
@@ -208,6 +209,8 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
     for frequency_channel in range(start_frequency_channel,(start_frequency_channel+n_channels)):
        freq_channel_idx = frequency_channel - start_frequency_channel
        frequency_mhz = frequency_channel * (400.00/512.00)
+       
+       print("--------------------------- channel = %d , %.4f [MHz] ---------------------------" % (frequency_channel,frequency_mhz))
     
        for ant_idx in range(0,nof_antennas) :    
           # X pol : 
