@@ -17,7 +17,8 @@ def get_latest_delays( station_id, nof_antennas=256, debug=True ):
     conn = psycopg2.connect(database='aavs')
     cur = conn.cursor()
 
-    szSQL = "SELECT MAX(calibration_fit.fit_time) FROM calibration_fit,calibration_solution WHERE calibration_fit.fit_time=calibration_solution.fit_time and x_delay IS NOT NULL"
+#    szSQL = "SELECT MAX(calibration_fit.fit_time) FROM calibration_fit,calibration_solution WHERE calibration_fit.fit_time=calibration_solution.fit_time and x_delay IS NOT NULL"
+    szSQL = "SELECT MAX(fit_time) FROM calibration_solution WHERE x_delay IS NOT NULL AND station_id={}".format(station_id)
     if debug :
        print("DEBUG : %s" % (szSQL))
     cur.execute( szSQL )
