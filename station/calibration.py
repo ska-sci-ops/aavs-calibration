@@ -232,7 +232,9 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
              
           
           if debug : 
-             print(" %03d    |    %09.4f    |    %09.4f     |  %s  |  %s  |" % (ant_idx,phase_x_rad*(180.00/math.pi),phase_y_rad*(180.00/math.pi),calibration_coef[ant_idx,freq_channel_idx,0],calibration_coef[ant_idx,freq_channel_idx,3]))
+             phase_x_debug = numpy.angle( calibration_coef[ant_idx,freq_channel_idx,0] )*(180.00/math.pi)
+             phase_y_debug = numpy.angle( calibration_coef[ant_idx,freq_channel_idx,3] )*(180.00/math.pi)
+             print(" %03d    |    %09.4f    |    %09.4f     |  %s  |  %s  |" % (ant_idx,phase_x_debug,phase_y_debug,calibration_coef[ant_idx,freq_channel_idx,0],calibration_coef[ant_idx,freq_channel_idx,3]))
    
 
 
