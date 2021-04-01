@@ -10,7 +10,7 @@ import logging
 import time
 
 
-def get_latest_delays( nof_antennas=256):
+def get_latest_delays( station_id, nof_antennas=256 ):
     """ Read latest coefficients from database """
 
     # Create connection to the calibration database.
@@ -27,8 +27,8 @@ def get_latest_delays( nof_antennas=256):
     x_delays = numpy.zeros((nof_antennas, 2), dtype=numpy.float)
     for ant_id in range(nof_antennas):
         cur.execute(
-            "SELECT fit_time, x_delay, x_phase0 from calibration_solution WHERE x_delay IS NOT NULL   AND ant_id={} AND fit_time='''{}'''".format(
-                ant_id,fittime))
+            "SELECT fit_time, x_delay, x_phase0 from calibration_solution WHERE x_delay IS NOT NULL AND station_id={} AND ant_id={} AND fit_time='''{}'''".format(
+                station_id,ant_id,fittime))
         x_delays[ant_id, :] = cur.fetchone()[1:]
         # print("Got fittime %s" % ())
 
@@ -36,8 +36,8 @@ def get_latest_delays( nof_antennas=256):
     y_delays = numpy.zeros((nof_antennas, 2), dtype=numpy.float)
     for ant_id in range(nof_antennas):
         cur.execute(
-            "SELECT fit_time, y_delay, y_phase0 from calibration_solution WHERE x_delay IS NOT NULL   AND ant_id={} AND fit_time='''{}'''".format(
-                ant_id,fittime))
+            "SELECT fit_time, y_delay, y_phase0 from calibration_solution WHERE x_delay IS NOT NULL AND station_id={} AND ant_id={} AND fit_time='''{}'''".format(
+                station_id,ant_id,fittime))
         y_delays[ant_id, :] = cur.fetchone()[1:]
 
     # Ready from database
