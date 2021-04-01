@@ -54,6 +54,11 @@ if [[ -n "${10}" && "${10}" != "-" ]]; then
    repointing_resolution=${10}
 fi
 
+calibration_options=""
+if [[ -n "${11}" && "${11}" != "-" ]]; then
+   calibration_options=${11}
+fi
+
 # config_file=/opt/aavs/config/${station}.yml
 # do initialisation :
 # echo "python /opt/aavs/bin/station.py --config=$config_file -IPB"
@@ -73,8 +78,8 @@ do
    freq_str=`echo $freq_ch | awk '{printf("%03d",$1);}'`
    mkdir -p ${freq_str}
    cd ${freq_str}
-   echo "observe_object.sh ${freq_ch} ${data_dir}/${freq_str} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution} - $n_init > out 2>&1"
-   observe_object.sh ${freq_ch} ${data_dir}/${freq_str} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution} - $n_init  > out 2>&1
+   echo "observe_object.sh ${freq_ch} ${data_dir}/${freq_str} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution} - $n_init - ${calibration_options} > out 2>&1"
+   observe_object.sh ${freq_ch} ${data_dir}/${freq_str} ${object} ${ra} ${dec} ${interval} -1 1 0 ${pointing_interval} ${repointing_resolution} - $n_init - ${calibration_options} > out 2>&1
    cd ../
    
    # BUG WORKAROUND :

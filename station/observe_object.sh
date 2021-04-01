@@ -123,7 +123,14 @@ if [[ -n "${14}" && "${14}" != "-" ]]; then
    full_time_resolution=${14}
 fi
 
+calibration_options=""
+if [[ -n "${15}" && "${15}" != "-" ]]; then
+   calibration_options=${15}
+fi
 
+
+
+# RW/Chris Lee : I'm 99% sure the offset is 3 channels. (not 4). And that confirms the 3-channel offset also.
 channel_from_start=4
 
 echo "###################################################"
@@ -143,6 +150,7 @@ echo "repointing_resolution = $repointing_resolution"
 echo "do_init_station       = $do_init_station"
 echo "channel_from_start    = $channel_from_start"
 echo "full_time_resolution  = $full_time_resolution"
+echo "calibration_options   = $calibration_options"
 echo "###################################################"
 
 ux=`date +%s`
@@ -203,8 +211,8 @@ fi
 
 
 if [[ $calibrate_station -gt 0 ]]; then
-  echo "~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file}"
-  ~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file}
+  echo "~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file} ${calibration_options}"
+  ~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file} ${calibration_options}
 else
   echo "WARNING : station calibration is not required"
 fi   

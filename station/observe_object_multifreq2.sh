@@ -36,6 +36,17 @@ if [[ -n "$7" && "$7" != "-" ]]; then
    start_uxtime=$7
 fi
 
+freq_list="90 110 130 150 170 190 204 230 250 270 290 310 330 350 370 390 410"
+if [[ -n "$8" && "$8" != "-" ]]; then
+   freq_list="$8"
+fi
+
+calibration_options=""
+if [[ -n "$9" && "$9" != "-" ]]; then
+   calibration_options=$9
+fi
+
+
 echo "###################################################"
 echo "PARAMETERS:"
 echo "###################################################"
@@ -46,6 +57,8 @@ echo "dec      = $dec"
 echo "interval = $interval"
 echo "dt       = $dt"
 echo "start_uxtime = $start_uxtime"
+echo "freq_list = $freq_list"
+echo "calibration_options = $calibration_options"
 echo "###################################################"
 
 
@@ -64,10 +77,10 @@ do_init_station=2
 # while [[ $ch -le 450 ]]; 
 # 17 coarse channels :  255 minutes ~= 4 hours + 15 minutes
 # start 2 hours before transit is good 
-for ch in `echo "90 110 130 150 170 190 204 230 250 270 290 310 330 350 370 390 410"`
+for ch in `echo $freq_list`
 do
-   echo "observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station"
-   observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station
+   echo "observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - ${calibration_options}"
+   observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - ${calibration_options}
 
    do_init_station=0   
 done
