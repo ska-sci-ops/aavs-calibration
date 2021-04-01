@@ -41,6 +41,11 @@ if __name__ == "__main__":
     parser.add_option("--ch",'--channel','--chan', '--freq_channel', '--frequency_channel',  action="store", dest="freq_channel",   type="int", default=204,  help="Frequency channel [default: %]")
 
     (conf, args) = parser.parse_args(argv[1:])
+
+    # Connect to station
+    station.load_configuration_file(conf.config)
+    station = station.Station(station.configuration)
+
     
     print("##############################################################################################")
     print("PARAMETERS:")
@@ -53,10 +58,6 @@ if __name__ == "__main__":
     print("Frequency channel = %d" % (conf.freq_channel))
     print("##############################################################################################")
                       
-    # Connect to station
-    station.load_configuration_file(conf.config)
-    station = station.Station(station.configuration)
-    
     # Connect station (program, initialise and configure if required)
     station.connect()
 
