@@ -45,7 +45,7 @@ if __name__ == "__main__":
     print("##############################################################################################")
     print("PARAMETERS:")
     print("##############################################################################################")
-    print("Station ID        = %d" % (station.configuration.id))
+    print("Station ID        = %d" % (station.configuration['station']['id']))
     print("calibrate_station = %s" % (conf.calibrate_station))    
     print("calibration file  = %s" % (conf.calibration_file))
     print("polarisation swap = %s" % (conf.polarisation_swap))
@@ -67,7 +67,7 @@ if __name__ == "__main__":
         if conf.use_mccs_db :
            print("INFO : station calibration using delays from the MCCS database (frequency channel = %d)" % (conf.freq_channel))
            
-           calibration_coefficients = calibration.get_calibration_coeff_from_db( station_id=station.configuration.id, start_frequency_channel=conf.freq_channel, swap_pols=conf.polarisation_swap )
+           calibration_coefficients = calibration.get_calibration_coeff_from_db( station_id=station.configuration['station']['id'], start_frequency_channel=conf.freq_channel, swap_pols=conf.polarisation_swap )
         else :
            print("INFO : station calibration using provided pkl file (%s)" % (conf.calibration_file))
            calibration_coefficients = calibration.get_calibration_coeff( calibration_file = conf.calibration_file , swap_pols=conf.polarisation_swap )
