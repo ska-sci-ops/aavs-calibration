@@ -167,10 +167,11 @@ calibrate_station=1
 mkdir -p ${data_dir}
 cd ${data_dir}
 
+config_file=/opt/aavs/config/${station}.yml
+
 if [[ $do_init_station -gt 0 ]]; then
    echo "Initialising the station"
 
-   config_file=/opt/aavs/config/${station}.yml   
    use_config_per_freq=1
    
    if [[ $use_config_per_freq -gt 0 ]]; then

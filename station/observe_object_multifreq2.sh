@@ -82,6 +82,7 @@ do
    echo "observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - ${calibration_options}"
    observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - ${calibration_options}
 
-   do_init_station=0   
+   # have to re-initialise every time due to change in observing frequency : 
+   do_init_station=1
 done
    
