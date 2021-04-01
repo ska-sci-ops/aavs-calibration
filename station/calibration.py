@@ -19,6 +19,8 @@ import math
 import pickle
 import copy
 
+import calibration_db
+
 from optparse import OptionParser,OptionGroup
 
 # Defaults based on : ~/Desktop/AAVS1/data/20190320/20190320/phase_vs_antenna_X.txt and phase_vs_antenna_Y.txt see also ~/Desktop/AAVS1/logbook/20190402_eda1-tpm17_realtime_vs_offline_beamformer.odt :
@@ -189,6 +191,52 @@ def read_calibration_phase_offsets( phase_offset_file_X=None, phase_offset_file_
        
 
 
+    return calibration_coef
+
+# TODO : frequency_channel - should be central channel and 8 channels should start from -4 channels :
+def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True ) : # use database 
+    # not yet implemented 
+    (x_delays,y_delays) = calibration_db.get_latest_delays( station_id=station_id, nof_antennas=256 )
+    
+
+    if debug : 
+       print("DEBUG - calibration solutions from the MCCS database")   
+       print("# ANT   |     X[deg]      |     Y[deg]       |    X_complex    |    Y_complex    |")
+
+    calibration_coef = numpy.zeros( (nof_antennas, n_channels, n_pols ) , dtype=numpy.complex128)
+
+    for frequency_channel in range(start_frequency_channel,(start_frequency_channel+n_channels)):
+       freq_channel_idx = frequency_channel - start_frequency_channel
+       frequency_mhz = start_frequency_channel * (400.00/512.00)
+    
+       for ant_idx in range(0,nof_antennas) :    
+          # X pol : 
+          x_delay_us = x_delays[ant_idx][0] # delay in micro-seconds 
+          x_slope_rad = 2.00*math.pi*x_delay_us; # 10^6 from MHz * 10^-6 from uses = 10^0
+          x_phase0_rad = x_delays[ant_idx][1]
+          phase_x_rad =  x_phase0_rad +  x_slope_rad*frequency_mhz
+    
+          # Y pol : 
+          y_delay_us = y_delays[ant_idx][0] # delay in micro-seconds
+          y_slope_rad = 2.00*math.pi*y_delay_us; # 10^6 from MHz * 10^-6 from uses = 10^0
+          y_phase0_rad = y_delays[ant_idx][1]
+          phase_y_rad =  y_phase0_rad +  y_slope_rad*frequency_mhz
+          
+          # initialising all channels with the same coefficients and leaving cross-pols XY and YX (2,3) = ZERO :
+          if swap_pols : 
+             calibration_coef[ant_idx,freq_channel_idx,0] = complex( math.cos(phase_y_rad) , math.sin(phase_y_rad) )
+             calibration_coef[ant_idx,freq_channel_idx,3] = complex( math.cos(phase_x_rad) , math.sin(phase_x_rad) )
+          else :
+             calibration_coef[ant_idx,freq_channel_idx,0] = complex( math.cos(phase_x_rad) , math.sin(phase_x_rad) )
+             calibration_coef[ant_idx,freq_channel_idx,3] = complex( math.cos(phase_y_rad) , math.sin(phase_y_rad) )
+             
+          
+          if debug : 
+             print(" %03d    |    %09.4f    |    %09.4f     |  %s  |  %s  |" % (ant_idx,phase_x_rad*(180.00/math.pi),phase_y_rad*(180.00/math.pi),calibration_coef[ant_idx,freq_channel_idx,0],calibration_coef[ant_idx,freq_channel_idx,3]))
+   
+
+
+    
     return calibration_coef
 
 def get_calibration_coeff( calibration_file = None , swap_pols=False ) : # Pickle file with calibration coefficients or phase_vs_antenna.pkl can be used 

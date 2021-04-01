@@ -35,6 +35,10 @@ if __name__ == "__main__":
     parser.add_option('--calibrate_file','--cal_file','--calfile', action="store", dest="calibration_file",   default=None,  help="Calibration file [default: %]")
     
     parser.add_option('--pol_swap','--polarisation_swap','--swap_pols',action="store_true",dest="polarisation_swap",default=False, help="Swap polarisations as done in EDA2 [default %]")
+    
+    # use MCCS database :
+    parser.add_option('--caldb','--mccs','--mccs_db', action="store_true", dest="use_mccs_db",   default=False,  help="Get delays from MCCS database and convert to coefficients [default: %]")
+    parser.add_option("--ch",'--channel','--chan', '--freq_channel', '--frequency_channel',  action="store", dest="freq_channel",   type="int", default=204,  help="Frequency channel [default: %]")
 
     (conf, args) = parser.parse_args(argv[1:])
     
@@ -44,6 +48,8 @@ if __name__ == "__main__":
     print("calibrate_station = %s" % (conf.calibrate_station))    
     print("calibration file  = %s" % (conf.calibration_file))
     print("polarisation swap = %s" % (conf.polarisation_swap))
+    print("Use MCCS database = %s" % (conf.use_mccs_db))
+    print("Frequency channel = %d" % (conf.freq_channel))
     print("##############################################################################################")
                       
     # Connect to station
@@ -56,10 +62,20 @@ if __name__ == "__main__":
     if conf.calibrate_station :
         print("ACTION : just calibrating EDA1/TPM station using file = %s" % (conf.calibration_file))
         
-        calibration_coefficients = calibration.get_calibration_coeff( calibration_file = conf.calibration_file , swap_pols=conf.polarisation_swap )
+        calibration_coefficients = None
+        if conf.use_mccs_db :
+           print("INFO : station calibration using delays from the MCCS database (frequency channel = %d)" % (conf.freq_channel))
+           
+           calibration_coefficients = calibration.get_calibration_coeff_from_db( frequency_channel=conf.freq_channel, swap_pols=conf.polarisation_swap )
+        else :
+           print("INFO : station calibration using provided pkl file (%s)" % (conf.calibration_file))
+           calibration_coefficients = calibration.get_calibration_coeff( calibration_file = conf.calibration_file , swap_pols=conf.polarisation_swap )
 
-        # send coefficients to the station : 
-        station.calibrate_station( calibration_coefficients )                      
+        if calibration_coefficients is not None : 
+           # send coefficients to the station : 
+           station.calibrate_station( calibration_coefficients )                      
+        else :
+           print("ERROR : calibration coefficients could not be calculated -> could not calibrate station")
     else :
         print("ACTION : calibrating and pointing the EDA1/TPM station")
         # Call function to set delays in 16 MWA beamformers to point individual dipoles and get coefficients for 16 TPM17 inputs :
