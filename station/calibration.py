@@ -207,7 +207,7 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
 
     for frequency_channel in range(start_frequency_channel,(start_frequency_channel+n_channels)):
        freq_channel_idx = frequency_channel - start_frequency_channel
-       frequency_mhz = start_frequency_channel * (400.00/512.00)
+       frequency_mhz = frequency_channel * (400.00/512.00)
     
        for ant_idx in range(0,nof_antennas) :    
           # X pol : 
