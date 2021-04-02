@@ -16,6 +16,28 @@ if [[ -n "$3" && "$3" != "-" ]]; then
 fi
 station_name_lower=`echo $station_name | awk '{print tolower($1);}'`
 
+object="-"
+object_set=0
+if [[ -n "$4" && "$4" != "-" ]]; then
+   object=$4
+   object_set=1
+fi
+
+if [[ $object_set -gt 0 ]]; then
+   if [[ $object == "SUN" || $object == "sun" ]]; then       
+      echo "DEBUG : pointing to object $object - is sun"
+      if [[ -s ~/aavs-calibration/sunpos.py ]]; then
+         ux=`date +%s`
+         radec_string=`python ~/aavs-calibration/sunpos.py $ux | awk '{print $1*15.00" "$2;}'`         
+         RA_deg=`echo $radec_string | awk '{print $1;}'`
+         DEC_deg=`echo $radec_string | awk '{print $2;}'`         
+         echo "DEBUG : $object position updated accoring to string |$radec_string| -> RA_deg = $RA_deg , DEC_deg = $DEC_deg"
+      else
+         echo "WARNING : script ~/aavs-calibration/sunpos.py not found -> cannot update $object position dynamically"
+      fi
+   fi
+fi
+
 antfile=~/aavs-calibration/config/${station_name_lower}/antenna_locations.txt
 config_file=/opt/aavs/config/${station_name_lower}.yml
 

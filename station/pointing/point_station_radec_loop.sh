@@ -25,6 +25,11 @@ if [[ -n "$5" && "$5" != "-" ]]; then
    station_name=$5
 fi
 
+object="-"
+if [[ -n "$6" && "$6" != "-" ]]; then
+   object=$6
+fi
+
 ux=`date +%s`
 end_ux=$(($ux + $interval))
 
@@ -32,8 +37,8 @@ while [[  $ux -le $end_ux ]];
 do
    echo 
    echo "Unixtime = $ux"
-   echo "point_station_radec.sh $RA_deg $DEC_deg $station_name"
-   point_station_radec.sh $RA_deg $DEC_deg $station_name
+   echo "point_station_radec.sh $RA_deg $DEC_deg $station_name $object"
+   point_station_radec.sh $RA_deg $DEC_deg $station_name $object
    
    echo "sleep $sleep_time"
    sleep $sleep_time
