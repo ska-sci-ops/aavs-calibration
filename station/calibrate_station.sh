@@ -39,8 +39,8 @@ cd ${cal_dir}
 last_calib=`ls -tr *_ch${channel_str}*.pkl | tail -1`
 echo "Last calibration pickle file is $last_calib"
 
-echo "python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} ${pol_swap_options} ${calibration_options}"
+echo "python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db ${pol_swap_options} ${calibration_options}"
 sleep 5
-python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} ${pol_swap_options} ${calibration_options}
+python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db ${pol_swap_options} ${calibration_options}
 
 cd -
