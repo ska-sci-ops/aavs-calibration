@@ -40,7 +40,7 @@ if __name__ == "__main__":
     parser.add_option('--caldb','--mccs','--mccs_db', action="store_true", dest="use_mccs_db",   default=False,  help="Get delays from MCCS database and convert to coefficients [default: %]")
     parser.add_option("--ch",'--channel','--chan', '--freq_channel', '--frequency_channel',  action="store", dest="freq_channel",   type="int", default=204,  help="Frequency channel [default: %]")
     parser.add_option('--apply_amplitudes','--apply_amps','--amplitudes',action="store_true",dest="apply_amplitudes",default=False, help="Apply calibration amplitudes [default %]")
-    parser.add_option('--enable_antenna','--debug_antenna', action="store", dest="enable_antenna",   default=None,  help="Enable single antenna [default: %]")
+    parser.add_option('--enable_antenna','--debug_antenna', action="store", dest="enable_antenna",   default=None,  help="Enable single antenna [default: %]",type="int")
 
     (conf, args) = parser.parse_args(argv[1:])
 
