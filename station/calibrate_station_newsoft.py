@@ -39,6 +39,7 @@ if __name__ == "__main__":
     # use MCCS database :
     parser.add_option('--caldb','--mccs','--mccs_db', action="store_true", dest="use_mccs_db",   default=False,  help="Get delays from MCCS database and convert to coefficients [default: %]")
     parser.add_option("--ch",'--channel','--chan', '--freq_channel', '--frequency_channel',  action="store", dest="freq_channel",   type="int", default=204,  help="Frequency channel [default: %]")
+    parser.add_option('--apply_amplitudes','--apply_amps','--amplitudes',action="store_true",dest="apply_amplitudes",default=False, help="Apply calibration amplitudes [default %]")
 
     (conf, args) = parser.parse_args(argv[1:])
 
@@ -56,6 +57,7 @@ if __name__ == "__main__":
     print("polarisation swap = %s" % (conf.polarisation_swap))
     print("Use MCCS database = %s" % (conf.use_mccs_db))
     print("Frequency channel = %d" % (conf.freq_channel))
+    print("Apply calibration amplitudes = %s" % (conf.apply_amplitudes))
     print("##############################################################################################")
                       
     # Connect station (program, initialise and configure if required)
@@ -69,7 +71,7 @@ if __name__ == "__main__":
            print("INFO : station calibration using delays from the MCCS database (frequency channel = %d)" % (conf.freq_channel))
            
            # start channel is 4 channels below the central channel - same as in the .yml configuration file :
-           calibration_coefficients = calibration.get_calibration_coeff_from_db( station_id=station.configuration['station']['id'], start_frequency_channel=(conf.freq_channel-4), swap_pols=conf.polarisation_swap )
+           calibration_coefficients = calibration.get_calibration_coeff_from_db( station_id=station.configuration['station']['id'], start_frequency_channel=(conf.freq_channel-4), swap_pols=conf.polarisation_swap, apply_amplitudes=conf.apply_amplitudes )
         else :
            print("INFO : station calibration using provided pkl file (%s)" % (conf.calibration_file))
            calibration_coefficients = calibration.get_calibration_coeff( calibration_file = conf.calibration_file , swap_pols=conf.polarisation_swap )

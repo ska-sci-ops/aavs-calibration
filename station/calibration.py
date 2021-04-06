@@ -194,10 +194,9 @@ def read_calibration_phase_offsets( phase_offset_file_X=None, phase_offset_file_
     return calibration_coef
 
 # TODO : frequency_channel - should be central channel and 8 channels should start from -4 channels :
-def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True ) : # use database 
+def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True, apply_amplitudes=False ) : # use database 
     # not yet implemented 
     (x_delays,y_delays) = calibration_db.get_latest_delays( station_id=station_id, nof_antennas=256 )
-    
 
     print("get_calibration_coeff_from_db( start_frequency_channel=%d , station_id=%d )" % (start_frequency_channel,station_id))
     if debug : 
@@ -210,6 +209,17 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
        freq_channel_idx = frequency_channel - start_frequency_channel
        frequency_mhz = frequency_channel * (400.00/512.00)
        
+       x_amp = None 
+       y_amp = None
+       if apply_amplitudes :
+          (x_amp,y_amp) = calibration_db.get_latest_amps( station_id=station_id, freq_channel=frequency_channel )
+          
+          if x_amp is not None and y_amp is not None :
+             if len(x_amp) != len(x_delays) or len(y_amp) != len(y_delays) :
+                print("ERROR : cannot apply calibration amplitudes, dimenssions of arrays are different"
+                apply_amplitudes = False
+          
+       
        print("--------------------------- channel = %d , %.4f [MHz] ---------------------------" % (frequency_channel,frequency_mhz))
     
        for ant_idx in range(0,nof_antennas) :    
@@ -218,20 +228,26 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
           x_slope_rad = 2.00*math.pi*x_delay_us; # 10^6 from MHz * 10^-6 from uses = 10^0
           x_phase0_rad = x_delays[ant_idx][1]
           phase_x_rad =  x_phase0_rad +  x_slope_rad*frequency_mhz
+          amplitude_x = 1.00
     
           # Y pol : 
           y_delay_us = y_delays[ant_idx][0] # delay in micro-seconds
           y_slope_rad = 2.00*math.pi*y_delay_us; # 10^6 from MHz * 10^-6 from uses = 10^0
           y_phase0_rad = y_delays[ant_idx][1]
           phase_y_rad =  y_phase0_rad +  y_slope_rad*frequency_mhz
+          amplitude_y = 1.00
+          
+          if apply_amplitudes :
+             amplitude_x = x_amp[ant_idx]
+             amplitude_y = y_amp[ant_idx]
           
           # initialising all channels with the same coefficients and leaving cross-pols XY and YX (2,3) = ZERO :
           if swap_pols : 
-             calibration_coef[ant_idx,freq_channel_idx,0] = complex( math.cos(phase_y_rad) , math.sin(phase_y_rad) )
-             calibration_coef[ant_idx,freq_channel_idx,3] = complex( math.cos(phase_x_rad) , math.sin(phase_x_rad) )
+             calibration_coef[ant_idx,freq_channel_idx,0] = complex( math.cos(phase_y_rad) , math.sin(phase_y_rad) ) * amplitude_y
+             calibration_coef[ant_idx,freq_channel_idx,3] = complex( math.cos(phase_x_rad) , math.sin(phase_x_rad) ) * amplitude_x             
           else :
-             calibration_coef[ant_idx,freq_channel_idx,0] = complex( math.cos(phase_x_rad) , math.sin(phase_x_rad) )
-             calibration_coef[ant_idx,freq_channel_idx,3] = complex( math.cos(phase_y_rad) , math.sin(phase_y_rad) )
+             calibration_coef[ant_idx,freq_channel_idx,0] = complex( math.cos(phase_x_rad) , math.sin(phase_x_rad) ) * amplitude_x
+             calibration_coef[ant_idx,freq_channel_idx,3] = complex( math.cos(phase_y_rad) , math.sin(phase_y_rad) ) * amplitude_y
              
           
           if debug : 
