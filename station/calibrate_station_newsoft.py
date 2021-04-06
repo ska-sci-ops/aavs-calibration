@@ -86,7 +86,7 @@ if __name__ == "__main__":
            
            # start channel is 4 channels below the central channel - same as in the .yml configuration file :
            calibration_coefficients = calibration.get_calibration_coeff_from_db( station_id=station.configuration['station']['id'], start_frequency_channel=(conf.freq_channel-4), swap_pols=conf.polarisation_swap, nof_antennas=nof_antennas, 
-                                                                                 apply_amplitudes=conf.apply_amplitudes, x_amp=x_amp, y_amp=y_amp )
+                                                                                 apply_amplitudes=conf.apply_amplitudes, x_amp_par=x_amp, y_amp_par=y_amp )
         else :
            print("INFO : station calibration using provided pkl file (%s)" % (conf.calibration_file))
            calibration_coefficients = calibration.get_calibration_coeff( calibration_file = conf.calibration_file , swap_pols=conf.polarisation_swap )
