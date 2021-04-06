@@ -51,9 +51,9 @@ if [[ -n "$2" && "$2" != "-" ]]; then
 fi
 mkdir -p ${data_dir}
 
-object=J0437
-ra=69.3166
-dec=-47.2525
+# checking if object is one of the pre-defined ones:
+ra=0.00
+dec=0.00
 object_radec $object
 echo "DEBUG : $object -> ra,dec = $ra , $dec"
 
