@@ -96,6 +96,12 @@ def get_latest_amps( station_id, freq_channel, nof_antennas=256, debug=True ):
 
     # Ready from database
     conn.close()
+    
+    if debug :
+       print("DEBUG : calibration amplitudes:)
+       print(" ANT    |    AMP_X    |    AMP_Y    |")
+       for ant_id in range(nof_antennas):
+          print(" %d         %.3f         %.3f    " % (ant_id,x_amp[ant_id],y_amp[ant_id]))
 
     # Return values
     return (x_amp,y_amp)
