@@ -194,7 +194,7 @@ def read_calibration_phase_offsets( phase_offset_file_X=None, phase_offset_file_
     return calibration_coef
 
 # TODO : frequency_channel - should be central channel and 8 channels should start from -4 channels :
-def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True, apply_amplitudes=False, x_amp=None, y_amp=None ) : # use database 
+def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True, apply_amplitudes=False, x_amp_par=None, y_amp_par=None ) : # use database 
     # not yet implemented 
     (x_delays,y_delays) = calibration_db.get_latest_delays( station_id=station_id, nof_antennas=nof_antennas )
 
@@ -210,6 +210,9 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
        frequency_mhz = frequency_channel * (400.00/512.00)
        
        if apply_amplitudes :
+          x_amp = x_amp_par
+          y_amp = y_amp_par
+       
           if x_amp is None or y_amp is None :
              print("DEBUG : reading amplitudes from MCCS database ...")
              (x_amp,y_amp) = calibration_db.get_latest_amps( station_id=station_id, freq_channel=frequency_channel )
