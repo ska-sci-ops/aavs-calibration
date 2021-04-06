@@ -216,7 +216,7 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
           
           if x_amp is not None and y_amp is not None :
              if len(x_amp) != len(x_delays) or len(y_amp) != len(y_delays) :
-                print("ERROR : cannot apply calibration amplitudes, dimenssions of arrays are different"
+                print("ERROR : cannot apply calibration amplitudes, dimenssions of arrays are different")
                 apply_amplitudes = False
           
        
