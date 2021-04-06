@@ -54,7 +54,7 @@ if __name__ == "__main__":
     print("PARAMETERS:")
     print("##############################################################################################")
     print("Station ID        = %d" % (station.configuration['station']['id']))
-    print("   not_antennas   = %d" % (conf.nof_antennas))
+    print("   not_antennas   = %d" % (nof_antennas))
     print("calibrate_station = %s" % (conf.calibrate_station))    
     print("calibration file  = %s" % (conf.calibration_file))
     print("polarisation swap = %s" % (conf.polarisation_swap))
