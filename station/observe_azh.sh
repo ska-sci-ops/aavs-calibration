@@ -99,6 +99,12 @@ if [[ -n "${12}" && "${12}" != "-" ]]; then
    do_init_station=${12}
 fi
 
+calibration_options=""
+if [[ -n "${13}" && "${13}" != "-" ]]; then
+   calibration_options=${13}
+fi
+
+
 channel_from_start=4
 
 echo "###################################################"
@@ -115,6 +121,7 @@ echo "n_iter               = $n_iter"
 echo "sleep_time           = $sleep_time"
 echo "full_time_resolution = ${full_time_resolution}"
 echo "channel_from_start   = $channel_from_start"
+echo "calibration_options  = $calibration_options"
 echo "###################################################"
 
 ux=`date +%s`
@@ -185,8 +192,8 @@ fi
 
 
 if [[ $calibrate_station -gt 0 ]]; then
-  echo "~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file}"
-  ~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file}
+  echo "~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file} ${calibration_options}"
+  ~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file} ${calibration_options}
 else
   echo "WARNING : station calibration is not required"
 fi   
