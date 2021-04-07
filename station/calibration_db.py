@@ -82,6 +82,7 @@ def get_latest_amps( station_id, freq_channel, nof_antennas=256, debug=True, max
         all_amps = cur.fetchone()[0]
         x_amp[ant_id] = all_amps[freq_channel]
         if x_amp[ant_id] > max_amplitude :
+           print("WARNING : antenna = %d has amplitude %.4f in X pol. > threshold = %.4f -> setting to 0" % (ant_id,x_amp[ant_id],max_amplitude))
            x_amp[ant_id] = 0.00
         # print("Got fittime %s" % ())
 
@@ -96,6 +97,7 @@ def get_latest_amps( station_id, freq_channel, nof_antennas=256, debug=True, max
         all_amps = cur.fetchone()[0]
         y_amp[ant_id] = all_amps[freq_channel]
         if y_amp[ant_id] > max_amplitude :
+           print("WARNING : antenna = %d has amplitude %.4f in Y pol. > threshold = %.4f -> setting to 0" % (ant_id,y_amp[ant_id],max_amplitude))
            y_amp[ant_id] = 0.00
         
 
