@@ -41,6 +41,10 @@ if __name__ == "__main__":
     parser.add_option("--ch",'--channel','--chan', '--freq_channel', '--frequency_channel',  action="store", dest="freq_channel",   type="int", default=204,  help="Frequency channel [default: %]")
     parser.add_option('--apply_amplitudes','--apply_amps','--amplitudes',action="store_true",dest="apply_amplitudes",default=False, help="Apply calibration amplitudes [default %]")
     parser.add_option('--enable_antenna','--debug_antenna', action="store", dest="enable_antenna",   default=None,  help="Enable single antenna [default: %]",type="int")
+    
+    # antenna flagging :
+    parser.add_option('--flag_antennas','--flag_ant_list','--flagants', '--flagant', action="store", dest="flag_antennas_list",   default=None,  help="Flag antenna list [default: %]")
+
 
     (conf, args) = parser.parse_args(argv[1:])
 
@@ -61,9 +65,16 @@ if __name__ == "__main__":
     print("Use MCCS database = %s" % (conf.use_mccs_db))
     print("Frequency channel = %d" % (conf.freq_channel))
     print("Apply calibration amplitudes = %s" % (conf.apply_amplitudes))
+    print("Flag antennas     = %s" % (conf.flag_antennas_list))
     if conf.enable_antenna is not None :
        print("DEBUG MODE : enable antenna = %d" % (conf.enable_antenna))
     print("##############################################################################################")
+    
+    flag_antennas_list=None
+    if conf.flag_antennas_list is not None :
+       flag_antennas_list = conf.flag_antennas_list.split(",")
+       flag_antennas_list = map(int,flag_antennas_list)
+       print("DEBUG : %d antennas will be flagged" % (len(flag_antennas_list)))
                       
     # Connect station (program, initialise and configure if required)
     station.connect()
@@ -92,6 +103,14 @@ if __name__ == "__main__":
            calibration_coefficients = calibration.get_calibration_coeff( calibration_file = conf.calibration_file , swap_pols=conf.polarisation_swap )
 
         if calibration_coefficients is not None : 
+           if flag_antennas_list is not None and len(flag_antennas_list) > 0 :
+              flagged=0
+              for ant_idx in flag_antennas_list :
+                 calibration_coefficients[ant_idx] = calibration_coefficients[ant_idx]*0 
+                 flagged = flagged + 1
+              print("DEBUG : flagged %d antennas" % (flagged))
+              
+        
            # send coefficients to the station : 
            station.calibrate_station( calibration_coefficients )                      
         else :
