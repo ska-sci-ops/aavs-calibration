@@ -73,7 +73,7 @@ if __name__ == "__main__":
     flag_antennas_list=None
     if conf.flag_antennas_list is not None :
        flag_antennas_list = conf.flag_antennas_list.split(",")
-       flag_antennas_list = map(int,flag_antennas_list)
+       flag_antennas_list = list( map(int,flag_antennas_list) )
        print("DEBUG : %d antennas will be flagged" % (len(flag_antennas_list)))
                       
     # Connect station (program, initialise and configure if required)
