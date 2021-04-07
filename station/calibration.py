@@ -194,7 +194,8 @@ def read_calibration_phase_offsets( phase_offset_file_X=None, phase_offset_file_
     return calibration_coef
 
 # TODO : frequency_channel - should be central channel and 8 channels should start from -4 channels :
-def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True, apply_amplitudes=False, x_amp_par=None, y_amp_par=None ) : # use database 
+def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True, apply_amplitudes=False, 
+                                   x_amp_par=None, y_amp_par=None, flag_antennas_list=None ) : # use database 
     # not yet implemented 
     (x_delays,y_delays) = calibration_db.get_latest_delays( station_id=station_id, nof_antennas=nof_antennas )
 
@@ -224,7 +225,7 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
           
        
        print("--------------------------- channel = %d , %.4f [MHz] ---------------------------" % (frequency_channel,frequency_mhz))
-    
+       flagged = 0 
        for ant_idx in range(0,nof_antennas) :    
           # X pol : 
           x_delay_us = x_delays[ant_idx][0] # delay in micro-seconds 
@@ -252,13 +253,20 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
              calibration_coef[ant_idx,freq_channel_idx,0] = complex( math.cos(phase_x_rad) , math.sin(phase_x_rad) ) * amplitude_x
              calibration_coef[ant_idx,freq_channel_idx,3] = complex( math.cos(phase_y_rad) , math.sin(phase_y_rad) ) * amplitude_y
              
+       
+          if flag_antennas_list is not None :
+             if ant_idx in flag_antennas_list :
+                print("WARNING : flagging antenna %d" % (ant_idx))
+                calibration_coef[ant_idx] = calibration_coef[ant_idx]*0
+                flagged = flagged + 1
+             
           
           if debug : 
              phase_x_debug = numpy.angle( calibration_coef[ant_idx,freq_channel_idx,0] )*(180.00/math.pi)
              phase_y_debug = numpy.angle( calibration_coef[ant_idx,freq_channel_idx,3] )*(180.00/math.pi)
              print(" %03d    |    %09.4f    |    %09.4f     |  %s  |  %s  |" % (ant_idx,phase_x_debug,phase_y_debug,calibration_coef[ant_idx,freq_channel_idx,0],calibration_coef[ant_idx,freq_channel_idx,3]))
    
-
+       print("DEBUG : flagged %d antennas" % (flagged))
 
     
     return calibration_coef

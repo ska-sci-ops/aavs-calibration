@@ -97,18 +97,19 @@ if __name__ == "__main__":
            
            # start channel is 4 channels below the central channel - same as in the .yml configuration file :
            calibration_coefficients = calibration.get_calibration_coeff_from_db( station_id=station.configuration['station']['id'], start_frequency_channel=(conf.freq_channel-4), swap_pols=conf.polarisation_swap, nof_antennas=nof_antennas, 
-                                                                                 apply_amplitudes=conf.apply_amplitudes, x_amp_par=x_amp, y_amp_par=y_amp )
+                                                                                 apply_amplitudes=conf.apply_amplitudes, x_amp_par=x_amp, y_amp_par=y_amp, flag_antennas_list=flag_antennas_list )
         else :
            print("INFO : station calibration using provided pkl file (%s)" % (conf.calibration_file))
            calibration_coefficients = calibration.get_calibration_coeff( calibration_file = conf.calibration_file , swap_pols=conf.polarisation_swap )
 
-        if calibration_coefficients is not None : 
-           if flag_antennas_list is not None and len(flag_antennas_list) > 0 :
-              flagged=0
-              for ant_idx in flag_antennas_list :
-                 calibration_coefficients[ant_idx] = calibration_coefficients[ant_idx]*0 
-                 flagged = flagged + 1
-              print("DEBUG : flagged %d antennas" % (flagged))
+           # I keep it here to flag also for non-MCCS calibration case:
+           if calibration_coefficients is not None : 
+              if flag_antennas_list is not None and len(flag_antennas_list) > 0 :
+                 flagged=0
+                 for ant_idx in flag_antennas_list :
+                    calibration_coefficients[ant_idx] = calibration_coefficients[ant_idx]*0 
+                    flagged = flagged + 1
+                 print("DEBUG : flagged %d antennas" % (flagged))
               
         
            # send coefficients to the station : 
