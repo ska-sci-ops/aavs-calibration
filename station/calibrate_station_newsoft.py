@@ -109,9 +109,9 @@ if __name__ == "__main__":
                  for ant_idx in flag_antennas_list :
                     calibration_coefficients[ant_idx] = calibration_coefficients[ant_idx]*0 
                     flagged = flagged + 1
-                 print("DEBUG : flagged %d antennas" % (flagged))
-              
-        
+                 print("DEBUG : flagged %d antennas (using non-MCCS calibration coefficients)" % (flagged))              
+
+        if calibration_coefficients is not None :        
            # send coefficients to the station : 
            station.calibrate_station( calibration_coefficients )                      
         else :
