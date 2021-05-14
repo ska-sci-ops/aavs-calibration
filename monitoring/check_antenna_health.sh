@@ -1,6 +1,17 @@
 #!/bin/bash
 
-hdf5_file_template=channel_integ_%d_20210210_59183_0.hdf5
+# should be later but has to be known before param 1 
+data_dir="./"
+if [[ -n "$6" && "$6" != "-" ]]; then
+   data_dir=$6
+   cd ${data_dir}
+fi
+
+# aavs@aavs-lmc:/storage/monitoring/integrated_data/eda2$ ls -tr channel_integ_0_*hdf5 | tail -1
+# echo channel_integ_0_20210514_61780_0.hdf5 | awk '{gsub("_0_","_%d_");print $1;;}' 
+# hdf5_file_template=channel_integ_%d_20210210_59183_0.hdf5
+last_hdf5_file=`ls -tr channel_integ_0_*hdf5 | tail -1`
+hdf5_file_template=`echo $last_hdf5_file | awk '{gsub("_0_","_%d_");print $1;;}'`
 if [[ -n "$1" && "$1" != "-" ]]; then
    hdf5_file_template=$1
 fi
@@ -35,26 +46,37 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    outdir="$4"   
 fi
 
+station_name=eda2
+if [[ -n "$5" && "$5" != "-" ]]; then
+   station_name=$5
+fi
+
+# if [[ -n "$6" && "$6" != "-" ]]; then
+# moved to the front
+
 out_file=${outdir}_antenna_health.out
 
 echo "###################################################"
 echo "PARAMETERS:"
 echo "###################################################"
-echo "Outdir  = $outdir"
-echo "Outfile = $out_file"
-echo "last    = $last"
+echo "hdf5_file_template = $hdf5_file_template"
+echo "Data dir = $data_dir"
+echo "Outdir   = $outdir"
+echo "Outfile  = $out_file"
+echo "last     = $last"
+echo "station_name = $station_name"
 echo "###################################################"
 
 # --last 
 mkdir -p ${outdir}/
-echo "python ~/aavs-calibration/monitoring/check_antenna_health.py $hdf5_file_template --n_timesteps=${n_timesteps} --outdir=${outdir} ${extra_options} > ${outdir}/${out_file}"
-python ~/aavs-calibration/monitoring/check_antenna_health.py $hdf5_file_template --n_timesteps=${n_timesteps} --outdir=${outdir} ${extra_options} > ${outdir}/${out_file}
+echo "python ~/aavs-calibration/monitoring/check_antenna_health.py $hdf5_file_template --n_timesteps=${n_timesteps} --outdir=${outdir} --station=${station_name} ${extra_options} > ${outdir}/${out_file}"
+python ~/aavs-calibration/monitoring/check_antenna_health.py $hdf5_file_template --n_timesteps=${n_timesteps} --outdir=${outdir} --station=${station_name} ${extra_options} > ${outdir}/${out_file}
 
 
 # make plots :
 cd ${outdir}/
-ls median_x.txt median_spectrum_ant?????_x.txt > x.list
-ls median_y.txt median_spectrum_ant?????_y.txt > y.list
+ls *_median_x.txt *_median_spectrum_ant?????_x.txt > x.list
+ls *_median_y.txt *_median_spectrum_ant?????_y.txt > y.list
 
 mkdir -p images/
 root_path=`which root`

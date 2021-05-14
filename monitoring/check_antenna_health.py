@@ -11,6 +11,10 @@ import errno
 import getopt
 import optparse
 
+# /home/msok/aavs/bitbucket/aavs-calibration/config/eda2$ grep Ant instr_config_eda2.txt | awk '{printf("\"%s\",",$7);}'
+# /home/msok/aavs/bitbucket/aavs-calibration/config/aavs2$ grep Ant instr_config_aavs2.txt | awk '{printf("\"%s\",",$7);}'
+eda2_aavs2_antenna_names = [ "Ant061","Ant063","Ant064","Ant083","Ant136","Ant124","Ant123","Ant122","Ant084","Ant085","Ant086","Ant097","Ant121","Ant120","Ant099","Ant098","Ant134","Ant135","Ant152","Ant153","Ant201","Ant200","Ant199","Ant188","Ant154","Ant155","Ant156","Ant167","Ant187","Ant186","Ant169","Ant168","Ant118","Ant137","Ant138","Ant147","Ant204","Ant203","Ant185","Ant184","Ant148","Ant149","Ant150","Ant151","Ant183","Ant172","Ant171","Ant170","Ant065","Ant066","Ant079","Ant080","Ant139","Ant119","Ant117","Ant116","Ant081","Ant082","Ant100","Ant101","Ant105","Ant104","Ant103","Ant102","Ant006","Ant007","Ant008","Ant021","Ant062","Ant053","Ant052","Ant051","Ant023","Ant024","Ant025","Ant026","Ant032","Ant031","Ant030","Ant029","Ant027","Ant028","Ant054","Ant055","Ant096","Ant095","Ant091","Ant090","Ant056","Ant057","Ant058","Ant059","Ant089","Ant088","Ant087","Ant060","Ant092","Ant093","Ant094","Ant125","Ant162","Ant161","Ant160","Ant159","Ant126","Ant127","Ant128","Ant129","Ant133","Ant132","Ant131","Ant130","Ant157","Ant158","Ant163","Ant164","Ant223","Ant197","Ant196","Ant195","Ant165","Ant166","Ant189","Ant190","Ant194","Ant193","Ant192","Ant191","Ant198","Ant220","Ant221","Ant222","Ant252","Ant251","Ant250","Ant249","Ant224","Ant225","Ant226","Ant227","Ant248","Ant247","Ant246","Ant228","Ant202","Ant217","Ant218","Ant219","Ant255","Ant254","Ant253","Ant245","Ant229","Ant230","Ant231","Ant240","Ant244","Ant243","Ant242,","Ant241,","Ant205","Ant206","Ant212","Ant213","Ant256","Ant239","Ant238","Ant237","Ant214","Ant215","Ant216","Ant232","Ant236","Ant235","Ant234","Ant233","Ant140","Ant145","Ant146","Ant173","Ant211","Ant210","Ant209","Ant208","Ant174","Ant175","Ant178","Ant179","Ant207","Ant182","Ant181","Ant180","Ant073","Ant107","Ant108","Ant109","Ant177","Ant176","Ant144","Ant143","Ant110","Ant111","Ant112","Ant113","Ant142","Ant141","Ant115","Ant114","Ant040","Ant041","Ant042","Ant043","Ant106","Ant078","Ant077","Ant076","Ant045","Ant068","Ant069","Ant070","Ant075","Ant074","Ant072","Ant071","Ant001","Ant012","Ant013","Ant014","Ant067","Ant048","Ant047","Ant046","Ant015","Ant016","Ant017","Ant036","Ant044","Ant039","Ant038","Ant037","Ant002","Ant003","Ant004","Ant005","Ant050","Ant049","Ant035","Ant034","Ant009","Ant010","Ant011","Ant018","Ant033","Ant022","Ant020","Ant019" ]
+
 def mkdir_p(path):
    try:
       os.makedirs(path)
@@ -417,9 +421,14 @@ def calc_median_spectrum( median_spectrum_per_ant_x , median_spectrum_per_ant_y,
 
 # all tiles :
 # t_sample_list=[0] - to just use a single timestamp
-def check_antenna_health( hdf_file_template, options, out_median_file="median", out_bad_list_file="bad_antennas.txt", out_ant_median_file="median_spectrum_ant",
+def check_antenna_health( hdf_file_template, options, 
                           nof_tiles=16, nof_ant_per_tile=16, nof_pols=2, nof_channels=512,
-                          max_bad_channels=100 ):
+                          max_bad_channels=100, antenna_names=None ):
+   
+   out_bad_list_file = options.station_name + "_bad_antennas.txt"
+   out_health_report = options.station_name + "_health_report.txt"
+   out_median_file   = options.station_name + "_median"
+   out_ant_median_file = options.station_name + "_median_spectrum_ant"
    
    ant_count = nof_tiles*nof_ant_per_tile
    
@@ -468,6 +477,13 @@ def check_antenna_health( hdf_file_template, options, out_median_file="median", 
    out_bad_f = open( options.outdir + "/" + out_bad_list_file , "w" )
    comment = ("# max_bad_channels = %d , median total power in X = %d and in Y = %d (total power is expected to be in the range x0.5 to x2 of these values)\n" % (max_bad_channels,median_total_power_x,median_total_power_y))
    out_bad_f.write( comment )
+   
+   out_report_f = open( options.outdir + "/" + out_health_report , "w" )
+   out_report_f.write( ("# MAXIMUM NUMBER OF BAD CHANNELS ALLOWED = %d\n" % (max_bad_channels)) )
+   comment = ("#  ANT_NAME TILE_ID  ANT_ID  TOTAL_POWER_X  NUM_BAD_CHANNELS_X  TOTAL_POWER_Y  NUM_BAD_CHANNELS_Y  STATUS  DETAILS\n" )   
+   out_report_f.write( comment )
+   comment = ("#   MED    MED      MED      %06d            %03d                %06d             %03d        REFERENCE\n" % (median_total_power_x,median_bad_channels_x,median_total_power_y,median_bad_channels_y))
+   out_report_f.write( comment )
 
    print("\tComparing antenna spectra with median spectrum ...")   
    for tile in range(0,nof_tiles) : 
@@ -495,10 +511,12 @@ def check_antenna_health( hdf_file_template, options, out_median_file="median", 
             flag += (",BAD_CH_Y=%d" % n_bad_channels_y)
          if n_total_power_y < (median_total_power_y/2) or n_total_power_y > (median_total_power_y*2):
             flag += (",BAD_POWER_Y=%d" % n_total_power_y)
-      
+
+         status = "OK"      
          if len(flag) <= 0 :
             flag = "OK"
          else :
+            status = "BAD"
             line = "%05d : TILE %05d , ANT %05d %s\n" % (ant_idx,tile,ant,flag)
             out_bad_f.write( line )
 
@@ -506,8 +524,14 @@ def check_antenna_health( hdf_file_template, options, out_median_file="median", 
          # out_y_name = "ant_%05d_%05d_y.txt" % (tile,ant)
          # write_spectrum( spectrum_x, out_x_name, None, flag )
          # write_spectrum( spectrum_y, out_y_name, None, flag )
-         
+
+         antname = " ?? " 
+         if antenna_names is not None :
+            antname = antenna_names[ant_idx]         
          print("TILE %d , ANTENNA %d : bad_channels_x = %d , total_power_x = %d , bad_channels_y = %d , total_power_y = %d -> %s" % (tile,ant,n_bad_channels_x,n_total_power_x,n_bad_channels_y,n_total_power_y,flag))
+         #          #  TILE_ID  ANT_ID  TOTAL_POWER_X  NUM_BAD_CHANNELS_X  TOTAL_POWER_Y  NUM_BAD_CHANNELS_Y
+         comment = ("#  %s  %02d       %02d       %06d            %03d                %06d             %03d          %s : %s\n" % (antname,tile,ant,n_total_power_x,n_bad_channels_x,n_total_power_y,n_bad_channels_y,status,flag) )   
+         out_report_f.write( comment )
    
    out_bad_f.close()         
       
@@ -523,6 +547,7 @@ def parse_options(idx):
    parser.set_usage("""parse_pulsars.py""")
    parser.add_option("--n_timesteps","--timesteps",dest="n_timesteps",default=-1,help="Number of timesteps used for calculations (<0 -> all) [default: %default]",type="int")
    parser.add_option("--outdir","--out_dir","--dir","-o",dest="outdir",default="./",help="Output directory [default: %default]")
+   parser.add_option("--station","--station_name",dest="station_name",default="eda2",help="Prefix for output files [default: %default]")
    parser.add_option('--latest','--newest','--last',action="store_true",dest="latest",default=False, help="Use the most recent timestamps [default %default]")
    (options,args)=parser.parse_args(sys.argv[idx:])
 
@@ -541,6 +566,8 @@ if __name__ == '__main__' :
    print("######################################################################################")
    print("hdf_file_template = %s" % (hdf_file_template))
    print("N timesteps       = %d (latest = %s)" % (options.n_timesteps,options.latest))   
+   print("Output directory  = %s" % (options.outdir))
+   print("Station           = %s" % (options.station_name))
    print("######################################################################################")
    
    if len(options.outdir) and options.outdir != "./" :
@@ -552,7 +579,11 @@ if __name__ == '__main__' :
 #   if options.n_timesteps > 0 :
 #      t_sample_list = numpy.arange( options.n_timesteps )
    
+   # at the moment the antenna names are the same for EDA2 and AAVS2 :
+   antenna_names = eda2_aavs2_antenna_names
+   # if options.station_name == "eda2" :
+   #   antenna_names = eda2_antennas
 
    # check_antenna_health("channel_integ_14_20200205_41704_0.hdf5")
-   check_antenna_health( hdf_file_template , options )
+   check_antenna_health( hdf_file_template , options, antenna_names=antenna_names )
       
