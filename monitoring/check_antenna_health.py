@@ -4,6 +4,7 @@ import numpy
 import math
 import sys
 import os
+import time
 
 # option parsing :
 from optparse import OptionParser,OptionGroup
@@ -425,6 +426,7 @@ def check_antenna_health( hdf_file_template, options,
                           nof_tiles=16, nof_ant_per_tile=16, nof_pols=2, nof_channels=512,
                           max_bad_channels=100, antenna_names=None ):
    
+   ux_time = time.time()
    out_bad_list_file = options.station_name + "_bad_antennas.txt"
    out_health_report = options.station_name + "_health_report.txt"
    out_median_file   = options.station_name + "_median"
@@ -477,9 +479,11 @@ def check_antenna_health( hdf_file_template, options,
    out_bad_f = open( options.outdir + "/" + out_bad_list_file , "w" )
    comment = ("# max_bad_channels = %d , median total power in X = %d and in Y = %d (total power is expected to be in the range x0.5 to x2 of these values)\n" % (max_bad_channels,median_total_power_x,median_total_power_y))
    out_bad_f.write( comment )
+   out_bad_f.write( ("# UNIXTIME = %.4f\n" % (ux_time)) )
    
    out_report_f = open( options.outdir + "/" + out_health_report , "w" )
    out_report_f.write( ("# MAXIMUM NUMBER OF BAD CHANNELS ALLOWED = %d\n" % (max_bad_channels)) )
+   out_report_f.write( ("# UNIXTIME = %.4f\n" % (ux_time)) )
    comment = ("#  ANT_NAME TILE_ID  ANT_ID  TOTAL_POWER_X  NUM_BAD_CHANNELS_X  TOTAL_POWER_Y  NUM_BAD_CHANNELS_Y  STATUS  DETAILS\n" )   
    out_report_f.write( comment )
    comment = ("#   MED    MED      MED      %06d            %03d                %06d             %03d        REFERENCE\n" % (median_total_power_x,median_bad_channels_x,median_total_power_y,median_bad_channels_y))
