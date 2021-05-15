@@ -54,6 +54,18 @@ fi
 # if [[ -n "$6" && "$6" != "-" ]]; then
 # moved to the front
 
+do_copy=0
+if [[ -n "$7" && "$7" != "-" ]]; then
+   do_copy=$7
+fi
+
+# but on aavs1-server
+www_dir="/exports/calibration/${station_name}/antenna_health/"
+if [[ -n "$8" && "$8" != "-" ]]; then
+   www_dir=$8
+fi
+
+
 out_file=${outdir}_antenna_health.out
 
 echo "###################################################"
@@ -65,6 +77,8 @@ echo "Outdir   = $outdir"
 echo "Outfile  = $out_file"
 echo "last     = $last"
 echo "station_name = $station_name"
+echo "do_copy  = $do_copy"
+echo "www_dir  = $www_dir"
 echo "###################################################"
 
 # --last 
@@ -88,5 +102,8 @@ else
 fi  
 cd ..
 
-
+if [[ $do_copy -gt 0 ]]; then
+   echo "cp ${station_name}_health_report.txt /exports/calibration/${station_name}/antenna_health/"
+   cp ${station_name}_health_report.txt /exports/calibration/${station_name}/antenna_health/
+fi
 
