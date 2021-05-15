@@ -81,6 +81,8 @@ echo "do_copy  = $do_copy"
 echo "www_dir  = $www_dir"
 echo "###################################################"
 
+start_dtm=`date +%Y%m%d%H%M%S`
+
 # --last 
 mkdir -p ${outdir}/
 echo "python ~/aavs-calibration/monitoring/check_antenna_health.py $hdf5_file_template --n_timesteps=${n_timesteps} --outdir=${outdir} --station=${station_name} ${extra_options} > ${outdir}/${out_file}"
@@ -92,6 +94,16 @@ cd ${outdir}/
 ls *_median_x.txt *_median_spectrum_ant?????_x.txt > x.list
 ls *_median_y.txt *_median_spectrum_ant?????_y.txt > y.list
 
+if [[ $do_copy -gt 0 ]]; then
+   pwd   
+   echo "cp ${station_name}_health_report.txt /exports/calibration/${station_name}/antenna_health/"
+   cp ${station_name}_health_report.txt /exports/calibration/${station_name}/antenna_health/
+   
+   echo "cp ${station_name}_health_report.txt /exports/calibration/${station_name}/antenna_health/${station_name}_health_report_${start_dtm}.txt"
+   cp ${station_name}_health_report.txt /exports/calibration/${station_name}/antenna_health/${station_name}_health_report_${start_dtm}.txt
+fi
+
+
 mkdir -p images/
 root_path=`which root`
 if [[ -n $root_path ]]; then
@@ -102,8 +114,4 @@ else
 fi  
 cd ..
 
-if [[ $do_copy -gt 0 ]]; then
-   echo "cp ${station_name}_health_report.txt /exports/calibration/${station_name}/antenna_health/"
-   cp ${station_name}_health_report.txt /exports/calibration/${station_name}/antenna_health/
-fi
 
