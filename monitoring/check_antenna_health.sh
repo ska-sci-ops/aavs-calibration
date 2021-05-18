@@ -85,8 +85,8 @@ start_dtm=`date +%Y%m%d%H%M%S`
 
 # --last 
 mkdir -p ${outdir}/
-echo "python ~/aavs-calibration/monitoring/check_antenna_health.py $hdf5_file_template --n_timesteps=${n_timesteps} --outdir=${outdir} --station=${station_name} ${extra_options} > ${outdir}/${out_file}"
-python ~/aavs-calibration/monitoring/check_antenna_health.py $hdf5_file_template --n_timesteps=${n_timesteps} --outdir=${outdir} --station=${station_name} ${extra_options} > ${outdir}/${out_file}
+echo "python ~/aavs-calibration/monitoring/check_antenna_health.py $hdf5_file_template --n_timesteps=${n_timesteps} --outdir=${outdir} --station=${station_name} --images --plot_db ${extra_options} > ${outdir}/${out_file}"
+python ~/aavs-calibration/monitoring/check_antenna_health.py $hdf5_file_template --n_timesteps=${n_timesteps} --outdir=${outdir} --station=${station_name} --images --plot_db ${extra_options} > ${outdir}/${out_file}
 
 
 # make plots :
@@ -107,6 +107,10 @@ if [[ $do_copy -gt 0 ]]; then
    
    echo "cp ${station_name}_bad_antennas.txt /exports/calibration/${station_name}/${station_name}_bad_antennas_${start_dtm}.txt"
    cp ${station_name}_bad_antennas.txt /exports/calibration/${station_name}/${station_name}_bad_antennas_${start_dtm}.txt
+   
+   # images :
+   echo "cp images/*.png /exports/calibration/${station_name}/"
+   cp images/*.png /exports/calibration/${station_name}/   
 fi
 
 

@@ -5,12 +5,33 @@ import math
 import sys
 import os
 import time
+import copy
 
 # option parsing :
 from optparse import OptionParser,OptionGroup
 import errno
 import getopt
 import optparse
+
+# plotting :
+# Test if X-windows / DISPLAY is not needed :
+import matplotlib
+# Force matplotlib to not use any Xwindows backend.
+matplotlib.use('Agg')
+import pylab
+import matplotlib.pyplot as plt
+
+# from matplotlib import rc
+# rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+# rc('text', usetex=True)
+# params = {'legend.fontsize': 'x-large',
+#          'figure.figsize': (60, 20),
+#          'axes.labelsize': 'x-large',
+#          'axes.titlesize':'x-large',
+#          'xtick.labelsize':'x-large',
+#          'ytick.labelsize':'x-large'}
+# pylab.rcParams.update(params)
+
 
 # /home/msok/aavs/bitbucket/aavs-calibration/config/eda2$ grep Ant instr_config_eda2.txt | awk '{printf("\"%s\",",$7);}'
 # /home/msok/aavs/bitbucket/aavs-calibration/config/aavs2$ grep Ant instr_config_aavs2.txt | awk '{printf("\"%s\",",$7);}'
@@ -24,7 +45,7 @@ def mkdir_p(path):
          pass
       else: raise
 
-def check_antenna( spectrum, median_spectrum, iqr_spectrum, thereshold_in_sigma=3, ant_idx=-1, debug=False ):
+def check_antenna( spectrum, median_spectrum, iqr_spectrum, threshold_in_sigma=3, ant_idx=-1, debug=False ):
 
    total_power = 0
    n_bad_channels = 0
@@ -34,7 +55,7 @@ def check_antenna( spectrum, median_spectrum, iqr_spectrum, thereshold_in_sigma=
       diff = spectrum[ch] - median_spectrum[ch]
       rms = iqr_spectrum[ch] / 1.35
       
-      if math.fabs(diff) > thereshold_in_sigma*rms :
+      if math.fabs(diff) > threshold_in_sigma*rms :
          n_bad_channels += 1
          
       total_power += spectrum[ch]
@@ -419,6 +440,88 @@ def calc_median_spectrum( median_spectrum_per_ant_x , median_spectrum_per_ant_y,
       
    return (median_spectrum_x,median_spectrum_y,iqr_spectrum_x,iqr_spectrum_y)
 
+def plot_antenna_with_median( options, antname, median_freq, median_power, median_power_err, ant_freq, ant_power, outdir="images/", y_min=1, y_max=60, label="X pol.", plot_db=False, color='black', pol='x' ) :
+   count_median = len(median_power)
+   
+   bad_freq=[]
+   bad_power=[]
+   
+   for i in range(0,len(median_power)) :
+      if ant_power[i] > median_power[i] + options.threshold_in_sigma*median_power_err[i] :
+         bad_freq.append( median_freq[i] )
+         bad_power.append( ant_power[i] )
+   
+   if options.plot_db :
+      for i in range(0,len(median_power)) :
+         value = median_power[i] # save value before going to DB (needed in error re-calc)
+         if median_power[i] > 0 :
+            median_power[i] = 10.00*math.log10(median_power[i])
+         else : 
+            median_power[i] = 0.00
+            value = 1.00
+         # (10.00/TMath::Log(10.00))*(1.00/y_val)*y_val;
+         median_power_err[i] = (10.00/math.log(10.00))*(1.00/value)*median_power_err[i]
+         
+      for i in range(0,len(ant_power)) :
+         if ant_power[i] > 0 :
+            ant_power[i] = 10.00*math.log10(ant_power[i])   
+         else :
+            ant_power[i] = 0.00
+      
+      if len(bad_power) > 0 :
+         for i in range(0,len(bad_power)) :
+            if bad_power[i] > 0 :
+               bad_power[i] = 10.00*math.log10(bad_power[i])
+            else :
+               bad_power[i] = 0.00
+   
+   if y_max is None :
+      y_max = max(median_power)*1.2
+
+   fig = plt.figure(figsize=(60,20)) 
+   ax = fig.add_subplot(1,1,1) # create axes within the figure : we have 1 plot in X direction, 1 plot in Y direction and we select plot 1
+   for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] + ax.get_xticklabels() + ax.get_yticklabels()):
+      item.set_fontsize(30)
+
+   
+   plt.ylim([y_min,y_max])
+#   print("plt.ylim([%.4f,%.4f])" % (y_min,y_max))
+
+   # plot median :
+   plt.errorbar( median_freq, median_power, yerr=median_power_err, xerr=None, linestyle='None', marker='o', color='blue' , markersize=5, label="Median " + label)
+
+   # plot ant_power 
+   plt.errorbar( ant_freq, ant_power, xerr=None, linestyle='None', marker='+', color=color  , markersize=5, label="Median " + label)
+   
+   if len(bad_power) > 0 :
+      # highlight bad channels in red : 
+      plt.plot( bad_freq, bad_power, linestyle='None', marker='x', color='red', markersize=10 )
+   
+   ax.set_xlabel( "Frequency [MHz]" , fontsize=30 )
+   if options.plot_db : 
+      ax.set_ylabel( "Power [dB]" , fontsize=30 ) 
+   else : 
+      ax.set_ylabel( "Power [?]" , fontsize=30 ) # r to treat it as raw string 
+
+   title = antname
+   if label is not None :
+      title = title + " , "
+      title = title + label
+
+#   ax.set_title( title )
+   fig.suptitle( title, fontsize=40 )
+   plt.grid(True,which='both')
+   
+   pngfile=outdir + "/" + antname + "_" + pol + ".png"
+   plt.savefig( pngfile , dpi=80 )   
+   
+   # close :
+   plt.close(fig) # close first figure although second one is active   
+
+
+  
+   
+
 
 # all tiles :
 # t_sample_list=[0] - to just use a single timestamp
@@ -438,6 +541,8 @@ def check_antenna_health( hdf_file_template, options,
    # t_sample = t_sample_list[0]
    # if t_sample_list is None : 
       
+   # frequency table :
+   freq = numpy.arange(512)
    
    # read all HDF5 file matching the template :
    (f_array,f_data,n_timesteps) = read_all_tiles_data( hdf_file_template )
@@ -480,6 +585,8 @@ def check_antenna_health( hdf_file_template, options,
    comment = ("# max_bad_channels = %d , median total power in X = %d and in Y = %d (total power is expected to be in the range x0.5 to x2 of these values)\n" % (max_bad_channels,median_total_power_x,median_total_power_y))
    out_bad_f.write( comment )
    out_bad_f.write( ("# UNIXTIME = %.4f\n" % (ux_time)) )
+   out_bad_f.write( "# ANTNAME  ANT_INDEX  TILE  ANT   REASON\n" )
+   
    
    out_report_f = open( options.outdir + "/" + out_health_report , "w" )
    out_report_f.write( ("# MAXIMUM NUMBER OF BAD CHANNELS ALLOWED = %d\n" % (max_bad_channels)) )
@@ -501,27 +608,41 @@ def check_antenna_health( hdf_file_template, options,
          ant_median_spectrum_x = median_spectrum_per_ant_x[ant_idx]
          ant_median_spectrum_y = median_spectrum_per_ant_y[ant_idx]
          
-         ( n_bad_channels_x , n_total_power_x ) = check_antenna( ant_median_spectrum_x, median_spectrum_x , iqr_spectrum_x, ant_idx=ant_idx )
-         ( n_bad_channels_y , n_total_power_y ) = check_antenna( ant_median_spectrum_y, median_spectrum_y , iqr_spectrum_y, ant_idx=ant_idx )
+         ( n_bad_channels_x , n_total_power_x ) = check_antenna( ant_median_spectrum_x, median_spectrum_x , iqr_spectrum_x, ant_idx=ant_idx, threshold_in_sigma=options.threshold_in_sigma )
+         ( n_bad_channels_y , n_total_power_y ) = check_antenna( ant_median_spectrum_y, median_spectrum_y , iqr_spectrum_y, ant_idx=ant_idx, threshold_in_sigma=options.threshold_in_sigma )
          
-         flag = ""
+         flag_x = ""
+         flag_y = ""
+         bad_power_x = False
+         bad_power_y = False
          if n_bad_channels_x > max_bad_channels :
-            flag += ("BAD_CH_X=%d" % n_bad_channels_x)
+            flag_x += ("BAD_CH_X=%d" % n_bad_channels_x)
          if n_total_power_x < (median_total_power_x/2) or n_total_power_x > (median_total_power_x*2):
-            flag += (",BAD_POWER_X=%d" % n_total_power_x)
+            flag_x += (",BAD_POWER_X=%d" % n_total_power_x)
+            bad_power_x = True
             # print("DEBUG : %d vs. %d or %d vs %d" % (n_total_power_x,median_total_power_x,n_total_power_x,median_total_power_x))
             
          if n_bad_channels_y > max_bad_channels :
-            flag += (",BAD_CH_Y=%d" % n_bad_channels_y)
+            flag_y += (",BAD_CH_Y=%d" % n_bad_channels_y)
          if n_total_power_y < (median_total_power_y/2) or n_total_power_y > (median_total_power_y*2):
-            flag += (",BAD_POWER_Y=%d" % n_total_power_y)
+            flag_y += (",BAD_POWER_Y=%d" % n_total_power_y)
+            bad_power_y = True
+
+         # get antenna name if mapping hash table is provided :
+         antname = " ?? " 
+         if antenna_names is not None :
+            antname = antenna_names[ant_idx]         
 
          status = "OK"      
-         if len(flag) <= 0 :
-            flag = "OK"
+         flag = ""
+         if len(flag_x) <= 0 and len(flag_y) <= 0:
+            flag_x = "OK"
+            flag_y = "OK"
+            flag   = "OK"
          else :
             status = "BAD"
-            line = "%05d : TILE %05d , ANT %05d %s\n" % (ant_idx,tile,ant,flag)
+            flag = flag_x + "," + flag_y
+            line = "%s : %05d  %05d , %05d %s\n" % (antname,ant_idx,tile,ant,flag)
             out_bad_f.write( line )
 
          # out_x_name = "ant_%05d_%05d_x.txt" % (tile,ant)
@@ -529,13 +650,24 @@ def check_antenna_health( hdf_file_template, options,
          # write_spectrum( spectrum_x, out_x_name, None, flag )
          # write_spectrum( spectrum_y, out_y_name, None, flag )
 
-         antname = " ?? " 
-         if antenna_names is not None :
-            antname = antenna_names[ant_idx]         
          print("TILE %d , ANTENNA %d : bad_channels_x = %d , total_power_x = %d , bad_channels_y = %d , total_power_y = %d -> %s" % (tile,ant,n_bad_channels_x,n_total_power_x,n_bad_channels_y,n_total_power_y,flag))
          #          #  TILE_ID  ANT_ID  TOTAL_POWER_X  NUM_BAD_CHANNELS_X  TOTAL_POWER_Y  NUM_BAD_CHANNELS_Y
          comment = ("#  %s  %02d       %02d       %06d            %03d                %06d             %03d          %s : %s\n" % (antname,tile,ant,n_total_power_x,n_bad_channels_x,n_total_power_y,n_bad_channels_y,status,flag) )   
          out_report_f.write( comment )
+         
+         if options.do_images :
+            # def plot_antenna_with_median( median_freq, median_power, median_power_err, ant_freq, ant_power, outdir="images/", y_min=1, y_max=None, label="X pol." ) :
+            label = "X pol. (%s)" % (flag_x)            
+            color = 'black'
+            if bad_power_x :
+               color = 'red'
+            plot_antenna_with_median( options, antname, freq, copy.copy(median_spectrum_x), copy.copy(iqr_spectrum_x), freq, copy.copy(ant_median_spectrum_x), label=label, outdir=options.outdir + "/images/", color=color, pol='x' )
+
+            label = "Y pol. (%s)" % (flag_y)            
+            color = 'black'
+            if bad_power_y :
+               color = 'red'
+            plot_antenna_with_median( options, antname, freq, copy.copy(median_spectrum_y), copy.copy(iqr_spectrum_y), freq, copy.copy(ant_median_spectrum_y), label=label, outdir=options.outdir + "/images/", color=color, pol='y' )
    
    out_bad_f.close()         
       
@@ -553,6 +685,12 @@ def parse_options(idx):
    parser.add_option("--outdir","--out_dir","--dir","-o",dest="outdir",default="./",help="Output directory [default: %default]")
    parser.add_option("--station","--station_name",dest="station_name",default="eda2",help="Prefix for output files [default: %default]")
    parser.add_option('--latest','--newest','--last',action="store_true",dest="latest",default=False, help="Use the most recent timestamps [default %default]")
+   parser.add_option('--threshold','--threshold_in_sigma',dest="threshold_in_sigma",default=3,help="Threshold in sigma [default %default]")
+   
+   # plotting :
+   parser.add_option('--images','--plot',action="store_true",dest="do_images",default=False, help="Do images [default %default]")
+   parser.add_option('--plot_db',action="store_true",dest="plot_db",default=False, help="Do images in dB scale [default %default]")
+   
    (options,args)=parser.parse_args(sys.argv[idx:])
 
    return (options, args)
@@ -572,12 +710,18 @@ if __name__ == '__main__' :
    print("N timesteps       = %d (latest = %s)" % (options.n_timesteps,options.latest))   
    print("Output directory  = %s" % (options.outdir))
    print("Station           = %s" % (options.station_name))
+   print("Do images         = %s (dB = %s)" % (options.do_images,options.plot_db))
+   print("threshold_in_sigma = %.2f" % (options.threshold_in_sigma))
    print("######################################################################################")
    
    if len(options.outdir) and options.outdir != "./" :
       print("Creating output directory %s ..." % (options.outdir))
       mkdir_p( options.outdir )      
       print("DONE")
+
+      if options.do_images :
+         print("Creating images directory %s ..." % (options.outdir + "/images/"))
+         mkdir_p( options.outdir + "/images/" )
 
 #   t_sample_list=None
 #   if options.n_timesteps > 0 :
