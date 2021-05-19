@@ -5,6 +5,7 @@ import math
 import sys
 import os
 import time
+from datetime import datetime
 import copy
 
 # option parsing :
@@ -440,8 +441,11 @@ def calc_median_spectrum( median_spectrum_per_ant_x , median_spectrum_per_ant_y,
       
    return (median_spectrum_x,median_spectrum_y,iqr_spectrum_x,iqr_spectrum_y)
 
-def plot_antenna_with_median( options, antname, median_freq, median_power, median_power_err, ant_freq, ant_power, outdir="images/", y_min=1, y_max=60, label="X pol.", plot_db=False, color='black', pol='x' ) :
+def plot_antenna_with_median( options, antname, median_freq, median_power, median_power_err, ant_freq, ant_power, outdir="images/", y_min=1, y_max=60, label="X pol.", plot_db=False, color='black', pol='x', ux_time=None ) :
+   CH2FREQ = ( 400.00/512.00 )
    count_median = len(median_power)
+   if ux_time is None :
+      ux_time = time.time()
    
    bad_freq=[]
    bad_power=[]
@@ -474,6 +478,11 @@ def plot_antenna_with_median( options, antname, median_freq, median_power, media
                bad_power[i] = 10.00*math.log10(bad_power[i])
             else :
                bad_power[i] = 0.00
+
+   median_freq = numpy.array( median_freq ) * CH2FREQ
+   ant_freq    = numpy.array( ant_freq ) * CH2FREQ
+   if len(bad_freq) > 0 :
+      bad_freq    = numpy.array( bad_freq ) * CH2FREQ
    
    if y_max is None :
       y_max = max(median_power)*1.2
@@ -488,20 +497,37 @@ def plot_antenna_with_median( options, antname, median_freq, median_power, media
 #   print("plt.ylim([%.4f,%.4f])" % (y_min,y_max))
 
    # plot median :
-   plt.errorbar( median_freq, median_power, yerr=median_power_err, xerr=None, linestyle='None', marker='o', color='blue' , markersize=5, label="Median " + label)
+   a,b,c = plt.errorbar( median_freq, median_power, yerr=median_power_err, xerr=None, linestyle='None', marker='o', color='blue' , markersize=5, label="Median spectrum +/- 1sigma" + label)
+   # just for Legend - as otherwise does not want to work ...
+   line_median, = plt.plot( median_freq, median_power, linestyle='None', marker='o', color='blue' , markersize=5, label="Median spectrum +/- 1sigma" + label)
 
    # plot ant_power 
-   plt.errorbar( ant_freq, ant_power, xerr=None, linestyle='None', marker='+', color=color  , markersize=5, label="Median " + label)
+   line_antenna, = plt.plot( ant_freq, ant_power, linestyle='None', marker='+', color=color  , markersize=5, label=antname + " spectrum " + label)
    
+   line_bads = None
    if len(bad_power) > 0 :
       # highlight bad channels in red : 
-      plt.plot( bad_freq, bad_power, linestyle='None', marker='x', color='red', markersize=10 )
+      line_bads, = plt.plot( bad_freq, bad_power, linestyle='None', marker='x', color='red', markersize=20, label="Bad channels"  )
    
    ax.set_xlabel( "Frequency [MHz]" , fontsize=30 )
    if options.plot_db : 
       ax.set_ylabel( "Power [dB]" , fontsize=30 ) 
    else : 
       ax.set_ylabel( "Power [?]" , fontsize=30 ) # r to treat it as raw string 
+
+   # legend :
+   plt.legend(fontsize=50)
+   if line_bads is not None :
+      # bbox_to_anchor=(0.68, 0.82)
+      plt.legend(loc=1,handles=[line_antenna,line_median,line_bads],fontsize=50)      
+   else :
+      plt.legend(loc=1,handles=[line_antenna,line_median],fontsize=50)
+
+   # date time :
+   time_dtm = datetime.utcfromtimestamp( ux_time )
+   time_str = time_dtm.strftime("%m/%d/%Y %H:%M:%S")
+   x_center = ant_freq[len(ant_freq)/2] 
+   plt.text( x_center*0.7, y_max*1.00, time_str + " UTC", fontsize=50, color='black')
 
    title = antname
    if label is not None :
@@ -661,13 +687,13 @@ def check_antenna_health( hdf_file_template, options,
             color = 'black'
             if bad_power_x :
                color = 'red'
-            plot_antenna_with_median( options, antname, freq, copy.copy(median_spectrum_x), copy.copy(iqr_spectrum_x), freq, copy.copy(ant_median_spectrum_x), label=label, outdir=options.outdir + "/images/", color=color, pol='x' )
+            plot_antenna_with_median( options, antname, freq, copy.copy(median_spectrum_x), copy.copy(iqr_spectrum_x), freq, copy.copy(ant_median_spectrum_x), label=label, outdir=options.outdir + "/images/", color=color, pol='x', ux_time=ux_time )
 
             label = "Y pol. (%s)" % (flag_y)            
             color = 'black'
             if bad_power_y :
                color = 'red'
-            plot_antenna_with_median( options, antname, freq, copy.copy(median_spectrum_y), copy.copy(iqr_spectrum_y), freq, copy.copy(ant_median_spectrum_y), label=label, outdir=options.outdir + "/images/", color=color, pol='y' )
+            plot_antenna_with_median( options, antname, freq, copy.copy(median_spectrum_y), copy.copy(iqr_spectrum_y), freq, copy.copy(ant_median_spectrum_y), label=label, outdir=options.outdir + "/images/", color=color, pol='y', ux_time=ux_time )
    
    out_bad_f.close()         
       
