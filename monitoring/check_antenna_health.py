@@ -441,7 +441,7 @@ def calc_median_spectrum( median_spectrum_per_ant_x , median_spectrum_per_ant_y,
       
    return (median_spectrum_x,median_spectrum_y,iqr_spectrum_x,iqr_spectrum_y)
 
-def plot_antenna_with_median( options, antname, median_freq, median_power, median_power_err, ant_freq, ant_power, outdir="images/", y_min=1, y_max=60, label="X pol.", plot_db=False, color='black', pol='x', ux_time=None ) :
+def plot_antenna_with_median( options, antname, median_freq, median_power, median_power_err, ant_freq, ant_power, outdir="images/", y_min=1, y_max=60, label="X pol.", plot_db=False, color='black', pol='x', ux_time=None, median_total_power=-1 ) :
    CH2FREQ = ( 400.00/512.00 )
    count_median = len(median_power)
    if ux_time is None :
@@ -499,7 +499,8 @@ def plot_antenna_with_median( options, antname, median_freq, median_power, media
    # plot median :
    a,b,c = plt.errorbar( median_freq, median_power, yerr=median_power_err, xerr=None, linestyle='None', marker='o', color='blue' , markersize=5, label="Median spectrum +/- 1sigma" + label)
    # just for Legend - as otherwise does not want to work ...
-   line_median, = plt.plot( median_freq, median_power, linestyle='None', marker='o', color='blue' , markersize=5, label="Median spectrum +/- 1sigma" + label)
+   label_str = "Median spectrum +/- 1sigma (total power = %d)" % (median_total_power)
+   line_median, = plt.plot( median_freq, median_power, linestyle='None', marker='o', color='blue' , markersize=5, label=label_str )
 
    # plot ant_power 
    line_antenna, = plt.plot( ant_freq, ant_power, linestyle='None', marker='+', color=color  , markersize=5, label=antname + " spectrum " + label)
@@ -661,9 +662,12 @@ def check_antenna_health( hdf_file_template, options,
 
          status = "OK"      
          flag = ""
-         if len(flag_x) <= 0 and len(flag_y) <= 0:
+         if len(flag_x) <= 0 :
             flag_x = "OK"
+         if len(flag_y) <= 0 :
             flag_y = "OK"
+
+         if len(flag_x) <= 0 and len(flag_y) <= 0:
             flag   = "OK"
          else :
             status = "BAD"
@@ -687,13 +691,13 @@ def check_antenna_health( hdf_file_template, options,
             color = 'black'
             if bad_power_x :
                color = 'red'
-            plot_antenna_with_median( options, antname, freq, copy.copy(median_spectrum_x), copy.copy(iqr_spectrum_x), freq, copy.copy(ant_median_spectrum_x), label=label, outdir=options.outdir + "/images/", color=color, pol='x', ux_time=ux_time )
+            plot_antenna_with_median( options, antname, freq, copy.copy(median_spectrum_x), copy.copy(iqr_spectrum_x), freq, copy.copy(ant_median_spectrum_x), label=label, outdir=options.outdir + "/images/", color=color, pol='x', ux_time=ux_time, median_total_power=median_total_power_x )
 
             label = "Y pol. (%s)" % (flag_y)            
             color = 'black'
             if bad_power_y :
                color = 'red'
-            plot_antenna_with_median( options, antname, freq, copy.copy(median_spectrum_y), copy.copy(iqr_spectrum_y), freq, copy.copy(ant_median_spectrum_y), label=label, outdir=options.outdir + "/images/", color=color, pol='y', ux_time=ux_time )
+            plot_antenna_with_median( options, antname, freq, copy.copy(median_spectrum_y), copy.copy(iqr_spectrum_y), freq, copy.copy(ant_median_spectrum_y), label=label, outdir=options.outdir + "/images/", color=color, pol='y', ux_time=ux_time, median_total_power=median_total_power_y )
    
    out_bad_f.close()         
       
