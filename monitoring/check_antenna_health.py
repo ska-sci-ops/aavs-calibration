@@ -662,12 +662,19 @@ def check_antenna_health( hdf_file_template, options,
 
          status = "OK"      
          flag = ""
+
+         is_ok = True
          if len(flag_x) <= 0 :
             flag_x = "OK"
+         else :
+            is_ok = False
+            
          if len(flag_y) <= 0 :
             flag_y = "OK"
+         else :
+            is_ok = False
 
-         if len(flag_x) <= 0 and len(flag_y) <= 0:
+         if is_ok :
             flag   = "OK"
          else :
             status = "BAD"
