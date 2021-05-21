@@ -33,10 +33,17 @@ import matplotlib.pyplot as plt
 #          'ytick.labelsize':'x-large'}
 # pylab.rcParams.update(params)
 
-
+#
+# GLOBAL VARIABLES :
+#
 # /home/msok/aavs/bitbucket/aavs-calibration/config/eda2$ grep Ant instr_config_eda2.txt | awk '{printf("\"%s\",",$7);}'
 # /home/msok/aavs/bitbucket/aavs-calibration/config/aavs2$ grep Ant instr_config_aavs2.txt | awk '{printf("\"%s\",",$7);}'
 eda2_aavs2_antenna_names = [ "Ant061","Ant063","Ant064","Ant083","Ant136","Ant124","Ant123","Ant122","Ant084","Ant085","Ant086","Ant097","Ant121","Ant120","Ant099","Ant098","Ant134","Ant135","Ant152","Ant153","Ant201","Ant200","Ant199","Ant188","Ant154","Ant155","Ant156","Ant167","Ant187","Ant186","Ant169","Ant168","Ant118","Ant137","Ant138","Ant147","Ant204","Ant203","Ant185","Ant184","Ant148","Ant149","Ant150","Ant151","Ant183","Ant172","Ant171","Ant170","Ant065","Ant066","Ant079","Ant080","Ant139","Ant119","Ant117","Ant116","Ant081","Ant082","Ant100","Ant101","Ant105","Ant104","Ant103","Ant102","Ant006","Ant007","Ant008","Ant021","Ant062","Ant053","Ant052","Ant051","Ant023","Ant024","Ant025","Ant026","Ant032","Ant031","Ant030","Ant029","Ant027","Ant028","Ant054","Ant055","Ant096","Ant095","Ant091","Ant090","Ant056","Ant057","Ant058","Ant059","Ant089","Ant088","Ant087","Ant060","Ant092","Ant093","Ant094","Ant125","Ant162","Ant161","Ant160","Ant159","Ant126","Ant127","Ant128","Ant129","Ant133","Ant132","Ant131","Ant130","Ant157","Ant158","Ant163","Ant164","Ant223","Ant197","Ant196","Ant195","Ant165","Ant166","Ant189","Ant190","Ant194","Ant193","Ant192","Ant191","Ant198","Ant220","Ant221","Ant222","Ant252","Ant251","Ant250","Ant249","Ant224","Ant225","Ant226","Ant227","Ant248","Ant247","Ant246","Ant228","Ant202","Ant217","Ant218","Ant219","Ant255","Ant254","Ant253","Ant245","Ant229","Ant230","Ant231","Ant240","Ant244","Ant243","Ant242","Ant241","Ant205","Ant206","Ant212","Ant213","Ant256","Ant239","Ant238","Ant237","Ant214","Ant215","Ant216","Ant232","Ant236","Ant235","Ant234","Ant233","Ant140","Ant145","Ant146","Ant173","Ant211","Ant210","Ant209","Ant208","Ant174","Ant175","Ant178","Ant179","Ant207","Ant182","Ant181","Ant180","Ant073","Ant107","Ant108","Ant109","Ant177","Ant176","Ant144","Ant143","Ant110","Ant111","Ant112","Ant113","Ant142","Ant141","Ant115","Ant114","Ant040","Ant041","Ant042","Ant043","Ant106","Ant078","Ant077","Ant076","Ant045","Ant068","Ant069","Ant070","Ant075","Ant074","Ant072","Ant071","Ant001","Ant012","Ant013","Ant014","Ant067","Ant048","Ant047","Ant046","Ant015","Ant016","Ant017","Ant036","Ant044","Ant039","Ant038","Ant037","Ant002","Ant003","Ant004","Ant005","Ant050","Ant049","Ant035","Ant034","Ant009","Ant010","Ant011","Ant018","Ant033","Ant022","Ant020","Ant019" ]
+
+CH2FREQ = ( 400.00/512.00 )
+
+# excluded frequency ranges in MHz :
+global_excluded_freq_ranges = set()
 
 def mkdir_p(path):
    try:
@@ -47,19 +54,31 @@ def mkdir_p(path):
       else: raise
 
 def check_antenna( spectrum, median_spectrum, iqr_spectrum, threshold_in_sigma=3, ant_idx=-1, debug=False ):
+   global global_excluded_freq_ranges
+   global CH2FREQ
 
    total_power = 0
    n_bad_channels = 0
    
    n_chan = len(spectrum)
    for ch in range(0,n_chan) :
+      freq_mhz = ch*CH2FREQ
+   
       diff = spectrum[ch] - median_spectrum[ch]
       rms = iqr_spectrum[ch] / 1.35
       
       if math.fabs(diff) > threshold_in_sigma*rms :
          n_bad_channels += 1
          
-      total_power += spectrum[ch]
+      is_ok = True
+      
+      for excluded_range in global_excluded_freq_ranges :
+          if freq_mhz >= excluded_range[0] and freq_mhz <= excluded_range[1] :
+             is_ok = False
+             break
+      
+      if is_ok :
+         total_power += spectrum[ch]
          
 
    if debug : 
@@ -442,7 +461,9 @@ def calc_median_spectrum( median_spectrum_per_ant_x , median_spectrum_per_ant_y,
    return (median_spectrum_x,median_spectrum_y,iqr_spectrum_x,iqr_spectrum_y)
 
 def plot_antenna_with_median( options, antname, median_freq, median_power, median_power_err, ant_freq, ant_power, outdir="images/", y_min=1, y_max=60, label="X pol.", plot_db=False, color='black', pol='x', ux_time=None, median_total_power=-1 ) :
-   CH2FREQ = ( 400.00/512.00 )
+   # CH2FREQ = ( 400.00/512.00 )
+   global CH2FREQ
+   
    count_median = len(median_power)
    if ux_time is None :
       ux_time = time.time()
@@ -734,6 +755,14 @@ def parse_options(idx):
    
    
 if __name__ == '__main__' :
+#   global global_excluded_freq_ranges
+   
+   # init global ranges see : /home/msok/Desktop/EDA2/logbook/20210507_eda2_ppd_plots_AUTO.odt
+   # ranges in MHz 
+   global_excluded_freq_ranges.add( ( 240 , 274 ) ) 
+   global_excluded_freq_ranges.add( ( 355 , 385 ) )
+   
+
    hdf_file_template="channel_integ_%d_20210222_09517_0.hdf5"
    if len(sys.argv) > 1:
       hdf_file_template = sys.argv[1]
