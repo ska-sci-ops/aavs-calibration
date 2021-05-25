@@ -127,14 +127,34 @@ fits op=uvin in=${obsid} out=${src}.uv options=compress
 puthd in=${src}.uv/jyperk value=$jyperk
 puthd in=${src}.uv/systemp value=$systemp
 
+# spectral indecis from Benz et al. :
+# WARNING : not all ranges have been implemented below yet
+#  50-100 MHz: 2.15 ->  24000,0.10,2.15
+# 100-150 MHz: 1.86 ->  51000,0.15,1.6
+# 150-200 MHz: 1.61 ->  51000,0.15,1.9
+# 200-300 MHz: 1.50 ->  81000,0.20,1.5
+# 300-400 MHz: 1.31 ->  149000,0.30,1.31
 if [ $cc_dir -lt 192 ] ; then
   # reduce uv cut range for really low frequencies. Really only works when Sun is the only thing up at these freqs
   umin=0.004
   if [ $cc_dir -lt 100 ] ; then
     umin=0.003
   fi
-  mfcal vis=${src}.uv flux=51000,0.15,1.9 select='uvrange('$umin',1)' edge=2 # f < 150 MHz
+  
+  if [ $cc_dir -gt 128 ] ; then
+     # 100 - 150 MHz :
+     echo "Frequency range 100 - 150 MHz:"
+     echo "mfcal vis=${src}.uv flux=51000,0.15,1.9 select='uvrange('$umin',1)' edge=2"
+     mfcal vis=${src}.uv flux=51000,0.15,1.9 select='uvrange('$umin',1)' edge=2 # f < 150 MHz
+  else
+     # 50 - 100 MHz : 2.15 and 100 MHz :
+     echo "Frequency range 50 - 100 MHz:"
+     echo "mfcal vis=${src}.uv flux=24000,0.10,2.15 select='uvrange('$umin',1)' edge=2"
+     mfcal vis=${src}.uv flux=24000,0.10,2.15 select='uvrange('$umin',1)' edge=2 # f 50 - 100 MHz
+  fi
 else
+  echo "Frequency range >= 150 MHz:"
+  echo "mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' edge=2"
   mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' edge=2 # f > 150 MHz
 fi
 puthd in=${src}.uv/interval value=2.5
