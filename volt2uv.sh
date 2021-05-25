@@ -133,7 +133,7 @@ if [ $cc_dir -lt 192 ] ; then
   if [ $cc_dir -lt 100 ] ; then
     umin=0.003
   fi
-  mfcal vis=${src}.uv flux=51000,0.15,1.9 select='uvrange('$umin',1)' # f < 150 MHz
+  mfcal vis=${src}.uv flux=51000,0.15,1.9 select='uvrange('$umin',1)' edge=2 # f < 150 MHz
 else
   mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' edge=2 # f > 150 MHz
 fi
