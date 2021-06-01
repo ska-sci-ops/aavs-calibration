@@ -8,5 +8,5 @@ BANDWIDTH 0.78125  # total bandwidth in MHz
 HA_HRS    -0.00833333  # the HA at the *start* of the scan. (hours)
 DEC_DEGS  -26.7033 # the DEC of the desired phase centre (degs)
 INVERT_FREQ 0   # 1 if the freq decreases with channel number
-CONJUGATE 1     # conjugate the raw data to fix sign convention problem if necessary
+CONJUGATE 0     # conjugate the raw data to fix sign convention problem if necessary
 GEOM_CORRECT 1  # apply geometric phase corrections when 1. Don't when 0
