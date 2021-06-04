@@ -1,12 +1,1 @@
-FIELDNAME eda2cal
-TELESCOPE EDA2   # telescope name like MWA, MOST, ATCA etc
-N_SCANS   1     # number of scans (time instants) in correlation products
-N_INPUTS  512   # number of inputs into the correlation products
-N_CHANS   1     # number of channels in spectrum
-CORRTYPE  B     # correlation type to use. 'C'(cross), 'B'(both), or 'A'(auto)
-BANDWIDTH 0.78125  # total bandwidth in MHz
-HA_HRS    -0.00833333  # the HA at the *start* of the scan. (hours)
-DEC_DEGS  -26.7033 # the DEC of the desired phase centre (degs)
-INVERT_FREQ 0   # 1 if the freq decreases with channel number
-CONJUGATE 1     # conjugate the raw data to fix sign convention problem if necessary
-GEOM_CORRECT 1  # apply geometric phase corrections when 1. Don't when 0
+config/eda2/header_eda2_cal.txt
