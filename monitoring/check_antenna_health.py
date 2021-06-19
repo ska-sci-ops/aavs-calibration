@@ -573,13 +573,13 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
    now_str = now.strftime("%Y-%m-%d %H:%M:%S")
 
    out_bad_html_f.write("<html>\n")
-   line = "<title>List of bad antennas in the SKA-Low station %s</title>" % (options.station_name)
+   line = "<title>List of bad antennas in the SKA-Low station %s</title>\n" % (options.station_name)
    out_bad_html_f.write( line )
    
-   line = "<center><h1>List of bad antennas in the SKA-Low station %s</h1></center>" % (options.station_name)
+   line = "<center><h1>List of bad antennas in the SKA-Low station %s</h1></center>\n" % (options.station_name)
    out_bad_html_f.write( line )
    
-   line = "<center>( generated at %s )</center>" % (now_str)
+   line = "<center>( generated at %s AWST )</center>" % (now_str)
    out_bad_html_f.write( line )
    
    line = "<h2>Criteria for flagging bad antennas:</h2>\n<ul>\n"   
