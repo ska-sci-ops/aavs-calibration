@@ -567,6 +567,30 @@ def plot_antenna_with_median( options, antname, median_freq, median_power, media
    plt.close(fig) # close first figure although second one is active   
 
 
+# write_bad_antenna_html_header( out_bad_f , options )
+def write_bad_antenna_html_header( out_bad_html_f , options ) :
+   out_bad_html_f.write("<html>\n")
+   line = "<title>List of bad antennas in the SKA-Low station %s</title>" % (options.station_name)
+   out_bad_html_f.write( line )
+
+   line = "<center><h1>List of bad antennas in the SKA-Low station %s</h1></center>" % (options.station_name)
+   out_bad_html_f.write( line )
+   
+   out_bad_html_f.write( "<br>\n" )
+   out_bad_html_f.write( "<body>\n" )
+   out_bad_html_f.write( "<br>\n" )
+   out_bad_html_f.write( "<br>\n" )
+   out_bad_html_f.write( "<p>Antenna spectra compared with a median spectrum +/- 1 x sigma_iqr :</p>\n" )
+   out_bad_html_f.write( "<ul>\n" )
+   
+def write_bad_antenna_html_end( out_bad_html_f , options ) :
+   out_bad_html_f.write("</ul>\n")
+   out_bad_html_f.write("</body>\n")
+   out_bad_html_f.write("</html>\n")
+   
+
+
+
   
    
 
@@ -579,6 +603,7 @@ def check_antenna_health( hdf_file_template, options,
    
    ux_time = time.time()
    out_bad_list_file = options.station_name + "_bad_antennas.txt"
+   out_bad_list_html_file = options.station_name + "_bad_antennas.html"
    out_health_report = options.station_name + "_health_report.txt"
    out_median_file   = options.station_name + "_median"
    out_ant_median_file = options.station_name + "_median_spectrum_ant"
@@ -630,10 +655,14 @@ def check_antenna_health( hdf_file_template, options,
    
    # Find bad antennas and save to file :   
    out_bad_f = open( options.outdir + "/" + out_bad_list_file , "w" )
+   out_bad_html_f = open( options.outdir + "/" + out_bad_list_html_file , "w" )
    comment = ("# max_bad_channels = %d , median total power in X = %d and in Y = %d (total power is expected to be in the range x0.5 to x2 of these values)\n" % (max_bad_channels,median_total_power_x,median_total_power_y))
    out_bad_f.write( comment )
    out_bad_f.write( ("# UNIXTIME = %.4f\n" % (ux_time)) )
    out_bad_f.write( "# ANTNAME  ANT_INDEX  TILE  ANT   REASON\n" )
+   
+   # html file :
+   write_bad_antenna_html_header( out_bad_html_f , options )
    
    
    out_report_f = open( options.outdir + "/" + out_health_report , "w" )
@@ -702,6 +731,16 @@ def check_antenna_health( hdf_file_template, options,
             flag = flag_x + "," + flag_y
             line = "%s : %05d  %05d , %05d %s\n" % (antname,ant_idx,tile,ant,flag)
             out_bad_f.write( line )
+            
+            html_line = "   <li> <strong>%s / Tile%s</strong> (config file index = %05d  , in tile index = %05d) : " % (antname,tile,ant_idx,ant)
+            if len(flag_x) > 0 :
+               # TODO : create description for X in html 
+               html_line += ("<a href=\"images/%s_x.png\"><u>%s</u></a>" % (antname,flag_x))
+            if len(flag_y) > 0 :
+               # TODO : create description for Y in html
+               html_line += (", <a href=\"images/%s_y.png\"><u>%s</u></a>" % (antname,flag_y))
+            html_line += "</a>\n"               
+            out_bad_html_f.write( html_line )
 
          # out_x_name = "ant_%05d_%05d_x.txt" % (tile,ant)
          # out_y_name = "ant_%05d_%05d_y.txt" % (tile,ant)
@@ -728,6 +767,10 @@ def check_antenna_health( hdf_file_template, options,
             plot_antenna_with_median( options, antname, freq, copy.copy(median_spectrum_y), copy.copy(iqr_spectrum_y), freq, copy.copy(ant_median_spectrum_y), label=label, outdir=options.outdir + "/images/", color=color, pol='y', ux_time=ux_time, median_total_power=median_total_power_y )
    
    out_bad_f.close()         
+   
+   # write end of the file and close :   
+   write_bad_antenna_html_end( out_bad_html_f , options )
+   out_bad_html_f.close()
       
 #  CLOSE HDF5 files :
    for tile in range(0,nof_tiles) :   
