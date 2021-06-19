@@ -614,9 +614,9 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
             pass
 
          if is_txt :
-            line = "<li><a href=\"%s\"><u>%s</u></a></li>" % (outfile,outfile)
+            line = "<li><a href=\"%s\"><u>%s</u></a></li>\n" % (outfile,outfile)
          else :
-            line = "<li><a href=\"%s_x.txt\"><u>Median X pol.</u></a> <a href=\"%s_y.txt\"><u>Median Y pol.</u></a></li>" % (outfile,outfile) 
+            line = "<li><a href=\"%s_x.txt\"><u>Median X pol.</u></a> <a href=\"%s_y.txt\"><u>Median Y pol.</u></a></li>\n" % (outfile,outfile) 
             
          out_bad_html_f.write( line )
             
