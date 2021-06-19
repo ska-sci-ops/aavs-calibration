@@ -101,13 +101,16 @@ if [[ $do_copy -gt 0 ]]; then
    
    echo "cp ${station_name}_bad_antennas.txt /exports/calibration/${station_name}/antenna_health/"
    cp ${station_name}_bad_antennas.txt /exports/calibration/${station_name}/antenna_health/
+
+   echo "cp ${station_name}_bad_antennas.html /exports/calibration/${station_name}/antenna_health/"
+   cp ${station_name}_bad_antennas.html /exports/calibration/${station_name}/antenna_health/
    
    echo "cp ${station_name}_health_report.txt /exports/calibration/${station_name}/antenna_health/${station_name}_health_report_${start_dtm}.txt"
    cp ${station_name}_health_report.txt /exports/calibration/${station_name}/antenna_health/${station_name}_health_report_${start_dtm}.txt
    
    echo "cp ${station_name}_bad_antennas.txt /exports/calibration/${station_name}/${station_name}_bad_antennas_${start_dtm}.txt"
    cp ${station_name}_bad_antennas.txt /exports/calibration/${station_name}/${station_name}_bad_antennas_${start_dtm}.txt
-   
+
    # images :
    echo "mkdir -p /exports/calibration/${station_name}/images/"
    mkdir -p /exports/calibration/${station_name}/images/
