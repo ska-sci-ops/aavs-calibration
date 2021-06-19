@@ -568,19 +568,65 @@ def plot_antenna_with_median( options, antname, median_freq, median_power, media
 
 
 # write_bad_antenna_html_header( out_bad_f , options )
-def write_bad_antenna_html_header( out_bad_html_f , options ) :
+def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_x, median_total_power_y, out_put_files ) :
+   now = datetime.now()
+   now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+
    out_bad_html_f.write("<html>\n")
    line = "<title>List of bad antennas in the SKA-Low station %s</title>" % (options.station_name)
    out_bad_html_f.write( line )
-
+   
    line = "<center><h1>List of bad antennas in the SKA-Low station %s</h1></center>" % (options.station_name)
    out_bad_html_f.write( line )
    
-   out_bad_html_f.write( "<br>\n" )
+   line = "<center>( generated at %s )</center>" % (now_str)
+   out_bad_html_f.write( line )
+   
+   line = "<h2>Criteria for flagging bad antennas:</h2>\n<ul>\n"   
+   out_bad_html_f.write( line )
+   
+   line = "<li>Total power is flagged as bad if it's lower than 1/2 of total power of median spectrum or larger than 2 times total power of median spectrum (= %.2f and %.2f for X and Y polarisations respectively)</li>\n" % (median_total_power_x,median_total_power_y)
+   out_bad_html_f.write( line )
+   
+   line = "<li>If number of bad channels is larger than %d, where bad channels are counted as those which deviate from the median spectrum by more than %.2f sigma.<br> Number of bad channels is specified as values of BAD_CH_X and BAD_CH_Y variables</li>\n" % (options.max_bad_channels,options.threshold_in_sigma)
+   out_bad_html_f.write( line )
+   
+   out_bad_html_f.write( "</ul>\n" )
+   
+   line = "<h2>Other output files:</h2>\n<ul>\n"
+   out_bad_html_f.write( line )
+   
+   for outfile in out_put_files :
+      is_html = False
+            
+      try :      
+         if outfile.index(".html") >= 0 :
+            is_html = True
+      except ValueError :
+         pass
+      
+      if not is_html :
+         is_txt = False
+         try :      
+            if outfile.index(".txt") >= 0 :
+               is_txt = True
+         except ValueError :
+            pass
+
+         if is_txt :
+            line = "<li><a href=\"%s\"><u>%s</u></a></li>" % (outfile,outfile)
+         else :
+            line = "<li><a href=\"%s_x.txt\"><u>Median X pol.</u></a> <a href=\"%s_y.txt\"><u>Median Y pol.</u></a></li>" % (outfile,outfile) 
+            
+         out_bad_html_f.write( line )
+            
+   out_bad_html_f.write( "</ul>\n" )
+      
+#   out_bad_html_f.write( "<br>\n" )
    out_bad_html_f.write( "<body>\n" )
+#   out_bad_html_f.write( "<br>\n" )
    out_bad_html_f.write( "<br>\n" )
-   out_bad_html_f.write( "<br>\n" )
-   out_bad_html_f.write( "<p>Antenna spectra compared with a median spectrum +/- 1 x sigma_iqr :</p>\n" )
+   out_bad_html_f.write( "<h2>Antenna spectra compared with a median spectrum +/- %.1f x sigma_iqr :</h2>\n" % (options.threshold_in_sigma) )
    out_bad_html_f.write( "<ul>\n" )
    
 def write_bad_antenna_html_end( out_bad_html_f , options ) :
@@ -599,7 +645,7 @@ def write_bad_antenna_html_end( out_bad_html_f , options ) :
 # t_sample_list=[0] - to just use a single timestamp
 def check_antenna_health( hdf_file_template, options, 
                           nof_tiles=16, nof_ant_per_tile=16, nof_pols=2, nof_channels=512,
-                          max_bad_channels=100, antenna_names=None ):
+                          antenna_names=None ):
    
    ux_time = time.time()
    out_bad_list_file = options.station_name + "_bad_antennas.txt"
@@ -607,6 +653,8 @@ def check_antenna_health( hdf_file_template, options,
    out_health_report = options.station_name + "_health_report.txt"
    out_median_file   = options.station_name + "_median"
    out_ant_median_file = options.station_name + "_median_spectrum_ant"
+   
+   out_put_files = [ out_bad_list_file, out_bad_list_html_file, out_health_report, out_median_file, out_ant_median_file ]
    
    ant_count = nof_tiles*nof_ant_per_tile
    
@@ -656,17 +704,17 @@ def check_antenna_health( hdf_file_template, options,
    # Find bad antennas and save to file :   
    out_bad_f = open( options.outdir + "/" + out_bad_list_file , "w" )
    out_bad_html_f = open( options.outdir + "/" + out_bad_list_html_file , "w" )
-   comment = ("# max_bad_channels = %d , median total power in X = %d and in Y = %d (total power is expected to be in the range x0.5 to x2 of these values)\n" % (max_bad_channels,median_total_power_x,median_total_power_y))
+   comment = ("# max_bad_channels = %d , median total power in X = %d and in Y = %d (total power is expected to be in the range x0.5 to x2 of these values)\n" % (options.max_bad_channels,median_total_power_x,median_total_power_y))
    out_bad_f.write( comment )
    out_bad_f.write( ("# UNIXTIME = %.4f\n" % (ux_time)) )
    out_bad_f.write( "# ANTNAME  ANT_INDEX  TILE  ANT   REASON\n" )
    
    # html file :
-   write_bad_antenna_html_header( out_bad_html_f , options )
+   write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_x, median_total_power_y, out_put_files )
    
    
    out_report_f = open( options.outdir + "/" + out_health_report , "w" )
-   out_report_f.write( ("# MAXIMUM NUMBER OF BAD CHANNELS ALLOWED = %d\n" % (max_bad_channels)) )
+   out_report_f.write( ("# MAXIMUM NUMBER OF BAD CHANNELS ALLOWED = %d\n" % (options.max_bad_channels)) )
    out_report_f.write( ("# UNIXTIME = %.4f\n" % (ux_time)) )
    comment = ("#  ANT_NAME TILE_ID  ANT_ID  TOTAL_POWER_X  NUM_BAD_CHANNELS_X  TOTAL_POWER_Y  NUM_BAD_CHANNELS_Y  STATUS  DETAILS\n" )   
    out_report_f.write( comment )
@@ -692,14 +740,14 @@ def check_antenna_health( hdf_file_template, options,
          flag_y = ""
          bad_power_x = False
          bad_power_y = False
-         if n_bad_channels_x > max_bad_channels :
+         if n_bad_channels_x > options.max_bad_channels :
             flag_x += ("BAD_CH_X=%d" % n_bad_channels_x)
          if n_total_power_x < (median_total_power_x/2) or n_total_power_x > (median_total_power_x*2):
             flag_x += (",BAD_POWER_X=%d" % n_total_power_x)
             bad_power_x = True
             # print("DEBUG : %d vs. %d or %d vs %d" % (n_total_power_x,median_total_power_x,n_total_power_x,median_total_power_x))
             
-         if n_bad_channels_y > max_bad_channels :
+         if n_bad_channels_y > options.max_bad_channels :
             flag_y += (",BAD_CH_Y=%d" % n_bad_channels_y)
          if n_total_power_y < (median_total_power_y/2) or n_total_power_y > (median_total_power_y*2):
             flag_y += (",BAD_POWER_Y=%d" % n_total_power_y)
@@ -787,6 +835,7 @@ def parse_options(idx):
    parser.add_option("--station","--station_name",dest="station_name",default="eda2",help="Prefix for output files [default: %default]")
    parser.add_option('--latest','--newest','--last',action="store_true",dest="latest",default=False, help="Use the most recent timestamps [default %default]")
    parser.add_option('--threshold','--threshold_in_sigma',dest="threshold_in_sigma",default=3,help="Threshold in sigma [default %default]")
+   parser.add_option('--max_bad_channels','--max_bad_ch',dest="max_bad_channels",default=100,help="Maximum number of bad channels [default %default]",type="int")
    
    # plotting :
    parser.add_option('--images','--plot',action="store_true",dest="do_images",default=False, help="Do images [default %default]")
