@@ -110,6 +110,9 @@ if [[ $do_copy -gt 0 ]]; then
    
    echo "cp ${station_name}_bad_antennas.txt /exports/calibration/${station_name}/${station_name}_bad_antennas_${start_dtm}.txt"
    cp ${station_name}_bad_antennas.txt /exports/calibration/${station_name}/${station_name}_bad_antennas_${start_dtm}.txt
+   
+   echo "cp ${station_name}_median_?.txt /exports/calibration/${station_name}/"
+   cp ${station_name}_median_?.txt /exports/calibration/${station_name}/
 
    # images :
    echo "mkdir -p /exports/calibration/${station_name}/images/"
