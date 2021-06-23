@@ -350,7 +350,7 @@ if __name__ == "__main__":
                       help="How long to track in seconds, <0 -> infinite [default: %default]",type="int")
     parser.add_option("--sleep_time", "--track_delta", "--track_resolution", dest="tracking_resolution", default=30,
                       help="Tracking resolution in seconds [default: %default]",type="int")
-    parser.add_option("--delay_sign", "--firmware_delay_sign", dest="delay_sign", default=-1,
+    parser.add_option("--delay_sign", "--firmware_delay_sign", dest="delay_sign", default=1,
                       help="Sign of delays loaded to firmware [default: %default]",type="int")
                       
                       
@@ -396,7 +396,7 @@ if __name__ == "__main__":
            pointing.point_to_sun(pointing_time)
            
            # Download coefficients to station
-           pointing.download_delays()
+           pointing.download_delays( delay_sign=options.delay_sign )
 
     elif opts.static:
         opts.alt, opts.az = Angle(opts.alt,"degree"), Angle(opts.az,"degree")
@@ -406,7 +406,7 @@ if __name__ == "__main__":
         pointing.point_array_static(opts.alt, opts.az)
         
         # Download coefficients to station
-        pointing.download_delays()
+        pointing.download_delays( delay_sign=options.delay_sign )
     else:        
         opts.ra, opts.dec = Angle(opts.ra,"degree"), Angle(opts.dec,"degree")
         
@@ -419,7 +419,7 @@ if __name__ == "__main__":
               pointing.point_array(opts.ra, opts.dec,  pointing_time=pointing_time, delta_time=0)
               
               # Download coefficients to station
-              pointing.download_delays()
+              pointing.download_delays( delay_sign=options.delay_sign )
 
               if opts.tracking_resolution > 0 :
                  logging.info("Waiting {} seconds before next pointing command".format(opts.tracking_resolution))
@@ -429,4 +429,4 @@ if __name__ == "__main__":
            pointing.point_array(opts.ra, opts.dec,  pointing_time=pointing_time, delta_time=0)
 
            # Download coefficients to station
-           pointing.download_delays()
+           pointing.download_delays( delay_sign=options.delay_sign )
