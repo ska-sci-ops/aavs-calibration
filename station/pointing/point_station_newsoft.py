@@ -229,7 +229,7 @@ class Pointing(object):
         # All done, return coefficients
         return coefficients
 
-    def download_delays(self):
+    def download_delays(self, delay_sign=1 ): # delay_sign parameter added at least for the testing stage, should later become -1 for good, once both stations have upgraded firmware
         """ Download generated delays to station """
         if self._delays is None:
             logging.error("Delays have not been computed yet")
@@ -247,8 +247,8 @@ class Pointing(object):
 
             # Form TPM-compatible delays
             tpm_delays = np.zeros((self._nof_antennas, 2))
-            tpm_delays[:, 0] = self._delays
-            tpm_delays[:, 1] = self._delay_rate
+            tpm_delays[:, 0] = delay_sign * self._delays
+            tpm_delays[:, 1] = delay_sign * self._delay_rate
 
             # Download to tiles
             t0 = time.time()
@@ -350,6 +350,9 @@ if __name__ == "__main__":
                       help="How long to track in seconds, <0 -> infinite [default: %default]",type="int")
     parser.add_option("--sleep_time", "--track_delta", "--track_resolution", dest="tracking_resolution", default=30,
                       help="Tracking resolution in seconds [default: %default]",type="int")
+    parser.add_option("--delay_sign", "--firmware_delay_sign", dest="delay_sign", default=-1,
+                      help="Sign of delays loaded to firmware [default: %default]",type="int")
+                      
                       
                       
 
@@ -383,7 +386,7 @@ if __name__ == "__main__":
               pointing.point_to_sun(pointing_time)
               
               # Download coefficients to station
-              pointing.download_delays()
+              pointing.download_delays( delay_sign=options.delay_sign )
               
               if opts.tracking_resolution > 0 :
                  logging.info("Waiting {} seconds before next pointing command".format(opts.tracking_resolution))
