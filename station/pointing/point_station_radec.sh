@@ -23,6 +23,12 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    object_set=1
 fi
 
+options=""
+if [[ -n "$5" && "$5" != "-" ]]; then
+   options="$5"
+fi
+
+
 if [[ $object_set -gt 0 ]]; then
    if [[ $object == "SUN" || $object == "sun" ]]; then       
       echo "DEBUG : pointing to object $object - is sun"
@@ -43,5 +49,5 @@ config_file=/opt/aavs/config/${station_name_lower}.yml
 
 cd ~/aavs-calibration/station/pointing
 date
-echo "python ./point_station_newsoft.py --ra=$RA_deg --dec=$DEC_deg --antenna_locations=${antfile} --config=${config_file}"
-python ./point_station_newsoft.py --ra=$RA_deg --dec=$DEC_deg --antenna_locations=${antfile} --config=${config_file}
+echo "python ./point_station_newsoft.py --ra=$RA_deg --dec=$DEC_deg --antenna_locations=${antfile} --config=${config_file} ${options}"
+python ./point_station_newsoft.py --ra=$RA_deg --dec=$DEC_deg --antenna_locations=${antfile} --config=${config_file} ${options}
