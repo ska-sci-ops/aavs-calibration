@@ -630,9 +630,9 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
    out_bad_html_f.write( "<ul>\n" )
    
 def write_bad_antenna_html_end( out_bad_html_f , options, n_bad_and=0 ) :
-   out_bad_html_f.write("</ul>\n")
+   out_bad_html_f.write("</ul>\n\n")
    
-   line = ("<br><h2>Number of antennas with one bad polarisation : %d </h2>\n<ul>\n" % (n_bad_ant))
+   line = ("<br><h2>Number of antennas with one bad polarisation : %d </h2>\n\n" % (n_bad_ant))
    out_bad_html_f.write( line )
    
    out_bad_html_f.write("</body>\n")
@@ -824,7 +824,7 @@ def check_antenna_health( hdf_file_template, options,
    out_bad_f.close()         
    
    # write end of the file and close :   
-   write_bad_antenna_html_end( out_bad_html_f , options, n_bad_ant_count )
+   write_bad_antenna_html_end( out_bad_html_f , options, n_bad_and=n_bad_ant_count )
    out_bad_html_f.close()
       
 #  CLOSE HDF5 files :
