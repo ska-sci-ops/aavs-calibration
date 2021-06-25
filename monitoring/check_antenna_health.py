@@ -633,6 +633,7 @@ def write_bad_antenna_html_end( out_bad_html_f , options, n_bad_and=0 ) :
    out_bad_html_f.write("</ul>\n\n")
    
    line = ("<br><h2>Number of antennas with one bad polarisation : %d </h2>\n\n" % (n_bad_ant))
+   print("DEBUG : line with number of bad antennas = |%s|" % (line))
    out_bad_html_f.write( line )
    
    out_bad_html_f.write("</body>\n")
