@@ -232,8 +232,8 @@ do
 
    if [[ $full_time_resolution -gt 0 ]]; then   
       echo "INFO : running full resolution acquisition"
-      echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip}"
-      /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip}
+      echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} > daq.out 2>&1"
+      /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} > daq.out 2>&1
    else
       echo "INFO : running normal station beam in very low time resolution"
       echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -S --channel_samples=262144 --beam_channels=8 --station_samples=1048576 --acquisition_duration=${interval}"
