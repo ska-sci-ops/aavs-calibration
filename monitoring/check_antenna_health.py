@@ -627,10 +627,10 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
 #   out_bad_html_f.write( "<br>\n" )
    out_bad_html_f.write( "<br>\n" )
    out_bad_html_f.write( "<h2>Antenna spectra compared with a median spectrum +/- %.1f x sigma_iqr :</h2>\n" % (options.threshold_in_sigma) )
-   out_bad_html_f.write( "<ul>\n" )
+   out_bad_html_f.write( "<ol>\n" )
    
 def write_bad_antenna_html_end( out_bad_html_f , options, n_bad_ant=0 ) :
-   out_bad_html_f.write("</ul>\n\n")
+   out_bad_html_f.write("</ol>\n\n")
    
    line = ("<br><h2>Number of antennas with one bad polarisation : %d </h2>\n\n" % (n_bad_ant))
    print("DEBUG : line with number of bad antennas = |%s|" % (line))
