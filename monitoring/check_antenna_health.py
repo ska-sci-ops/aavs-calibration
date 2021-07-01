@@ -53,6 +53,24 @@ def mkdir_p(path):
          pass
       else: raise
 
+##########################################################################################################################################
+# 
+# FUNCTION : checks antennas : calculates number of bad channels and total power 
+# 
+# INPUT :
+#     spectrum - antenna power spectrum in all frequency channels (numpy array or so)
+#     median_spectrum - reference median power spectrum of all antennas (calculated in each frequency channel)
+#     iqr_spectrum    - standard deviation in each frequency channels calculated over all antennas 
+#     threshold_in_sigma - threshold in sigmas to check if power in each channel is within a range (median_spectrum +/- threshold_in_sigma + iqr_spectrum) 
+#                          if it is in this range -> channel is ok, if not channel is BAD
+#     ant_idx         - antenna index only for debugging purposes 
+#     debug = true / false                  
+# 
+# OUTPUT :
+#     n_bad_channels - number of bad channels, which how power outside the range ( median_spectrum[ch] +/- threshold_in_sigma + iqr_spectrum[ch])
+#     total_power    - total power (sum over spectrum[ch])
+# 
+##########################################################################################################################################
 def check_antenna( spectrum, median_spectrum, iqr_spectrum, threshold_in_sigma=3, ant_idx=-1, debug=False ):
    global global_excluded_freq_ranges
    global CH2FREQ
@@ -87,6 +105,15 @@ def check_antenna( spectrum, median_spectrum, iqr_spectrum, threshold_in_sigma=3
    return (n_bad_channels,total_power)
 
 
+##########################################################################################################################################
+# FUNCTION : write power spectrum to output file 
+# 
+#  INPUT : 
+#       spectrum - numpy array of power in each channel (spectrum[ch])
+#       filename - name of output filename
+#       iqr      - standard deviation of power calculated over all antennas (as inter-quartile range)
+#       flag     - OK or BAD - to save if the antnena is considered OK or BAD
+##########################################################################################################################################
 def write_spectrum( spectrum , filename, iqr=None, flag="OK" ) :
    out_f = open( filename , "w" )
 
@@ -101,7 +128,13 @@ def write_spectrum( spectrum , filename, iqr=None, flag="OK" ) :
       
    out_f.close()
 
-
+##########################################################################################################################################
+#
+#
+# WARNING : old function not currently used. Ignore for now, but do not remove
+#
+# 
+##########################################################################################################################################
 # Check antenna health in comparison to other antennas within the same tile for only a single timestamp (default t_sample=0 - using sample 0)
 # so it will be median spectrum calculated using 16 spectra from other antennas 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -199,6 +232,18 @@ def check_antenna_health_single_tile( hdf_file, t_sample=0, out_median_file="med
       
    f.close()
 
+##########################################################################################################################################
+# FUNCTION : read data in all HDF5 files with a filename specified by template hdf_file_template. There are 16 files (one per tile), each HDF5 file contains data from 16 antennas 
+# INPUT :
+#     hdf_file_template - template file name
+#     nof_tiles=16, nof_ant_per_tile=16, nof_pols=2, nof_channels=512 : number of tiles in file (16), number of antennas per tile (16), number of polarisations (2), number of frequency channels (512)
+# 
+# OUTPUT :
+#     f_array - hash table of HDF5 files
+#     f_data  - data in all HDF5 files (antoher hash table)
+#     n_timesteps - number of read timesteps (to be analysed, as specified by parameter --n_timesteps, where -1 means ALL)
+#   
+##########################################################################################################################################
 def read_all_tiles_data( hdf_file_template, nof_tiles=16, nof_ant_per_tile=16, nof_pols=2, nof_channels=512 ) :
 
    print("PROGRESS : reading HDF5 files using file template %s" % (hdf_file_template))
@@ -225,6 +270,23 @@ def read_all_tiles_data( hdf_file_template, nof_tiles=16, nof_ant_per_tile=16, n
 
    return (f_array,f_data,n_timesteps)
 
+##########################################################################################################################################
+# FUNCTION : for each antenna calculate its median power spectrum over all timesteps (as specified by parameter --n_timesteps, where -1 means ALL)
+# 
+#   INPUT :
+#        f_data - data files (see read_all_tiles_data)
+#        t_sample_list - list of timestamps to be analysed
+#        do_write      - write output file (True/False)
+#        out_ant_median_file - name of output file 
+#        nof_tiles=16, nof_ant_per_tile=16, nof_pols=2, nof_channels=512 : number of tiles in file (16), number of antennas per tile (16), number of polarisations (2), number of frequency channels (512)
+#        min_value - minimum acceptable value (default 0, as there should not be values <0 in the power spectrum - it would be an error value)
+#        outdir    - name out output directory 
+# 
+#    OUTPUT : 2 2D arrays indexed by antenna and frequency channel with median power spectra of all antennas as a function of frequncy channel for both polarisations :
+#       median_spectrum_per_ant_x - median power spectra for all antennas in X pol.
+#       median_spectrum_per_ant_y - median power spectra for all antennas in Y pol.
+# 
+##########################################################################################################################################
 def calc_median_spectra( f_data, t_sample_list, do_write=True, out_ant_median_file="median_spectrum_ant", nof_tiles=16, nof_ant_per_tile=16, nof_pols=2, nof_channels=512, min_value=0, outdir="./" ) :
    print("PROGRESS : calculating median spectrum of all antennas ...")
    median_spectrum_per_ant_x = {}
@@ -276,7 +338,14 @@ def calc_median_spectra( f_data, t_sample_list, do_write=True, out_ant_median_fi
              write_spectrum( median_spectrum_per_ant_y[ant_idx] , out_file_name_y, flag="" )
    
    return (median_spectrum_per_ant_x,median_spectrum_per_ant_y)
-   
+
+##########################################################################################################################################
+#
+#
+# WARNING : old function not currently used. Ignore for now, but do not remove
+#
+#
+##########################################################################################################################################   
 # all tiles :
 # t_sample_list=[0] - to just use a single timestamp
 def check_antenna_health_OLD( hdf_file_template, t_sample_list=None, out_median_file="median", out_bad_list_file="bad_antennas.txt", out_ant_median_file="median_spectrum_ant",
@@ -403,6 +472,20 @@ def check_antenna_health_OLD( hdf_file_template, t_sample_list=None, out_median_
    for tile in range(0,nof_tiles) :   
       f_array[tile].close()
 
+##########################################################################################################################################
+# FUNCTION : calculate median spectrum and standard deviation (as inter-quartile range) over median spectra of all the antennas 
+#            this is a reference spectrum to which all the antennas are then compare to asses their health 
+# 
+#    INPUT :
+#        median_spectrum_per_ant_x - median power spectra of all the antennas in X polarisation
+#        median_spectrum_per_ant_y - median power spectra of all the antennas in X polarisation
+#        out_median_file           - output filename where text file with median power spectrum is written
+#        do_write                  - write output file True/False
+#        nof_tiles=16, nof_ant_per_tile=16, nof_pols=2, nof_channels=512 : number of tiles in file (16), number of antennas per tile (16), number of polarisations (2), number of frequency channels (512)
+#        min_value - minimum acceptable value (default 0, as there should not be values <0 in the power spectrum - it would be an error value)
+#        outdir    - name out output directory 
+# 
+##########################################################################################################################################
 def calc_median_spectrum( median_spectrum_per_ant_x , median_spectrum_per_ant_y, out_median_file="median", do_write=True, nof_tiles=16, nof_ant_per_tile=16, nof_pols=2, nof_channels=512, min_val=0, outdir="./" ) :
    print("PROGRESS : calculating median value for every frequency channel ...")
    
@@ -460,6 +543,12 @@ def calc_median_spectrum( median_spectrum_per_ant_x , median_spectrum_per_ant_y,
       
    return (median_spectrum_x,median_spectrum_y,iqr_spectrum_x,iqr_spectrum_y)
 
+##########################################################################################################################################
+#
+# FUNCTION : generate images of power spectra of each antenna with reference median spectrum +/- 3 standard deviations 
+#   bad channels are marged and information if antenna is considered BAD or OK in the image title and legend 
+# 
+##########################################################################################################################################
 def plot_antenna_with_median( options, antname, median_freq, median_power, median_power_err, ant_freq, ant_power, outdir="images/", y_min=1, y_max=60, label="X pol.", plot_db=False, color='black', pol='x', ux_time=None, median_total_power=-1 ) :
    # CH2FREQ = ( 400.00/512.00 )
    global CH2FREQ
@@ -567,7 +656,12 @@ def plot_antenna_with_median( options, antname, median_freq, median_power, media
    plt.close(fig) # close first figure although second one is active   
 
 
+##########################################################################################################################################
 # write_bad_antenna_html_header( out_bad_f , options )
+# 
+# FUNCTION : write header of the generated .html file 
+# 
+##########################################################################################################################################
 def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_x, median_total_power_y, out_put_files ) :
    now = datetime.now()
    now_str = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -628,7 +722,12 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
    out_bad_html_f.write( "<br>\n" )
    out_bad_html_f.write( "<h2>Antenna spectra compared with a median spectrum +/- %.1f x sigma_iqr :</h2>\n" % (options.threshold_in_sigma) )
    out_bad_html_f.write( "<ol>\n" )
-   
+
+##########################################################################################################################################
+# 
+# FUNCTION : write end of the generated .html file 
+# 
+##########################################################################################################################################   
 def write_bad_antenna_html_end( out_bad_html_f , options, n_bad_ant=0 ) :
    out_bad_html_f.write("</ol>\n\n")
    
@@ -645,9 +744,21 @@ def write_bad_antenna_html_end( out_bad_html_f , options, n_bad_ant=0 ) :
   
    
 
-
+##########################################################################################################################################
+#
+# FUNCTION : main function 
+#     - reading the data from HDF5 files
+#     - calculating median spectra for each antnena
+#     - calculating median spectrum of X and Y polarisation over all antennas 
+#     - checking health of each antenna by comparison with median spectrum and standard deviation
+#     - writing output text and html files
+# 
+#  all these steps are performed by calling earlier described functions 
+# 
 # all tiles :
 # t_sample_list=[0] - to just use a single timestamp
+#
+##########################################################################################################################################
 def check_antenna_health( hdf_file_template, options, 
                           nof_tiles=16, nof_ant_per_tile=16, nof_pols=2, nof_channels=512,
                           antenna_names=None ):
