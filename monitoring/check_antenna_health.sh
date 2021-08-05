@@ -65,6 +65,11 @@ if [[ -n "$8" && "$8" != "-" ]]; then
    www_dir=$8
 fi
 
+backup_dir=/storage/monitoring/antenna_health/${station_name}/
+if [[ -n "$9" && "$9" != "-" ]]; then
+   backup_dir=$9
+fi
+
 
 out_file=${outdir}_antenna_health.out
 
@@ -72,13 +77,14 @@ echo "###################################################"
 echo "PARAMETERS:"
 echo "###################################################"
 echo "hdf5_file_template = $hdf5_file_template"
-echo "Data dir = $data_dir"
-echo "Outdir   = $outdir"
-echo "Outfile  = $out_file"
-echo "last     = $last"
+echo "Data dir     = $data_dir"
+echo "Outdir       = $outdir"
+echo "Outfile      = $out_file"
+echo "last         = $last"
 echo "station_name = $station_name"
-echo "do_copy  = $do_copy"
-echo "www_dir  = $www_dir"
+echo "do_copy      = $do_copy"
+echo "www_dir      = $www_dir"
+echo "backup_dir   = $backup_dir"
 echo "###################################################"
 
 start_dtm=`date +%Y%m%d%H%M%S`
@@ -133,4 +139,10 @@ else
 fi  
 cd ..
 
-
+if [[ -d $backup_dir ]]; then
+   backup_subdir=`date +%Y%m%d_%H%M`
+   echo "cp -a ${outdir} ${backup_dir}/${backup_subdir}"
+   cp -a ${outdir} ${backup_dir}/${backup_subdir}
+else
+   echo "WARNING : backup directory $backup_dir does not exist -> not backing up"
+fi
