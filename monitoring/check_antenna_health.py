@@ -556,7 +556,7 @@ def calc_median_spectrum( median_spectrum_per_ant_x , median_spectrum_per_ant_y,
 #   bad channels are marged and information if antenna is considered BAD or OK in the image title and legend 
 # 
 ##########################################################################################################################################
-def plot_antenna_with_median( options, antname, median_freq, median_power, median_power_err, ant_freq, ant_power, outdir="images/", y_min=1, y_max=60, label="X pol.", plot_db=False, color='black', pol='x', ux_time=None, median_total_power=-1 ) :
+def plot_antenna_with_median( options, antname, median_freq, median_power, median_power_err, ant_freq, ant_power, outdir="images/", y_min=0, y_max=60, label="X pol.", plot_db=False, color='black', pol='x', ux_time=None, median_total_power=-1 ) :
    # CH2FREQ = ( 400.00/512.00 )
    global CH2FREQ
    
