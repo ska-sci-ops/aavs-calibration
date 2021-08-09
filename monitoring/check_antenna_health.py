@@ -513,12 +513,22 @@ def calc_median_spectrum( median_spectrum_per_ant_x , median_spectrum_per_ant_y,
       t_count_x = len(x_list)
       t_count_y = len(y_list)
 
-      x_val = 0
-      y_val = 0
+      median_spectrum_x[ch] = 0
+      median_spectrum_y[ch] = 0
+      iqr_spectrum_x[ch] = 0
+      iqr_spectrum_y[ch] = 0
+      
       if t_count_x > 0 :
-         x_val = x_list[t_count_x/2]
+         median_spectrum_x[ch] = x_list[t_count_x/2]
+         iqr_spectrum_x[ch] = x_list[int(t_count_x*0.75)] - x_list[int(t_count_x*0.25)]
+      else :
+         print("WARNING ch=%d : no antenna has power larger then minimum %.2f in X pol." % (ch,min_val))
+         
       if t_count_y > 0 :
-         y_val = y_list[t_count_y/2]
+         median_spectrum_y[ch] = y_list[t_count_y/2]
+         iqr_spectrum_y[ch] = y_list[int(t_count_y*0.75)] - y_list[int(t_count_y*0.25)]
+      else :
+         print("WARNING ch=%d : no antenna has power larger then minimum %.2f in Y pol." % (ch,min_val))
 
 #      ants = len(x_list)      
 #      if ants != ant_count :
@@ -526,11 +536,8 @@ def calc_median_spectrum( median_spectrum_per_ant_x , median_spectrum_per_ant_y,
 #      else :
 #         print("Channel %d : calculating median of %d antennas" % (ch,ants))
             
-      median_spectrum_x[ch] = x_val
-      median_spectrum_y[ch] = y_val      
-
-      iqr_spectrum_x[ch] = x_list[int(t_count_x*0.75)] - x_list[int(t_count_x*0.25)]
-      iqr_spectrum_y[ch] = y_list[int(t_count_y*0.75)] - y_list[int(t_count_y*0.25)]
+#      median_spectrum_x[ch] = x_val
+#      median_spectrum_y[ch] = y_val      
       
    if do_write :    
       out_x_name = "%s/%s_x.txt" % (outdir,out_median_file)      
