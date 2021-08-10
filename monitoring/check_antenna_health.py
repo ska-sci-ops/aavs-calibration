@@ -875,7 +875,7 @@ def check_antenna_health( hdf_file_template, options,
          if n_total_power_x < (median_total_power_x/2) or n_total_power_x > (median_total_power_x*2):
             flag_x += (",BAD_POWER_X=%d" % n_total_power_x)
             bad_power_x = True
-            if n_total_power_x < (median_total_power_x/2) :
+            if n_total_power_x < (median_total_power_x/4) :
                flatline_x = True
                fault_type_x = "flatline_x"
             # print("DEBUG : %d vs. %d or %d vs %d" % (n_total_power_x,median_total_power_x,n_total_power_x,median_total_power_x))
@@ -885,7 +885,7 @@ def check_antenna_health( hdf_file_template, options,
          if n_total_power_y < (median_total_power_y/2) or n_total_power_y > (median_total_power_y*2):
             flag_y += (",BAD_POWER_Y=%d" % n_total_power_y)
             bad_power_y = True
-            if n_total_power_y < (median_total_power_y/2) :
+            if n_total_power_y < (median_total_power_y/4) :
                flatline_y = True
                fault_type_y = "flatline_y"
 
