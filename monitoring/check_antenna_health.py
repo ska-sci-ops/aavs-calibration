@@ -864,11 +864,20 @@ def check_antenna_health( hdf_file_template, options,
          flag_y = ""
          bad_power_x = False
          bad_power_y = False
+         flatline_x  = False
+         flatline_y  = False
+         
+         fault_type_x = ""
+         fault_type_y = ""
+         
          if n_bad_channels_x > options.max_bad_channels :
             flag_x += ("BAD_CH_X=%d" % n_bad_channels_x)
          if n_total_power_x < (median_total_power_x/2) or n_total_power_x > (median_total_power_x*2):
             flag_x += (",BAD_POWER_X=%d" % n_total_power_x)
             bad_power_x = True
+            if n_total_power_x < (median_total_power_x/2) :
+               flatline_x = True
+               fault_type_x = "flatline_x"
             # print("DEBUG : %d vs. %d or %d vs %d" % (n_total_power_x,median_total_power_x,n_total_power_x,median_total_power_x))
             
          if n_bad_channels_y > options.max_bad_channels :
@@ -876,6 +885,10 @@ def check_antenna_health( hdf_file_template, options,
          if n_total_power_y < (median_total_power_y/2) or n_total_power_y > (median_total_power_y*2):
             flag_y += (",BAD_POWER_Y=%d" % n_total_power_y)
             bad_power_y = True
+            if n_total_power_y < (median_total_power_y/2) :
+               flatline_y = True
+               fault_type_y = "flatline_y"
+
 
          # get antenna name if mapping hash table is provided :
          antname = " ?? " 
@@ -905,15 +918,30 @@ def check_antenna_health( hdf_file_template, options,
             flag = flag_x + "," + flag_y
             line = "%s : %05d  %05d , %05d %s\n" % (antname,ant_idx,tile,ant,flag)
             out_bad_f.write( line )
+            font_color_x = "black"
+            font_color_y = "black"
+            font_color   = "black"
             
-            html_line = "   <li> <font color=\"black\"><strong>%s / Tile%s</strong> (config file index = %05d  , in tile index = %05d) : </font>" % (antname,tile+1,ant_idx,ant) # tile+1 for to be easier matched with other pages etc
+            if flatline_x :
+               font_color_x = "red"
+               font_color   = "red"
+                        
+            if flatline_y :
+               font_color_y = "red"
+               font_color   = "red"
+                        
+            
+            html_line = "   <li> <font color=\"%s\"><strong>%s / Tile%s</strong> (config file index = %05d  , in tile index = %05d) : </font>" % (font_color,antname,tile+1,ant_idx,ant) # tile+1 for to be easier matched with other pages etc
             if len(flag_x) > 0 :
                # TODO : create description for X in html 
                html_line += ("<a href=\"images/%s_x.png\"><u>%s</u></a>" % (antname,flag_x))
             if len(flag_y) > 0 :
                # TODO : create description for Y in html
                html_line += (", <a href=\"images/%s_y.png\"><u>%s</u></a>" % (antname,flag_y))
-            html_line += "</a>\n"               
+            
+            # end of line + fault in X and Y :   
+            html_line += ( "</a> X:<font color=\"%s\">%s</s> , Y:<font color=\"%s\">%s</s>\n" % (font_color_x,fault_type_x,font_color_y,fault_type_y))
+            
             out_bad_html_f.write( html_line )
 
          # out_x_name = "ant_%05d_%05d_x.txt" % (tile,ant)
