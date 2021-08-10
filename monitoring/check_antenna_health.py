@@ -689,7 +689,7 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
    line = "<li>Total power is flagged as bad if it's lower than 1/2 of total power of median spectrum or larger than 2 times total power of median spectrum (= %.2f and %.2f for X and Y polarisations respectively)</li>\n" % (median_total_power_x,median_total_power_y)
    out_bad_html_f.write( line )
    
-   line = "<li>If number of bad channels is larger than %d, where bad channels are counted as those which deviate from the median spectrum by more than %.2f sigma.<br> Number of bad channels is specified as values of BAD_CH_X and BAD_CH_Y variables</li>\n" % (options.max_bad_channels,options.threshold_in_sigma)
+   line = "<li>If number of bad channels is larger than %d (out of 512), where bad channels are counted as those which deviate from the median spectrum by more than %.2f sigma.<br> Number of bad channels is specified as values of BAD_CH_X and BAD_CH_Y variables</li>\n" % (options.max_bad_channels,options.threshold_in_sigma)
    out_bad_html_f.write( line )
    
    out_bad_html_f.write( "</ul>\n" )
@@ -906,7 +906,7 @@ def check_antenna_health( hdf_file_template, options,
             line = "%s : %05d  %05d , %05d %s\n" % (antname,ant_idx,tile,ant,flag)
             out_bad_f.write( line )
             
-            html_line = "   <li> <strong>%s / Tile%s</strong> (config file index = %05d  , in tile index = %05d) : " % (antname,tile,ant_idx,ant)
+            html_line = "   <li> <font color=\"black\"><strong>%s / Tile%s</strong> (config file index = %05d  , in tile index = %05d) : </font>" % (antname,tile+1,ant_idx,ant) # tile+1 for to be easier matched with other pages etc
             if len(flag_x) > 0 :
                # TODO : create description for X in html 
                html_line += ("<a href=\"images/%s_x.png\"><u>%s</u></a>" % (antname,flag_x))
