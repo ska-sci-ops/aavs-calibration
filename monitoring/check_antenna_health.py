@@ -940,7 +940,7 @@ def check_antenna_health( hdf_file_template, options,
                html_line += (", <a href=\"images/%s_y.png\"><u>%s</u></a>" % (antname,flag_y))
             
             # end of line + fault in X and Y :   
-            html_line += ( "</a> X:<font color=\"%s\">%s</s> , Y:<font color=\"%s\">%s</s>\n" % (font_color_x,fault_type_x,font_color_y,fault_type_y))
+            html_line += ( "</a> <strong>X:<font color=\"%s\">%s</s></strong> , Y:<strong><font color=\"%s\">%s</s></strong>\n" % (font_color_x,fault_type_x,font_color_y,fault_type_y))
             
             out_bad_html_f.write( html_line )
 
