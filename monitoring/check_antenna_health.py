@@ -643,7 +643,7 @@ def plot_antenna_with_median( options, antname, median_freq, median_power, media
 
    # date time :
    time_dtm = datetime.utcfromtimestamp( ux_time )
-   time_str = time_dtm.strftime("%m/%d/%Y %H:%M:%S")
+   time_str = time_dtm.strftime("%d/%m/%Y %H:%M:%S")
    x_center = ant_freq[len(ant_freq)/2] 
    plt.text( x_center*0.7, y_max*1.00, time_str + " UTC", fontsize=50, color='black')
 
