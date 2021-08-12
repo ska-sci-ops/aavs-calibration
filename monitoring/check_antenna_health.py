@@ -674,6 +674,15 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
    now_str = now.strftime("%Y-%m-%d %H:%M:%S")
 
    out_bad_html_f.write("<html>\n")
+   out_bad_html_f.write("<head>\n")
+   out_bad_html_f.write("<style>\n")
+   out_bad_html_f.write("table, th, td {\n")
+   out_bad_html_f.write("   border: 1px solid black;\n")
+   out_bad_html_f.write("}\n")
+   out_bad_html_f.write("</style>\n")
+   out_bad_html_f.write("</head>\n")
+   out_bad_html_f.write("<body>\n")
+   
    line = "<title>List of bad antennas in the SKA-Low station %s</title>\n" % (options.station_name)
    out_bad_html_f.write( line )
    
@@ -692,6 +701,15 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
    line = "<li>If number of bad channels is larger than %d (out of 512), where bad channels are counted as those which deviate from the median spectrum by more than %.2f sigma.<br> Number of bad channels is specified as values of BAD_CH_X and BAD_CH_Y variables</li>\n" % (options.max_bad_channels,options.threshold_in_sigma)
    out_bad_html_f.write( line )
    
+   out_bad_html_f.write( "</ul>\n" )
+   
+   # fault types :
+   line = "<h2>Fault types:</h2>\n<ul>\n"
+   out_bad_html_f.write( line )
+   line = "<li><font color=\"red\"><strong>flatline</strong> : Total power < 1/4 of total power of median spectrum</font></li>\n"
+   out_bad_html_f.write( line )
+   line = "<li><font color=\"black\"><strong>low_power</strong> : 1/4 of total power of median spectrum < Total power < 1/2 of total power of median spectrum</font></li>\n"
+   out_bad_html_f.write( line )   
    out_bad_html_f.write( "</ul>\n" )
    
    line = "<h2>Other output files:</h2>\n<ul>\n"
@@ -724,23 +742,37 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
    out_bad_html_f.write( "</ul>\n" )
       
 #   out_bad_html_f.write( "<br>\n" )
-   out_bad_html_f.write( "<body>\n" )
+#   out_bad_html_f.write( "<body>\n" )
 #   out_bad_html_f.write( "<br>\n" )
    out_bad_html_f.write( "<br>\n" )
    out_bad_html_f.write( "<h2>Antenna spectra compared with a median spectrum +/- %.1f x sigma_iqr :</h2>\n" % (options.threshold_in_sigma) )
-   out_bad_html_f.write( "<ol>\n" )
+#   out_bad_html_f.write( "<ol>\n" )
+   
+   # table :
+   out_bad_html_f.write( "<table style=\"width:100%\">\n" )   
+   out_bad_html_f.write( "<tr>\n" )
+   out_bad_html_f.write( "<th>Table Index</th>\n" )
+   out_bad_html_f.write( "<th>Antenna</th>\n" )
+   out_bad_html_f.write( "<th>Tile</th>\n" )
+   out_bad_html_f.write( "<th>X polarisation</th>\n" )
+   out_bad_html_f.write( "<th>Y polarisation</th>\n" )
+   out_bad_html_f.write( "<th> Additional information </th>\n" )
+   out_bad_html_f.write( "</tr>\n" )
+#   out_bad_html_f.write( "</table>\n" )
+
 
 ##########################################################################################################################################
 # 
 # FUNCTION : write end of the generated .html file 
 # 
 ##########################################################################################################################################   
-def write_bad_antenna_html_end( out_bad_html_f , options, n_bad_ant=0 ) :
-   out_bad_html_f.write("</ol>\n\n")
+def write_bad_antenna_html_end( out_bad_html_f , options ) :
+#  out_bad_html_f.write( "</table>\n" )
+#  out_bad_html_f.write("</ol>\n\n")
    
-   line = ("<br><h2>Number of antennas with one bad polarisation : %d </h2>\n\n" % (n_bad_ant))
-   print("DEBUG : line with number of bad antennas = |%s|" % (line))
-   out_bad_html_f.write( line )
+#   line = ("<br><h2>Number of antennas with one bad polarisation : %d </h2>\n\n" % (n_bad_ant))
+#   print("DEBUG : line with number of bad antennas = |%s|" % (line))
+#   out_bad_html_f.write( line )
    
    out_bad_html_f.write("</body>\n")
    out_bad_html_f.write("</html>\n")
@@ -748,7 +780,35 @@ def write_bad_antenna_html_end( out_bad_html_f , options, n_bad_ant=0 ) :
 
 
 
-  
+##########################################################################################################################################
+# 
+# FUNCTION : write end of the generated .html file 
+# 
+##########################################################################################################################################   
+def write_stat_table( out_bad_html_f , n_bad_ant, flatline_x_count , flatline_y_count, lowpower_x_count, lowpower_y_count ) :
+
+   line = ("<br><h2>Number of antennas with one bad polarisation : %d </h2>\n\n" % (n_bad_ant))
+   print("DEBUG : line with number of bad antennas = |%s|" % (line))
+   out_bad_html_f.write( line )
+
+   # table :
+   out_bad_html_f.write( "<table style=\"width:100%\">\n" )   
+   out_bad_html_f.write( "<tr>\n" )
+   out_bad_html_f.write( "<th>Fault type</th>\n" )
+   out_bad_html_f.write( "<th>X polarisation</th>\n" )
+   out_bad_html_f.write( "<th>Y polarisation</th>\n" )
+   out_bad_html_f.write( "</tr>\n" )
+
+   # number of flatline antennas in red :   
+   html_line = ("<tr>  <td><font color=\"red\"><strong>flatline</strong></font></td> <td><font color=\"red\"><strong>%d</strong></font></td> <td><font color=\"red\"><strong>%d</strong></font></td> </tr>\n" % (flatline_x_count,flatline_y_count))
+   out_bad_html_f.write( html_line )
+
+   # number of low-power antennas in black :   
+   html_line = ("<tr>  <td><font color=\"black\"><strong>low power</strong></font></td> <td><font color=\"black\"><strong>%d</strong></font></td> <td><font color=\"black\"><strong>%d</strong></font></td> </tr>\n" % (lowpower_x_count,lowpower_y_count))
+   out_bad_html_f.write( html_line )
+   
+   out_bad_html_f.write( "</table>\n" )   
+   print("DEBUG : End of write_stat_table")
    
 
 ##########################################################################################################################################
@@ -845,6 +905,11 @@ def check_antenna_health( hdf_file_template, options,
    out_report_f.write( comment )
 
    n_bad_ant_count = 0
+   flatline_x_count = 0
+   flatline_y_count = 0
+   lowpower_x_count = 0
+   lowpower_y_count = 0
+   
    print("\tComparing antenna spectra with median spectrum ...")   
    for tile in range(0,nof_tiles) : 
       d_test=f_data[tile] 
@@ -878,6 +943,10 @@ def check_antenna_health( hdf_file_template, options,
             if n_total_power_x < (median_total_power_x/4) :
                flatline_x = True
                fault_type_x = "flatline_x"
+               flatline_x_count += 1
+            elif n_total_power_x < (median_total_power_x/2) :
+               fault_type_x = "low_power_x"
+               lowpower_x_count += 1
             # print("DEBUG : %d vs. %d or %d vs %d" % (n_total_power_x,median_total_power_x,n_total_power_x,median_total_power_x))
             
          if n_bad_channels_y > options.max_bad_channels :
@@ -888,6 +957,10 @@ def check_antenna_health( hdf_file_template, options,
             if n_total_power_y < (median_total_power_y/4) :
                flatline_y = True
                fault_type_y = "flatline_y"
+               flatline_y_count += 1
+            elif n_total_power_y < (median_total_power_y/2) :
+               fault_type_y = "low_power_y"
+               lowpower_y_count += 1
 
 
          # get antenna name if mapping hash table is provided :
@@ -930,17 +1003,28 @@ def check_antenna_health( hdf_file_template, options,
                font_color_y = "red"
                font_color   = "red"
                         
-            
-            html_line = "   <li> <font color=\"%s\"><strong>%s / Tile%s</strong> (config file index = %05d  , in tile index = %05d) : </font>" % (font_color,antname,tile+1,ant_idx,ant) # tile+1 for to be easier matched with other pages etc
-            if len(flag_x) > 0 :
+            html_line = "<tr>\n"
+            # Antname and tile :
+            html_line += ("   <td><font color=\"%s\"><strong>%d</strong></font></td> <td><font color=\"%s\"><strong>%s</strong></font></td> <td><font color=\"%s\"><strong>Tile%d</strong></font></td>\n" % (font_color,n_bad_ant_count,font_color,antname,font_color,tile+1))
+            # X polarisation :
+            html_line += ("   <td> <strong><font color=\"%s\">%s</s></strong></font> <a href=\"images/%s_x.png\"><u>%s</u></a></td>\n" % (font_color_x,fault_type_x,antname,flag_x))
+            # Y polarisation :
+            html_line += ("   <td> <strong><font color=\"%s\">%s</s></strong></font> <a href=\"images/%s_y.png\"><u>%s</u></a></td>\n" % (font_color_y,fault_type_y,antname,flag_y))
+            # extra information 
+            html_line += ("   <td> <strong><font color=\"%s\">config file index = %05d  , in tile index = %05d</strong></font></td>\n" % (font_color,ant_idx,ant) )
+            html_line += "</tr>\n"
+
+# <li> version (not table):            
+#            html_line += "   <li> <font color=\"%s\"><strong>%s / Tile%s</strong> (config file index = %05d  , in tile index = %05d) : </font>" % (font_color,antname,tile+1,ant_idx,ant) # tile+1 for to be easier matched with other pages etc
+#            if len(flag_x) > 0 :
                # TODO : create description for X in html 
-               html_line += ("<a href=\"images/%s_x.png\"><u>%s</u></a>" % (antname,flag_x))
-            if len(flag_y) > 0 :
+#               html_line += ("<a href=\"images/%s_x.png\"><u>%s</u></a>" % (antname,flag_x))
+#            if len(flag_y) > 0 :
                # TODO : create description for Y in html
-               html_line += (", <a href=\"images/%s_y.png\"><u>%s</u></a>" % (antname,flag_y))
+#               html_line += (", <a href=\"images/%s_y.png\"><u>%s</u></a>" % (antname,flag_y))
             
             # end of line + fault in X and Y :   
-            html_line += ( "</a> <strong>X:<font color=\"%s\">%s</s></strong> , Y:<strong><font color=\"%s\">%s</s></strong>\n" % (font_color_x,fault_type_x,font_color_y,fault_type_y))
+#            html_line += ( "</a> <strong>X:<font color=\"%s\">%s</s></strong> , Y:<strong><font color=\"%s\">%s</s></strong>\n" % (font_color_x,fault_type_x,font_color_y,fault_type_y))
             
             out_bad_html_f.write( html_line )
 
@@ -971,7 +1055,12 @@ def check_antenna_health( hdf_file_template, options,
    out_bad_f.close()         
    
    # write end of the file and close :   
-   write_bad_antenna_html_end( out_bad_html_f , options, n_bad_ant=n_bad_ant_count )
+   out_bad_html_f.write( "</table>\n" )
+   
+   # write stat table
+   write_stat_table( out_bad_html_f , n_bad_ant_count, flatline_x_count , flatline_y_count, lowpower_x_count, lowpower_y_count ) 
+   
+   write_bad_antenna_html_end( out_bad_html_f , options )
    out_bad_html_f.close()
       
 #  CLOSE HDF5 files :
