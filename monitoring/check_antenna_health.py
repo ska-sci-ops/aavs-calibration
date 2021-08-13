@@ -994,25 +994,32 @@ def check_antenna_health( hdf_file_template, options,
             font_color_x = "black"
             font_color_y = "black"
             font_color   = "black"
+            font_type_start = ""
+            font_type_end   = ""
             
             if flatline_x :
                font_color_x = "red"
                font_color   = "red"
+               font_type_start = "<strong>"
+               font_type_end   = "</strong>"
+               
                         
             if flatline_y :
                font_color_y = "red"
                font_color   = "red"
+               font_type_start = "<strong>"
+               font_type_end   = "</strong>"
                         
             html_line = "<tr>\n"
             # Antname and tile :
             # remove strong
-            html_line += ("   <td><font color=\"%s\">%d</font></td> <td><font color=\"%s\">%s</font></td> <td><font color=\"%s\">Tile%d</font></td>\n" % (font_color,n_bad_ant_count,font_color,antname,font_color,tile+1))
+            html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,antname,font_type_end,font_color,font_type_start,tile+1,font_type_end))
             # X polarisation :
-            html_line += ("   <td> <font color=\"%s\">%s</s></font> <a href=\"images/%s_x.png\"><u>%s</u></a></td>\n" % (font_color_x,fault_type_x,antname,flag_x))
+            html_line += ("   <td> <font color=\"%s\">%s%s%s</s></font> <a href=\"images/%s_x.png\"><u>%s</u></a></td>\n" % (font_color_x,font_type_start,fault_type_x,font_type_end,antname,flag_x))
             # Y polarisation :
-            html_line += ("   <td> <font color=\"%s\">%s</s></font> <a href=\"images/%s_y.png\"><u>%s</u></a></td>\n" % (font_color_y,fault_type_y,antname,flag_y))
+            html_line += ("   <td> <font color=\"%s\">%s%s%s</s></font> <a href=\"images/%s_y.png\"><u>%s</u></a></td>\n" % (font_color_y,font_type_start,fault_type_y,font_type_end,antname,flag_y))
             # extra information 
-            html_line += ("   <td> <font color=\"%s\">config file index = %05d  , in tile index = %05d</font></td>\n" % (font_color,ant_idx,ant) )
+            html_line += ("   <td> <font color=\"%s\">%s config file index = %05d  , in tile index = %05d %s</font></td>\n" % (font_color,font_type_start,ant_idx,ant,font_type_end) )
             html_line += "</tr>\n"
 
 # <li> version (not table):            
