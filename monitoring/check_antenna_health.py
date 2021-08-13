@@ -1005,13 +1005,14 @@ def check_antenna_health( hdf_file_template, options,
                         
             html_line = "<tr>\n"
             # Antname and tile :
-            html_line += ("   <td><font color=\"%s\"><strong>%d</strong></font></td> <td><font color=\"%s\"><strong>%s</strong></font></td> <td><font color=\"%s\"><strong>Tile%d</strong></font></td>\n" % (font_color,n_bad_ant_count,font_color,antname,font_color,tile+1))
+            # remove strong
+            html_line += ("   <td><font color=\"%s\">%d</font></td> <td><font color=\"%s\">%s</font></td> <td><font color=\"%s\">Tile%d</font></td>\n" % (font_color,n_bad_ant_count,font_color,antname,font_color,tile+1))
             # X polarisation :
-            html_line += ("   <td> <strong><font color=\"%s\">%s</s></strong></font> <a href=\"images/%s_x.png\"><u>%s</u></a></td>\n" % (font_color_x,fault_type_x,antname,flag_x))
+            html_line += ("   <td> <font color=\"%s\">%s</s></font> <a href=\"images/%s_x.png\"><u>%s</u></a></td>\n" % (font_color_x,fault_type_x,antname,flag_x))
             # Y polarisation :
-            html_line += ("   <td> <strong><font color=\"%s\">%s</s></strong></font> <a href=\"images/%s_y.png\"><u>%s</u></a></td>\n" % (font_color_y,fault_type_y,antname,flag_y))
+            html_line += ("   <td> <font color=\"%s\">%s</s></font> <a href=\"images/%s_y.png\"><u>%s</u></a></td>\n" % (font_color_y,fault_type_y,antname,flag_y))
             # extra information 
-            html_line += ("   <td> <strong><font color=\"%s\">config file index = %05d  , in tile index = %05d</strong></font></td>\n" % (font_color,ant_idx,ant) )
+            html_line += ("   <td> <font color=\"%s\">config file index = %05d  , in tile index = %05d</font></td>\n" % (font_color,ant_idx,ant) )
             html_line += "</tr>\n"
 
 # <li> version (not table):            
