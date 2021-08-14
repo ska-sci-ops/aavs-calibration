@@ -708,7 +708,8 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
    out_bad_html_f.write( line )
    line = "<li><font color=\"red\"><strong>flatline</strong> : Total power < 1/4 of total power of median spectrum</font></li>\n"
    out_bad_html_f.write( line )
-   line = "<li><font color=\"black\"><strong>low_power</strong> : 1/4 of total power of median spectrum < Total power < 1/2 of total power of median spectrum</font></li>\n"
+   line = "<li><font color=\"black\"><strong>low_power</strong>  : 1/4 of total power of median spectrum < Total power < 1/2 of total power of median spectrum</font></li>\n"
+   line = "<li><font color=\"black\"><strong>high_power</strong> : Total power > 2 times total power of median spectrum</font></li>\n"
    out_bad_html_f.write( line )   
    out_bad_html_f.write( "</ul>\n" )
    
@@ -785,7 +786,7 @@ def write_bad_antenna_html_end( out_bad_html_f , options ) :
 # FUNCTION : write end of the generated .html file 
 # 
 ##########################################################################################################################################   
-def write_stat_table( out_bad_html_f , n_bad_ant, flatline_x_count , flatline_y_count, lowpower_x_count, lowpower_y_count ) :
+def write_stat_table( out_bad_html_f , n_bad_ant, flatline_x_count , flatline_y_count, lowpower_x_count, lowpower_y_count, highpower_x_count, highpower_y_count ) :
 
    line = ("<br><h2>Number of antennas with one bad polarisation : %d </h2>\n\n" % (n_bad_ant))
    print("DEBUG : line with number of bad antennas = |%s|" % (line))
@@ -805,6 +806,10 @@ def write_stat_table( out_bad_html_f , n_bad_ant, flatline_x_count , flatline_y_
 
    # number of low-power antennas in black :   
    html_line = ("<tr>  <td><font color=\"black\"><strong>low power</strong></font></td> <td><font color=\"black\"><strong>%d</strong></font></td> <td><font color=\"black\"><strong>%d</strong></font></td> </tr>\n" % (lowpower_x_count,lowpower_y_count))
+   out_bad_html_f.write( html_line )
+
+   # number of high-power antennas in black :   
+   html_line = ("<tr>  <td><font color=\"black\"><strong>high power</strong></font></td> <td><font color=\"black\"><strong>%d</strong></font></td> <td><font color=\"black\"><strong>%d</strong></font></td> </tr>\n" % (highpower_x_count,highpower_y_count))
    out_bad_html_f.write( html_line )
    
    out_bad_html_f.write( "</table>\n" )   
@@ -909,6 +914,8 @@ def check_antenna_health( hdf_file_template, options,
    flatline_y_count = 0
    lowpower_x_count = 0
    lowpower_y_count = 0
+   highpower_x_count = 0
+   highpower_y_count = 0
    
    print("\tComparing antenna spectra with median spectrum ...")   
    for tile in range(0,nof_tiles) : 
@@ -947,6 +954,9 @@ def check_antenna_health( hdf_file_template, options,
             elif n_total_power_x < (median_total_power_x/2) :
                fault_type_x = "low_power_x"
                lowpower_x_count += 1
+            elif n_total_power_x > (median_total_power_x*2) :
+               fault_type_x = "high_power_x"
+               highpower_x_count += 1
             # print("DEBUG : %d vs. %d or %d vs %d" % (n_total_power_x,median_total_power_x,n_total_power_x,median_total_power_x))
             
          if n_bad_channels_y > options.max_bad_channels :
@@ -961,6 +971,9 @@ def check_antenna_health( hdf_file_template, options,
             elif n_total_power_y < (median_total_power_y/2) :
                fault_type_y = "low_power_y"
                lowpower_y_count += 1
+            elif n_total_power_y > (median_total_power_y*2) :
+               fault_type_y = "high_power_y"
+               highpower_y_count += 1
 
 
          # get antenna name if mapping hash table is provided :
@@ -1066,7 +1079,7 @@ def check_antenna_health( hdf_file_template, options,
    out_bad_html_f.write( "</table>\n" )
    
    # write stat table
-   write_stat_table( out_bad_html_f , n_bad_ant_count, flatline_x_count , flatline_y_count, lowpower_x_count, lowpower_y_count ) 
+   write_stat_table( out_bad_html_f , n_bad_ant_count, flatline_x_count , flatline_y_count, lowpower_x_count, lowpower_y_count, highpower_x_count, highpower_y_count) 
    
    write_bad_antenna_html_end( out_bad_html_f , options )
    out_bad_html_f.close()
