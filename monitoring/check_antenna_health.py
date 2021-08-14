@@ -725,6 +725,7 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
    line = "<li><font color=\"red\"><strong>flatline</strong> : Total power < 1/4 of total power of median spectrum</font></li>\n"
    out_bad_html_f.write( line )
    line = "<li><font color=\"black\"><strong>low_power</strong>  : 1/4 of total power of median spectrum < Total power < 1/2 of total power of median spectrum</font></li>\n"
+   out_bad_html_f.write( line )
    line = "<li><font color=\"black\"><strong>high_power</strong> : Total power > 2 times total power of median spectrum</font></li>\n"
    out_bad_html_f.write( line )   
    out_bad_html_f.write( "</ul>\n" )
@@ -749,7 +750,14 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
          except ValueError :
             pass
 
-         if is_txt :
+         is_csv = False
+         try :      
+            if outfile.index(".csv") >= 0 :
+               is_csv = True
+         except ValueError :
+            pass
+
+         if is_txt or is_csv :
             line = "<li><a href=\"%s\"><u>%s</u></a></li>\n" % (outfile,outfile)
          else :
             line = "<li><a href=\"%s_x.txt\"><u>Median X pol.</u></a> <a href=\"%s_y.txt\"><u>Median Y pol.</u></a></li>\n" % (outfile,outfile) 
