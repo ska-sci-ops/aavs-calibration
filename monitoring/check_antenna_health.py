@@ -664,6 +664,22 @@ def plot_antenna_with_median( options, antname, median_freq, median_power, media
 
 
 ##########################################################################################################################################
+# write_bad_antenna_csv_header( out_bad_f , options )
+# 
+# FUNCTION : write header of the generated .csv file 
+# 
+##########################################################################################################################################
+def write_bad_antenna_csv_header( out_bad_csv_f , options ) :
+   # /home/msok/Desktop/EDA2/doc/software/Antenna_Health/Dave_Minchin/header2.txt
+   header_columns = [ "TILE NUMBER","ANTENNA NUMBER","POP GRID REF.","X-POL LNA","Y-POL LNA","SMART BOX PORT","SMART BOX NUMBER","FIBRE TAIL NUMBER FROM SMART BOX TO FNDH FOBOT","FEM NUMBER","Fibre Cable Length from SMART Box to FNDH","FNDH Fobot Port to CFNDH","CFNDH Fobot MPO Fly Lead","Original Order of SDGI Cable","CFNDH-Bldg Fibre Info","Due to Splice Error"," Appears at Bldg as ","Bldg Fibre Colour","TPM Location","TPM Position & Logical Number","TPM Ser. No","TPM IP Addrs","TPM Port Number/RX position","Webpage PLOT NUMBER","MIRIAD Index","Permanent Comments" ]
+   
+   header_line = ""
+   for key in header_columns :
+      header_line += ("\"%s\"," % key )
+
+   out_bad_csv_f.write("%s\n" % (header_line))
+
+##########################################################################################################################################
 # write_bad_antenna_html_header( out_bad_f , options )
 # 
 # FUNCTION : write header of the generated .html file 
@@ -838,11 +854,12 @@ def check_antenna_health( hdf_file_template, options,
    ux_time = time.time()
    out_bad_list_file = options.station_name + "_bad_antennas.txt"
    out_bad_list_html_file = options.station_name + "_bad_antennas.html"
+   out_bad_list_csv_file = options.station_name + "_bad_antennas.csv"
    out_health_report = options.station_name + "_health_report.txt"
    out_median_file   = options.station_name + "_median"
    out_ant_median_file = options.station_name + "_median_spectrum_ant"
    
-   out_put_files = [ out_bad_list_file, out_bad_list_html_file, out_health_report, out_median_file, out_ant_median_file ]
+   out_put_files = [ out_bad_list_file, out_bad_list_html_file, out_health_report, out_median_file, out_ant_median_file, out_bad_list_csv_file ]
    
    ant_count = nof_tiles*nof_ant_per_tile
    
@@ -892,6 +909,7 @@ def check_antenna_health( hdf_file_template, options,
    # Find bad antennas and save to file :   
    out_bad_f = open( options.outdir + "/" + out_bad_list_file , "w" )
    out_bad_html_f = open( options.outdir + "/" + out_bad_list_html_file , "w" )
+   out_bad_csv_f = open( options.outdir + "/" + out_bad_list_csv_file , "w" )
    comment = ("# max_bad_channels = %d , median total power in X = %d and in Y = %d (total power is expected to be in the range x0.5 to x2 of these values)\n" % (options.max_bad_channels,median_total_power_x,median_total_power_y))
    out_bad_f.write( comment )
    out_bad_f.write( ("# UNIXTIME = %.4f\n" % (ux_time)) )
@@ -899,7 +917,9 @@ def check_antenna_health( hdf_file_template, options,
    
    # html file :
    write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_x, median_total_power_y, out_put_files )
-   
+
+   # csv file 
+   write_bad_antenna_csv_header( out_bad_csv_f , options )   
    
    out_report_f = open( options.outdir + "/" + out_health_report , "w" )
    out_report_f.write( ("# MAXIMUM NUMBER OF BAD CHANNELS ALLOWED = %d\n" % (options.max_bad_channels)) )
