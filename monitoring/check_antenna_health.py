@@ -1102,7 +1102,7 @@ def check_antenna_health( hdf_file_template, options,
             # CSV file :
             csv_line = ""
             # Warning : MIRIAD INDEX in Dave's script has indexes starting from 1 too (in the config file they are from ZERO !)
-            csv_line += ( "%d,%s,,,,,,,,,,,,,,,,,,,,,%d,,%s,%s,,\n" % ((tile+1),antname,(ant_idx+1),fault_type_x,fault_type_y))
+            csv_line += ( "%d,%s,,,,,,,,,,,,,,,,,,,,,,%d,,%s,%s,,\n" % ((tile+1),antname,(ant_idx+1),fault_type_x,fault_type_y))
             out_bad_csv_f.write( csv_line )
 
          # out_x_name = "ant_%05d_%05d_x.txt" % (tile,ant)
