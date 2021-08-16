@@ -53,6 +53,8 @@ def mkdir_p(path):
          pass
       else: raise
 
+def ch2freq( ch ) :
+   return CH2FREQ*ch 
 
 def get_miriad_antenna_index( antenna_names, antname ) :
    for miriad_index in range(0,len(antenna_names)) :
@@ -86,6 +88,9 @@ def check_antenna( spectrum, median_spectrum, iqr_spectrum, threshold_in_sigma=3
    total_power = 0
    n_bad_channels = 0
    
+   start_bad = -1
+   end_bad   = -1
+   
    n_chan = len(spectrum)
    for ch in range(0,n_chan) :
       freq_mhz = ch*CH2FREQ
@@ -95,6 +100,10 @@ def check_antenna( spectrum, median_spectrum, iqr_spectrum, threshold_in_sigma=3
       
       if math.fabs(diff) > threshold_in_sigma*rms :
          n_bad_channels += 1
+         
+         if start_bad <= 0 :
+            start_bad = ch
+         end_bad = ch
          
       is_ok = True
       
@@ -110,7 +119,7 @@ def check_antenna( spectrum, median_spectrum, iqr_spectrum, threshold_in_sigma=3
    if debug : 
       print("ANTENNA %d : number of bad channels = %d , total_power = %d" % (ant_idx,n_bad_channels,total_power))
   
-   return (n_bad_channels,total_power)
+   return (n_bad_channels,total_power,start_bad,end_bad)
 
 
 ##########################################################################################################################################
@@ -201,8 +210,8 @@ def check_antenna_health_single_tile( hdf_file, t_sample=0, out_median_file="med
    print("\n\n")
    print("CHECKING ANTNENA HEALTH:")
    
-   ( median_bad_channels_x , median_total_power_x ) = check_antenna( median_spectrum_x, median_spectrum_x , iqr_spectrum_x )
-   ( median_bad_channels_y , median_total_power_y ) = check_antenna( median_spectrum_y, median_spectrum_y , iqr_spectrum_y )
+   ( median_bad_channels_x , median_total_power_x, median_start_bad_ch_x, median_end_bad_ch_x ) = check_antenna( median_spectrum_x, median_spectrum_x , iqr_spectrum_x )
+   ( median_bad_channels_y , median_total_power_y, median_start_bad_ch_y, median_end_bad_ch_y ) = check_antenna( median_spectrum_y, median_spectrum_y , iqr_spectrum_y )
    print("Median : bad_channels_x = %d , total_power_x = %d, bad_channels_y = %d , total_power_y = %d" % (median_bad_channels_x,median_total_power_x,median_bad_channels_y,median_total_power_y))
 
    comment = ("# max_bad_channels = %d , median total power in X = %d and in Y = %d (total power is expected to be in the range x0.5 to x2 of these values)" % (max_bad_channels,n_total_power_x,n_total_power_y))
@@ -212,8 +221,8 @@ def check_antenna_health_single_tile( hdf_file, t_sample=0, out_median_file="med
       spectrum_x = d_test[t_sample,:,ant,0]
       spectrum_y = d_test[t_sample,:,ant,1]
          
-      ( n_bad_channels_x , n_total_power_x ) = check_antenna( spectrum_x, median_spectrum_x , iqr_spectrum_x )
-      ( n_bad_channels_y , n_total_power_y ) = check_antenna( spectrum_y, median_spectrum_y , iqr_spectrum_y )
+      ( n_bad_channels_x , n_total_power_x, start_bad_ch_x, end_bad_ch_x ) = check_antenna( spectrum_x, median_spectrum_x , iqr_spectrum_x )
+      ( n_bad_channels_y , n_total_power_y, start_bad_ch_y, end_bad_ch_y ) = check_antenna( spectrum_y, median_spectrum_y , iqr_spectrum_y )
          
       flag = ""
       if n_bad_channels_x > max_bad_channels :
@@ -430,8 +439,8 @@ def check_antenna_health_OLD( hdf_file_template, t_sample_list=None, out_median_
    print("\n\n")
    print("CHECKING ANTNENA HEALTH:")
    
-   ( median_bad_channels_x , median_total_power_x ) = check_antenna( median_spectrum_x, median_spectrum_x , iqr_spectrum_x )
-   ( median_bad_channels_y , median_total_power_y ) = check_antenna( median_spectrum_y, median_spectrum_y , iqr_spectrum_y )
+   ( median_bad_channels_x , median_total_power_x, median_start_bad_ch_x, median_end_bad_ch_x ) = check_antenna( median_spectrum_x, median_spectrum_x , iqr_spectrum_x )
+   ( median_bad_channels_y , median_total_power_y, median_start_bad_ch_y, median_end_bad_ch_y ) = check_antenna( median_spectrum_y, median_spectrum_y , iqr_spectrum_y )
    print("Median : bad_channels_x = %d , total_power_x = %d, bad_channels_y = %d , total_power_y = %d" % (median_bad_channels_x,median_total_power_x,median_bad_channels_y,median_total_power_y))
    
    # write antenna spectra :
@@ -446,8 +455,8 @@ def check_antenna_health_OLD( hdf_file_template, t_sample_list=None, out_median_
          spectrum_x = d_test[t_sample,:,ant,0]
          spectrum_y = d_test[t_sample,:,ant,1]
          
-         ( n_bad_channels_x , n_total_power_x ) = check_antenna( spectrum_x, median_spectrum_x , iqr_spectrum_x )
-         ( n_bad_channels_y , n_total_power_y ) = check_antenna( spectrum_y, median_spectrum_y , iqr_spectrum_y )
+         ( n_bad_channels_x , n_total_power_x, start_bad_ch_x, end_bad_ch_x ) = check_antenna( spectrum_x, median_spectrum_x , iqr_spectrum_x )
+         ( n_bad_channels_y , n_total_power_y, start_bad_ch_y, end_bad_ch_y ) = check_antenna( spectrum_y, median_spectrum_y , iqr_spectrum_y )
          
          flag = ""
          if n_bad_channels_x > max_bad_channels :
@@ -918,8 +927,8 @@ def check_antenna_health( hdf_file_template, options,
    print("\n\n")
    print("CHECKING ANTNENA HEALTH:")   
    print("\tCalculating total power of median spectrum ...")
-   ( median_bad_channels_x , median_total_power_x ) = check_antenna( median_spectrum_x, median_spectrum_x , iqr_spectrum_x )
-   ( median_bad_channels_y , median_total_power_y ) = check_antenna( median_spectrum_y, median_spectrum_y , iqr_spectrum_y )
+   ( median_bad_channels_x , median_total_power_x, median_start_bad_ch_x, median_end_bad_ch_x ) = check_antenna( median_spectrum_x, median_spectrum_x , iqr_spectrum_x )
+   ( median_bad_channels_y , median_total_power_y, median_start_bad_ch_y, median_end_bad_ch_y ) = check_antenna( median_spectrum_y, median_spectrum_y , iqr_spectrum_y )
    print("\tMedian : bad_channels_x = %d , total_power_x = %d, bad_channels_y = %d , total_power_y = %d" % (median_bad_channels_x,median_total_power_x,median_bad_channels_y,median_total_power_y))
    
    # Find bad antennas and save to file :   
@@ -965,8 +974,8 @@ def check_antenna_health( hdf_file_template, options,
          ant_median_spectrum_x = median_spectrum_per_ant_x[ant_idx]
          ant_median_spectrum_y = median_spectrum_per_ant_y[ant_idx]
          
-         ( n_bad_channels_x , n_total_power_x ) = check_antenna( ant_median_spectrum_x, median_spectrum_x , iqr_spectrum_x, ant_idx=ant_idx, threshold_in_sigma=options.threshold_in_sigma )
-         ( n_bad_channels_y , n_total_power_y ) = check_antenna( ant_median_spectrum_y, median_spectrum_y , iqr_spectrum_y, ant_idx=ant_idx, threshold_in_sigma=options.threshold_in_sigma )
+         ( n_bad_channels_x , n_total_power_x, start_bad_ch_x, end_bad_ch_x ) = check_antenna( ant_median_spectrum_x, median_spectrum_x , iqr_spectrum_x, ant_idx=ant_idx, threshold_in_sigma=options.threshold_in_sigma )
+         ( n_bad_channels_y , n_total_power_y, start_bad_ch_y, end_bad_ch_y ) = check_antenna( ant_median_spectrum_y, median_spectrum_y , iqr_spectrum_y, ant_idx=ant_idx, threshold_in_sigma=options.threshold_in_sigma )
          
          flag_x = ""
          flag_y = ""
@@ -978,8 +987,6 @@ def check_antenna_health( hdf_file_template, options,
          fault_type_x = ""
          fault_type_y = ""
          
-         if n_bad_channels_x > options.max_bad_channels :
-            flag_x += ("BAD_CH_X=%d" % n_bad_channels_x)
          if n_total_power_x < (median_total_power_x/2) or n_total_power_x > (median_total_power_x*2):
             flag_x += (",BAD_POWER_X=%d" % n_total_power_x)
             bad_power_x = True
@@ -994,9 +1001,11 @@ def check_antenna_health( hdf_file_template, options,
                fault_type_x = "high_power_x"
                highpower_x_count += 1
             # print("DEBUG : %d vs. %d or %d vs %d" % (n_total_power_x,median_total_power_x,n_total_power_x,median_total_power_x))
+         else :
+            if n_bad_channels_x > options.max_bad_channels :
+               flag_x += ("BAD_CH_X=%d" % n_bad_channels_x)
+               fault_type_x += ("Bandpass %.1f - %.1f MHz" % (ch2freq(start_bad_ch_x),ch2freq(end_bad_ch_x)) )
             
-         if n_bad_channels_y > options.max_bad_channels :
-            flag_y += (",BAD_CH_Y=%d" % n_bad_channels_y)
          if n_total_power_y < (median_total_power_y/2) or n_total_power_y > (median_total_power_y*2):
             flag_y += (",BAD_POWER_Y=%d" % n_total_power_y)
             bad_power_y = True
@@ -1010,6 +1019,10 @@ def check_antenna_health( hdf_file_template, options,
             elif n_total_power_y > (median_total_power_y*2) :
                fault_type_y = "high_power_y"
                highpower_y_count += 1
+         else :
+            if n_bad_channels_y > options.max_bad_channels :
+               flag_y += ("BAD_CH_Y=%d" % n_bad_channels_y)
+               fault_type_y += ("Bandpass %.1f - %.1f MHz" % (ch2freq(start_bad_ch_y),ch2freq(end_bad_ch_y)) )
 
 
          # get antenna name if mapping hash table is provided :
