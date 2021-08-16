@@ -53,6 +53,14 @@ def mkdir_p(path):
          pass
       else: raise
 
+
+def get_miriad_antenna_index( antenna_names, antname ) :
+   for miriad_index in range(0,len(antenna_names)) :
+      if antenna_names[miriad_index] == antname :
+         return miriad_index
+   
+   return -1
+
 ##########################################################################################################################################
 # 
 # FUNCTION : checks antennas : calculates number of bad channels and total power 
