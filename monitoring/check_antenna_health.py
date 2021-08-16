@@ -1062,7 +1062,7 @@ def check_antenna_health( hdf_file_template, options,
             # extra information 
             html_line += ("   <td> <font color=\"%s\">%s config file index = %05d  , in tile index = %05d %s</font></td>\n" % (font_color,font_type_start,ant_idx,ant,font_type_end) )
             html_line += "</tr>\n"
-
+            
 # <li> version (not table):            
 #            html_line += "   <li> <font color=\"%s\"><strong>%s / Tile%s</strong> (config file index = %05d  , in tile index = %05d) : </font>" % (font_color,antname,tile+1,ant_idx,ant) # tile+1 for to be easier matched with other pages etc
 #            if len(flag_x) > 0 :
@@ -1076,6 +1076,12 @@ def check_antenna_health( hdf_file_template, options,
 #            html_line += ( "</a> <strong>X:<font color=\"%s\">%s</s></strong> , Y:<strong><font color=\"%s\">%s</s></strong>\n" % (font_color_x,fault_type_x,font_color_y,fault_type_y))
             
             out_bad_html_f.write( html_line )
+            
+
+            # CSV file :
+            csv_line = ""
+            csv_line += ( "%d,%s,,,,,,,,,,,,,,,,,,,,,%d,,%s,%s,,\n" % ((tile+1),antname,ant_idx,fault_type_x,fault_type_y))
+            out_bad_csv_f.write( csv_line )
 
          # out_x_name = "ant_%05d_%05d_x.txt" % (tile,ant)
          # out_y_name = "ant_%05d_%05d_y.txt" % (tile,ant)
