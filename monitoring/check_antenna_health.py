@@ -113,7 +113,7 @@ def check_antenna( spectrum, median_spectrum, iqr_spectrum, threshold_in_sigma=3
             end_bad = ch
             bad_range_updated = True
 
-      if not bad_range_updated :
+      if not bad_range_updated and ch>(end_bad + max_gap) : # no update and passed max_gap channels already
          if start_bad >=0 and end_bad >= 0 :
             if (start_bad_final<0 and end_bad_final<0) or (end_bad-start_bad) > (end_bad_final-start_bad_final) :
                # if the first BAD-BAND found or larger bad bandpass found than the previous :
