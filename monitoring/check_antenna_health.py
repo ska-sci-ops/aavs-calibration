@@ -136,6 +136,14 @@ def check_antenna( spectrum, median_spectrum, iqr_spectrum, threshold_in_sigma=3
       
       if is_ok :
          total_power += spectrum[ch]
+   
+   # end of loop check if bad bandpass range needs an update :
+   if start_bad >=0 and end_bad >= 0 :
+      if (start_bad_final<0 and end_bad_final<0) or (end_bad-start_bad) > (end_bad_final-start_bad_final) :
+         # if the first BAD-BAND found or larger bad bandpass found than the previous :
+         # set final bad range (widest)
+         start_bad_final = start_bad
+         end_bad_final   = end_bad
          
 
    if debug : 
