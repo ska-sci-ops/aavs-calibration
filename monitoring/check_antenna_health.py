@@ -45,6 +45,26 @@ CH2FREQ = ( 400.00/512.00 )
 # excluded frequency ranges in MHz :
 global_excluded_freq_ranges = set()
 
+def init_rfi_bands() :
+   if len(global_excluded_freq_ranges) <= 0 :
+       global_excluded_freq_ranges.add( ( 240 , 274 ) ) 
+       global_excluded_freq_ranges.add( ( 355 , 385 ) )
+
+       print("DEBUG : RFI bands initialised -> %d bad bands" % (len(global_excluded_freq_ranges)))      
+
+def is_channel_ok( ch ) :
+  global global_excluded_freq_ranges
+
+  freq_mhz = ch2freq( ch )
+
+  init_rfi_bands()
+  
+  for excluded_range in global_excluded_freq_ranges :
+     if freq_mhz >= excluded_range[0] and freq_mhz <= excluded_range[1] :
+        return False
+
+  return True
+
 def mkdir_p(path):
    try:
       os.makedirs(path)
@@ -62,6 +82,49 @@ def get_miriad_antenna_index( antenna_names, antname ) :
          return miriad_index
    
    return -1
+
+
+##########################################################################################################################################
+# FUNCTION reads power spectrum from a text file and if there is 3rd column it is treated as an RMS
+##########################################################################################################################################
+def read_spectrum( file_name ) :
+
+   freq=[]
+   power=[]
+   rms_power=[]
+   
+   file=open( file_name,'r')
+   
+   # reads the entire file into a list of strings variable data :
+   data=file.readlines()
+   for line in data : 
+       if line[0] == '#' :
+           continue
+
+       line = line.strip()   
+       words = line.split(' ')
+       
+#       print("DEBUG : len(words) = %d\n" % (len(words)))
+#       print("DEBUG : len(words) = %d : |%s|%s|%s|" % (len(words),words[0+0],words[1+0],words[2+0]))
+                      
+
+       if line[0] != "#" :
+          x=float(words[0+0])
+          y=float(words[1+0])
+          z=0
+          if len(words) >= 3 :
+             z = float(words[2+0])   
+      
+          freq.append(x)
+          power.append(y)
+          rms_power.append(z)
+
+       file.close()
+   
+   print "Read %d points from file %s" % (len(freq),file_name)
+   return (freq,power,rms_power)    
+
+
 
 ##########################################################################################################################################
 # 
@@ -81,7 +144,7 @@ def get_miriad_antenna_index( antenna_names, antname ) :
 #     total_power    - total power (sum over spectrum[ch])
 # 
 ##########################################################################################################################################
-def check_antenna( spectrum, median_spectrum, iqr_spectrum, threshold_in_sigma=3, ant_idx=-1, debug=False, max_gap=3 ):
+def check_antenna( spectrum, median_spectrum, iqr_spectrum, threshold_in_sigma=3, ant_idx=-1, debug=False, max_gap=5 ):
    global global_excluded_freq_ranges
    global CH2FREQ
 
@@ -101,8 +164,13 @@ def check_antenna( spectrum, median_spectrum, iqr_spectrum, threshold_in_sigma=3
       diff = spectrum[ch] - median_spectrum[ch]
       rms = iqr_spectrum[ch] / 1.35
 
+      if debug :       
+         print("DEBUG-DEBUG : %d : diff = %.4f - %.4f = %.4f vs. %.4f * %.4f" % (ch,spectrum[ch],median_spectrum[ch],diff,threshold_in_sigma,rms))
+
       bad_range_updated = False # flag that current BAD-bandpass has been updated
       if math.fabs(diff) > threshold_in_sigma*rms :
+         if debug :
+            print("DEBUG : channel = %d is bad ( fabs(%.2f) > %.4f * %.4f )\n" % (ch,diff,threshold_in_sigma,rms))
          n_bad_channels += 1
          
          if start_bad <= 0 :
@@ -112,19 +180,29 @@ def check_antenna( spectrum, median_spectrum, iqr_spectrum, threshold_in_sigma=3
          if end_bad < 0 or ch<=(end_bad + max_gap) : # maximum gap 3 channels to still form BAD_BANDPASS
             end_bad = ch
             bad_range_updated = True
+            
+         if debug :            
+            print("DEBUG : bad_range_updated = %s ( %d-%d , max_gap = %d)" % (bad_range_updated,start_bad,end_bad,max_gap))
 
       if not bad_range_updated and ch>(end_bad + max_gap) : # no update and passed max_gap channels already
-         if start_bad >=0 and end_bad >= 0 :
-            if (start_bad_final<0 and end_bad_final<0) or (end_bad-start_bad) > (end_bad_final-start_bad_final) :
-               # if the first BAD-BAND found or larger bad bandpass found than the previous :
-               # set final bad range (widest)
-               start_bad_final = start_bad
-               end_bad_final   = end_bad
+         if start_bad >=0 and end_bad >= 0 :         
+            if is_channel_ok(ch) :
+               if debug :
+                  print("!!! UPDATING ??? DEBUG ch=%d : current BAD range is %d-%d , new candidate is %d-%d" % (ch,start_bad_final,end_bad_final,start_bad,end_bad))
+               if (start_bad_final<0 and end_bad_final<0) or (end_bad-start_bad) > (end_bad_final-start_bad_final) :
+                  # if the first BAD-BAND found or larger bad bandpass found than the previous :
+                  # set final bad range (widest)
+                  start_bad_final = start_bad
+                  end_bad_final   = end_bad
             
-               # reset temporary bad range (compared with the widest so far):
+               # in any case (if new BAD range is better than old or not) reset temporary bad range (compared with the widest so far):
                start_bad = -1
                end_bad   = -1
-
+            else :
+               # if RFI channel extend end_bad 
+               if debug :
+                  print("DEBUG : ch=%d is RFI channel -> updating end_bad" % (ch))
+               end_bad = ch
              
          
       is_ok = True
@@ -1201,8 +1279,7 @@ if __name__ == '__main__' :
    
    # init global ranges see : /home/msok/Desktop/EDA2/logbook/20210507_eda2_ppd_plots_AUTO.odt
    # ranges in MHz 
-   global_excluded_freq_ranges.add( ( 240 , 274 ) ) 
-   global_excluded_freq_ranges.add( ( 355 , 385 ) )
+   init_rfi_bands()
    
 
    hdf_file_template="channel_integ_%d_20210222_09517_0.hdf5"
