@@ -53,11 +53,11 @@ if [ $unixtime -eq -1 ] ; then
   exit 1
 fi
 # check that we can access the skymodel
-if [[ -z "${AAVSCAL_SKYMODEL}" ]]; then
-  echo "ERROR: AAVSCAL_SKYMODEL environment variable is not set"
+if [[ -z "${AAVSCAL}" ]]; then
+  echo "ERROR: AAVSCAL environment variable is not set"
   exit 1
 fi
-skymodel_basedir=${AAVSCAL_SKYMODEL}
+skymodel_basedir=${AAVSCAL}/SkyModel
 
 
 lst=`${skymodel_basedir}/unixtime2lst.py $unixtime`

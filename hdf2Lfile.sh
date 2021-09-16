@@ -40,7 +40,7 @@ bname=`basename $hdffile .hdf5`
 if [ ! -f "${bname}.LACSPC" ] ; then
   converter_path=`which aavs_mwa_corr_converter.py`
   echo "nice python $converter_path -f $hdffile -o "$bname" -a $naverage"
-  nice python $converter_path -f $hdffile -o "$bname" -a $naverage
+  nice python2 $converter_path -f $hdffile -o "$bname" -a $naverage
 fi
 # extract start unix time for data:
 h5dump -g sample_timestamps -b -o $tsfile "$hdffile"
