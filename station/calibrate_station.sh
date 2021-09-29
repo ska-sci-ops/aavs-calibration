@@ -26,8 +26,9 @@ fi
 # WARNING : should be later in the script, but this value is required earlier :
 pol_swap_options=""
 if [[ $station_name == "eda2" ]]; then
-   echo "EDA2 station -> polarisation swap required (please make sure the .pkl was not swapped at the time of creation)"
-   pol_swap_options="--pol_swap"
+   echo "WARNING : X and Y polarisations have been un-swapped on 23 September 2021 -> no need to do anything about it for the new data"
+#   echo "EDA2 station -> polarisation swap required (please make sure the .pkl was not swapped at the time of creation)"
+#   pol_swap_options="--pol_swap"
 fi
 
 
