@@ -5,17 +5,22 @@ freq_mhz=159.375
 lst=-1
 unixtime=-1
 beamtype="SKALA2"
+backgroundscale=1
+addsun=1
 
 function print_usage {
   echo "Usage:"
   echo "$0 [options] chan_index"
   echo -e "\t-f freq\tFrequency in MHz. Default: ${freq_mhz}"
   echo -e "\t-T time\tunix time. No default"
-  echo -e "\t-B type\tBeam type: EDA, SKALA2 or SKALA4. Default: $beamtype" 
+  echo -e "\t-L LST\t(hours). No default. Overridden by unix time. Implies not adding sun."
+  echo -e "\t-B type\tBeam type: EDA, SKALA2 or SKALA4. Default: $beamtype"
+  echo -e "\t-S scale\tScale the background sky by a factor. Default: $backgroundscale"
+  echo -e "\t-N \tDon't add the sun"
 }
 
 # parse command-line options
-while getopts ":f:L:T:B:" opt; do
+while getopts ":f:L:T:B:S:N" opt; do
   case ${opt} in
     f)
       freq_mhz=${OPTARG}
@@ -24,9 +29,20 @@ while getopts ":f:L:T:B:" opt; do
     T)
       unixtime=${OPTARG}
       ;;
+    L)
+      lst=${OPTARG}
+      addsun=0
+      ;;
+    N)
+      addsun=0
+      ;;
     B)
       beamtype=${OPTARG}
       echo "Using beam type $beamtype"
+      ;;
+    S)
+      backgroundscale=${OPTARG}
+      echo "Using scaling factor for background sky: $backgroundscale"
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -37,19 +53,13 @@ while getopts ":f:L:T:B:" opt; do
 done
 shift $((OPTIND-1))
 
-# check if output files exist and skip if so
-if [ -e ${unixtime}_Xsky.xy ] ; then
-  echo "Output file ${unixtime}_Xsky.xy already exists. Skipping..."
-  exit 1
-fi
-
 # check that miriad environment is set up
 if [[ -z "${MIR}" ]]; then
   echo "ERROR: miriad environment is not set up"
   exit 1
 fi
-if [ $unixtime -eq -1 ] ; then
-  echo "ERROR: time is not set"
+if [ $unixtime -eq -1 -a $lst -eq -1 ] ; then
+  echo "ERROR: time or LST is not set"
   exit 1
 fi
 # check that we can access the skymodel
@@ -59,11 +69,21 @@ if [[ -z "${AAVSCAL}" ]]; then
 fi
 skymodel_basedir=${AAVSCAL}/SkyModel
 
-
-lst=`${skymodel_basedir}/unixtime2lst.py $unixtime`
-sunradec=`${skymodel_basedir}/sunpos.py $unixtime`
+if [ $unixtime -ne -1 ] ; then
+    lst=`${skymodel_basedir}/unixtime2lst.py $unixtime`
+fi
 tmpdir=`mktemp -d`
 pushd $tmpdir
+
+# check if output files exist and skip if so
+outfilebase="$unixtime"
+if [ $unixtime -eq -1 ] ; then
+  outfilebase="LST${lst}"
+fi
+if [ -e ${unixtime}_Xsky.xy ] ; then
+  echo "Output file ${unixtime}_Xsky.xy already exists. Skipping..."
+  exit 1
+fi
 
 # make a template sky model for this LST
 fits op=xyin in=${skymodel_basedir}/pixscale_SIN_512x512.fits out=template.xy
@@ -93,7 +113,8 @@ if [ ${scale_p} == "inf" ] ; then
   echo "ERROR: pix scaling factor error."
   exit 1
 fi
-scale=`echo ${scale_p} ${scale_f} | awk ' { print $1*$2 }'`
+# calculate overall scaling including manual scaling factor
+scale=`echo ${scale_p} ${scale_f} ${backgroundscale} | awk ' { print $1*$2*$3 }'`
 
 # apply pixel scaling weight
 echo "applying pixel scaling and frequency scaling corrections"
@@ -101,12 +122,16 @@ maths exp="sky.xy*template.xy*${scale}" out=skywt.xy
 # export this to fits so that it can be used as reference image for sun
 fits op=xyout in=skywt.xy out=skywt.fits
 
-# add sun. Makes output file "skywt_sun.fits"
-echo "Making sky model with sun"
-${skymodel_basedir}/sun_add.py $unixtime ${freq_mhz} skywt.fits
-result=$?
-# if something went wrong or it wasn't daytime, just copy the exising sky image
-if [ $result -ne 0 ] ; then
+if [ $addsun -eq 1 ] ; then
+  # add sun. Makes output file "skywt_sun.fits"
+  echo "Making sky model with sun"
+  ${skymodel_basedir}/sun_add.py $unixtime ${freq_mhz} skywt.fits
+  result=$?
+  # if something went wrong or it wasn't daytime, just copy the exising sky image
+  if [ $result -ne 0 ] ; then
+    cp skywt.fits skywt_sun.fits
+  fi
+else
   cp skywt.fits skywt_sun.fits
 fi
 
@@ -134,7 +159,8 @@ maths exp="skywt_sun.xy*beamy.xy" out=Ysky.xy
 
 # tidy up
 popd
-mv ${tmpdir}/Xsky.xy ${unixtime}_Xsky.xy
-mv ${tmpdir}/Ysky.xy ${unixtime}_Ysky.xy
+mv "${tmpdir}/Xsky.xy" "${outfilebase}_${nearest_MHz}_Xsky.xy"
+mv "${tmpdir}/Ysky.xy" "${outfilebase}_${nearest_MHz}_Ysky.xy"
 rm -rf ${tmpdir}
+
 
