@@ -10,15 +10,20 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    do_init=$2
 fi
 
+init_options=""
+if [[ -n "$3" && "$3" != "-" ]]; then
+   init_options="$3"
+fi
+
 
 if [[ $do_init -gt 0 ]]; then
-   echo "python  /opt/aavs/bin/station.py --config=/opt/aavs/config/aavs2.yml -IP"
-   python  /opt/aavs/bin/station.py --config=/opt/aavs/config/aavs2.yml -IP
+   echo "python  /opt/aavs/bin/station.py --config=/opt/aavs/config/aavs2.yml -IP ${init_options}"
+   python  /opt/aavs/bin/station.py --config=/opt/aavs/config/aavs2.yml -IP ${init_options}
 
    # WARNING : second time is required due to some bug in /opt/aavs/bin/station.py related to log files 
    #           which causes issues with the 1st initalisation
-   echo "python  /opt/aavs/bin/station.py --config=/opt/aavs/config/aavs2.yml -IP"
-   python  /opt/aavs/bin/station.py --config=/opt/aavs/config/aavs2.yml -IP
+   echo "python  /opt/aavs/bin/station.py --config=/opt/aavs/config/aavs2.yml -IP ${init_options}"
+   python  /opt/aavs/bin/station.py --config=/opt/aavs/config/aavs2.yml -IP ${init_options}
 else
    echo "WARNING : station initialisation is not required"
 fi
