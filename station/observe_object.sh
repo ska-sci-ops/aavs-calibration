@@ -200,7 +200,20 @@ if [[ $do_init_station -gt 0 ]]; then
                exit -1;
             fi
          fi
-      
+             
+         if [[ ! -s /opt/aavs/config/freq/${station}.template ]]; then
+            # awk -v started=0 '{if($1=="bandwidth:"){started=1;}else{if(started){print $0;}}}'
+            if [[ -d /opt/aavs/config/ ]]; then
+               mkdir -p /opt/aavs/config/freq/
+               awk -v started=0 '{if($1=="bandwidth:"){started=1;}else{if(started){print $0;}}}' /opt/aavs/config/${station}.yml > /opt/aavs/config/freq/${station}.template               
+               
+               echo "INFO : generated file /opt/aavs/config/freq/${station}.template using /opt/aavs/config/${station}.yml as a template"               
+            else
+               echo "ERROR : directory /opt/aavs/config/ does not exist !"
+               exit -1
+            fi
+         fi
+
          if [[ -s /opt/aavs/config/freq/${station}.template ]]; then
             # generate station config file for a specified frequency if does not exist already 
             awk -v ch=${freq_channel} -v channel_from_start=${channel_from_start} 'BEGIN{freq_mhz=(ch-channel_from_start)*(400/512);print "observation:"; printf("   start_frequency_channel: %.3fe6\n",freq_mhz);print"   bandwidth: 6.25e6";}{print $0;}' /opt/aavs/config/freq/${station}.template > ${freq_config_file}
