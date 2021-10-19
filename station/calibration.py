@@ -205,7 +205,16 @@ def read_calibration_phase_offsets( phase_offset_file_X=None, phase_offset_file_
 
 # TODO : frequency_channel - should be central channel and 8 channels should start from -4 channels :
 def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True, apply_amplitudes=False, 
-                                   x_amp_par=None, y_amp_par=None, flag_antennas_list=None ) : # use database 
+                                   x_amp_par=None, y_amp_par=None, flag_antennas_list=None , sign_value=1 ) : # use database 
+
+    if sign_value < 1 :
+       if sign_value < 0 :
+          print("DEBUG : load_coeff -> conjugate calibration coefficients")
+          debug = True
+       else :
+          print("DEBUG : load_coeff -> setting calibration coefficients to ZERO")
+          debug = True
+
     # not yet implemented 
     (x_delays,y_delays) = calibration_db.get_latest_delays( station_id=station_id, nof_antennas=nof_antennas )
 
@@ -257,11 +266,11 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
           
           # initialising all channels with the same coefficients and leaving cross-pols XY and YX (2,3) = ZERO :
           if swap_pols : 
-             calibration_coef[ant_idx,freq_channel_idx,0] = complex( math.cos(phase_y_rad) , math.sin(phase_y_rad) ) * amplitude_y
-             calibration_coef[ant_idx,freq_channel_idx,3] = complex( math.cos(phase_x_rad) , math.sin(phase_x_rad) ) * amplitude_x             
+             calibration_coef[ant_idx,freq_channel_idx,0] = complex( math.cos(phase_y_rad) , sign_value*math.sin(phase_y_rad) ) * amplitude_y
+             calibration_coef[ant_idx,freq_channel_idx,3] = complex( math.cos(phase_x_rad) , sign_value*math.sin(phase_x_rad) ) * amplitude_x             
           else :
-             calibration_coef[ant_idx,freq_channel_idx,0] = complex( math.cos(phase_x_rad) , math.sin(phase_x_rad) ) * amplitude_x
-             calibration_coef[ant_idx,freq_channel_idx,3] = complex( math.cos(phase_y_rad) , math.sin(phase_y_rad) ) * amplitude_y
+             calibration_coef[ant_idx,freq_channel_idx,0] = complex( math.cos(phase_x_rad) , sign_value*math.sin(phase_x_rad) ) * amplitude_x
+             calibration_coef[ant_idx,freq_channel_idx,3] = complex( math.cos(phase_y_rad) , sign_value*math.sin(phase_y_rad) ) * amplitude_y
              
        
           if flag_antennas_list is not None :
@@ -269,6 +278,9 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
                 print("WARNING : flagging antenna %d" % (ant_idx))
                 calibration_coef[ant_idx] = calibration_coef[ant_idx]*0
                 flagged = flagged + 1
+
+          if sign_value == 0 :
+             calibration_coef[ant_idx,freq_channel_idx] = calibration_coef[ant_idx,freq_channel_idx]*0
              
           
           if debug : 
