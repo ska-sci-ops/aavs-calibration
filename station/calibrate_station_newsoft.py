@@ -104,7 +104,7 @@ if __name__ == "__main__":
                                                                                  apply_amplitudes=conf.apply_amplitudes, x_amp_par=x_amp, y_amp_par=y_amp, flag_antennas_list=flag_antennas_list )
         else :
            print("INFO : station calibration using provided pkl file (%s)" % (conf.calibration_file))
-           calibration_coefficients = calibration.get_calibration_coeff( calibration_file = conf.calibration_file , swap_pols=conf.polarisation_swap, sign_value=options.sign_value )
+           calibration_coefficients = calibration.get_calibration_coeff( calibration_file = conf.calibration_file , swap_pols=conf.polarisation_swap, sign_value=conf.sign_value )
 
            # I keep it here to flag also for non-MCCS calibration case:
            if calibration_coefficients is not None : 
