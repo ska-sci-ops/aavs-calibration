@@ -209,10 +209,10 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
 
     if sign_value < 1 :
        if sign_value < 0 :
-          print("DEBUG : load_coeff -> conjugate calibration coefficients")
+          print("DEBUG : get_calibration_coeff_from_db -> conjugate calibration coefficients")
           debug = True
        else :
-          print("DEBUG : load_coeff -> setting calibration coefficients to ZERO")
+          print("DEBUG : get_calibration_coeff_from_db -> setting calibration coefficients to ZERO")
           debug = True
 
     # not yet implemented 
@@ -280,6 +280,7 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
                 flagged = flagged + 1
 
           if sign_value == 0 :
+             print("WARING : setting all calibration solutions to ZERO !")
              calibration_coef[ant_idx,freq_channel_idx] = calibration_coef[ant_idx,freq_channel_idx]*0
              
           
