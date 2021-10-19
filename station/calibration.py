@@ -84,7 +84,7 @@ def save_coeff( obj , name ):
         
     print("Saved coefficients to file %s" % (pickle_file))    
 
-def load_coeff( pickle_file, show=True, swap_pols=False ) :
+def load_coeff( pickle_file, show=True, swap_pols=False, sign_value=1 ) :
    obj = None
  
    with open( pickle_file, 'rb') as f:
@@ -105,6 +105,16 @@ def load_coeff( pickle_file, show=True, swap_pols=False ) :
             obj[ant,ch,3]=xx
 
        
+   if sign_value < 1 :
+      if sign_value < 0 :
+         print("DEBUG : load_coeff -> conjugate calibration coefficients")
+         obj = numpy.conjugate( obj )
+         show = True
+      else :
+         obj = 0.00*obj
+         print("DEBUG : load_coeff -> setting calibration coefficients to ZERO")
+         show = True
+
    if show :
       print_coeff( obj, pickle_file )
 
@@ -271,13 +281,13 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
     
     return calibration_coef
 
-def get_calibration_coeff( calibration_file = None , swap_pols=False ) : # Pickle file with calibration coefficients or phase_vs_antenna.pkl can be used 
+def get_calibration_coeff( calibration_file = None , swap_pols=False , sign_value=1 ) : # Pickle file with calibration coefficients or phase_vs_antenna.pkl can be used 
 
     calib_coeff = None
     
     if calibration_file is not None :
         # if pickle file is provided load it and return :
-        calib_coeff = load_coeff( calibration_file , swap_pols=swap_pols )
+        calib_coeff = load_coeff( calibration_file , swap_pols=swap_pols , sign_value=sign_value )
     else :
         # if pickle file is not provided use hardcoded defaults (see description above )
         calib_coeff = read_calibration_phase_offsets()
@@ -335,6 +345,8 @@ def parse_options(idx=0):
    parser.add_option('-t','--test_pickle_file',"--test_pickle",dest="test_pickle_file",default=None, help="Read pickle file and compare to text files (phase_vs_antenna_X.txt and phase_vs_antenna_Y.txt) [default %]")
    parser.add_option('-d','--debug','--verbose','--verb',action="store_true",dest="debug",default=False, help="More debugging information [default %]")
    parser.add_option('--pol_swap','--polarisation_swap','--swap_pols',action="store_true",dest="polarisation_swap",default=False, help="Swap polarisations as done in EDA2 [default %]")
+
+   parser.add_option('-s','--sign','--sign_value',dest="sign_value",default=1, help="Sign value [default %]",type="int")
 #   parser.add_option('-c','--cal','--calibrator',dest="calibrator",default="HerA", help="Calibrator name [default %]")
 #   parser.add_option('--meta_fits','--metafits',dest="metafits",default=None, help="Metafits file [default %]")
 
@@ -343,7 +355,7 @@ def parse_options(idx=0):
    return (options, args)
 
 
-def test_calibration( pickle_file ) :
+def test_calibration( pickle_file , sign_value=1 ) :
     coeff1 = read_calibration_phase_offsets("phase_vs_antenna_X.txt","phase_vs_antenna_Y.txt")
     
     out_f_x = open("test_X.tmp", "w")        
@@ -369,7 +381,7 @@ def test_calibration( pickle_file ) :
     print("ANY DIFFERENCE ???")
 
     # check picke file :    
-    coeff2 = get_calibration_coeff(calibration_file=pickle_file)
+    coeff2 = get_calibration_coeff( calibration_file=pickle_file, sign_value=sign_value )
     out_f_x = open("test_X_pickle.tmp", "w")        
     out_f_y = open("test_Y_pickle.tmp", "w")
     for ant in range(0,coeff2.shape[0]):
@@ -424,10 +436,11 @@ if __name__ == '__main__':
     print("File base       = %s -> files %s / %s" % (options.filebase,phase_offset_file_X,phase_offset_file_Y))
     print("Output pkl file = %s" % (options.outfile))
     print("polarisation_swap = %s" % (options.polarisation_swap))
+    print("Sign_value        = %d" % (options.sign_value))
     print("####################################################")
     
     if options.test_pickle_file is not None :
-        test_calibration( options.test_pickle_file )
+        test_calibration( options.test_pickle_file , sign_value=options.sign_value )
     else :
         (calibration_coef) = read_calibration_phase_offsets( phase_offset_file_X , phase_offset_file_Y, debug=options.debug )
         ant_count = calibration_coef.shape[0]

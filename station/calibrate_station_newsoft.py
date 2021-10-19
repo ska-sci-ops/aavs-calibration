@@ -44,6 +44,9 @@ if __name__ == "__main__":
     
     # antenna flagging :
     parser.add_option('--flag_antennas','--flag_ant_list','--flagants', '--flagant', action="store", dest="flag_antennas_list",   default=None,  help="Flag antenna list [default: %]")
+    
+    # testing SIGN CONVENTION :
+    parser.add_option('-s','--sign','--sign_value',dest="sign_value",default=1, help="Sign value [default %]",type="int")
 
 
     (conf, args) = parser.parse_args(argv[1:])
@@ -68,6 +71,7 @@ if __name__ == "__main__":
     print("Flag antennas     = %s" % (conf.flag_antennas_list))
     if conf.enable_antenna is not None :
        print("DEBUG MODE : enable antenna = %d" % (conf.enable_antenna))
+    print("Sign_value        = %d" % (options.sign_value))
     print("##############################################################################################")
     
     flag_antennas_list=None
@@ -100,7 +104,7 @@ if __name__ == "__main__":
                                                                                  apply_amplitudes=conf.apply_amplitudes, x_amp_par=x_amp, y_amp_par=y_amp, flag_antennas_list=flag_antennas_list )
         else :
            print("INFO : station calibration using provided pkl file (%s)" % (conf.calibration_file))
-           calibration_coefficients = calibration.get_calibration_coeff( calibration_file = conf.calibration_file , swap_pols=conf.polarisation_swap )
+           calibration_coefficients = calibration.get_calibration_coeff( calibration_file = conf.calibration_file , swap_pols=conf.polarisation_swap, sign_value=options.sign_value )
 
            # I keep it here to flag also for non-MCCS calibration case:
            if calibration_coefficients is not None : 
