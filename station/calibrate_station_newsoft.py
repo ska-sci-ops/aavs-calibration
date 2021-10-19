@@ -71,7 +71,7 @@ if __name__ == "__main__":
     print("Flag antennas     = %s" % (conf.flag_antennas_list))
     if conf.enable_antenna is not None :
        print("DEBUG MODE : enable antenna = %d" % (conf.enable_antenna))
-    print("Sign_value        = %d" % (options.sign_value))
+    print("Sign_value        = %d" % (conf.sign_value))
     print("##############################################################################################")
     
     flag_antennas_list=None
