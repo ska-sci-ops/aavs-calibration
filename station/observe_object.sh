@@ -138,6 +138,11 @@ if [[ -n "${17}" && "${17}" != "-" ]]; then
    calibrate_station=${17}
 fi
 
+daq_options=""
+if [[ -n "${18}" && "${18}" != "-" ]]; then
+   daq_options=${18}
+fi
+
 
 # RW/Chris Lee : I'm 99% sure the offset is 3 channels. (not 4). And that confirms the 3-channel offset also.
 channel_from_start=4
@@ -162,6 +167,7 @@ echo "full_time_resolution  = $full_time_resolution"
 echo "calibration_options   = $calibration_options"
 echo "point_station         = $point_station"
 echo "calibrate_station     = $calibrate_station"
+echo "daq_options           = $daq_options"
 echo "###################################################"
 
 ux=`date +%s`
@@ -300,11 +306,11 @@ do
    # WAS : /home/aavs/Software/aavs-system/src/build_new/acquire_station_beam
    
    if [[ $full_time_resolution -gt 0 ]]; then
-      echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} >> daq.out 2>&1"
-      /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} >> daq.out 2>&1
+      echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} ${daq_options} >> daq.out 2>&1"
+      /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} ${daq_options} >> daq.out 2>&1
    else
-      echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -SX --channel_samples=262144 --continuous_period=300 --beam_channels=8 --station_samples=1048576 --description=\"DAQ acquisition channel $freq_channel voltages and station beam\" --station-config=$config_file --acquisition_duration=${interval}"
-      python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -SX --channel_samples=262144 --continuous_period=300 --beam_channels=8 --station_samples=1048576 --description="DAQ acquisition channel $freq_channel voltages and station beam" --station-config=$config_file --acquisition_duration=${interval}
+      echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -SX --channel_samples=262144 --continuous_period=300 --beam_channels=8 --station_samples=1048576 --description=\"DAQ acquisition channel $freq_channel voltages and station beam\" --station-config=$config_file --acquisition_duration=${interval} ${daq_options}"
+      python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -SX --channel_samples=262144 --continuous_period=300 --beam_channels=8 --station_samples=1048576 --description="DAQ acquisition channel $freq_channel voltages and station beam" --station-config=$config_file --acquisition_duration=${interval} ${daq_options}
    fi
    
    # temporary due to the fact that that the program acquire_station_beam ends up with .dat files without group read permission:

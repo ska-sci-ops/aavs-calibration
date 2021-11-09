@@ -46,6 +46,10 @@ if [[ -n "$9" && "$9" != "-" ]]; then
    calibration_options=$9
 fi
 
+daq_options=""
+if [[ -n "${10}" && "${10}" != "-" ]]; then
+   daq_options=${10}
+fi
 
 echo "###################################################"
 echo "PARAMETERS:"
@@ -59,6 +63,7 @@ echo "dt       = $dt"
 echo "start_uxtime = $start_uxtime"
 echo "freq_list = $freq_list"
 echo "calibration_options = $calibration_options"
+echo "daq_options = $daq_options"
 echo "###################################################"
 
 
@@ -79,8 +84,8 @@ do_init_station=2
 # start 2 hours before transit is good 
 for ch in `echo $freq_list`
 do
-   echo "observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - \"${calibration_options}\""
-   observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - "${calibration_options}"
+   echo "observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - \"${calibration_options}\" - - \"${daq_options}\""
+   observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - "${calibration_options}" - - "${daq_options}"
 
    # have to re-initialise every time due to change in observing frequency : 
    # first observation has 2 station initialisation (due to bug), but the next ones can do just one
