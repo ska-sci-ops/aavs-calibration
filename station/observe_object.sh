@@ -314,8 +314,8 @@ do
    fi
    
    # temporary due to the fact that that the program acquire_station_beam ends up with .dat files without group read permission:
-   echo "chmod +r *.dat"
-   chmod +r *.dat
+   echo "chmod +r *.dat *.dada"
+   chmod +r *.dat *.dada
    
    i=$(($i+1))
    
