@@ -991,8 +991,9 @@ def check_antenna_health( hdf_file_template, options,
    out_health_report = options.station_name + "_health_report.txt"
    out_median_file   = options.station_name + "_median"
    out_ant_median_file = options.station_name + "_median_spectrum_ant"
+   out_instr_config_file = options.station_name + "_instr_config.txt"
    
-   out_put_files = [ out_bad_list_file, out_bad_list_html_file, out_health_report, out_median_file, out_ant_median_file, out_bad_list_csv_file ]
+   out_put_files = [ out_bad_list_file, out_bad_list_html_file, out_health_report, out_median_file, out_ant_median_file, out_bad_list_csv_file , out_instr_config_file ]
    
    ant_count = nof_tiles*nof_ant_per_tile
    
@@ -1043,10 +1044,12 @@ def check_antenna_health( hdf_file_template, options,
    out_bad_f = open( options.outdir + "/" + out_bad_list_file , "w" )
    out_bad_html_f = open( options.outdir + "/" + out_bad_list_html_file , "w" )
    out_bad_csv_f = open( options.outdir + "/" + out_bad_list_csv_file , "w" )
+   out_instr_config_f = open( options.outdir + "/" + out_instr_config_file , "w" )
    comment = ("# max_bad_channels = %d , median total power in X = %d and in Y = %d (total power is expected to be in the range x0.5 to x2 of these values)\n" % (options.max_bad_channels,median_total_power_x,median_total_power_y))
    out_bad_f.write( comment )
    out_bad_f.write( ("# UNIXTIME = %.4f\n" % (ux_time)) )
    out_bad_f.write( "# ANTNAME  ANT_INDEX  TILE  ANT   REASON\n" )
+   out_instr_config_f.write("# INPUT ANTENNA POL     DELTA   FLAG\n")
    
    # html file :
    write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_x, median_total_power_y, out_put_files )
@@ -1142,15 +1145,23 @@ def check_antenna_health( hdf_file_template, options,
          flag = ""
 
          is_ok = True
+         flag_x_value = 0
+         flag_y_value = 0
          if len(flag_x) <= 0 :
             flag_x = "OK"
          else :
             is_ok = False
+            if "flatline_x" in fault_type_x :
+               flag_x_value = 1
             
          if len(flag_y) <= 0 :
             flag_y = "OK"
          else :
             is_ok = False
+            flag_y_value = 1
+            if "flatline_y" in fault_type_y :
+               flag_y_value = 1
+
 
          if is_ok :
             flag   = "OK"
@@ -1213,6 +1224,12 @@ def check_antenna_health( hdf_file_template, options,
             csv_line += ( "%d,%s,,,,,,,,,,,,,,,,,,,,,,%d,,%s,%s,,\n" % ((tile+1),antname,(ant_idx+1),fault_type_x,fault_type_y))
             out_bad_csv_f.write( csv_line )
 
+         instr_config_line_x = "%d\t%d\tX\t0\t%d\t\t# %s\n" % (ant_idx*2,ant_idx,flag_x_value,antname)
+         out_instr_config_f.write(instr_config_line_x)
+
+         instr_config_line_y = "%d\t%d\tY\t0\t%d\t\t\n" % (ant_idx*2+1,ant_idx,flag_y_value)
+         out_instr_config_f.write(instr_config_line_y)
+
          # out_x_name = "ant_%05d_%05d_x.txt" % (tile,ant)
          # out_y_name = "ant_%05d_%05d_y.txt" % (tile,ant)
          # write_spectrum( spectrum_x, out_x_name, None, flag )
@@ -1241,6 +1258,9 @@ def check_antenna_health( hdf_file_template, options,
    
    # write end of the file and close :   
    out_bad_html_f.write( "</table>\n" )
+   
+   # close instr_config.txt file for given station
+   out_instr_config_f.close()
    
    # write stat table
    write_stat_table( out_bad_html_f , n_bad_ant_count, flatline_x_count , flatline_y_count, lowpower_x_count, lowpower_y_count, highpower_x_count, highpower_y_count) 

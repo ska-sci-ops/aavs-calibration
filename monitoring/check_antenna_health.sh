@@ -88,6 +88,7 @@ echo "backup_dir   = $backup_dir"
 echo "###################################################"
 
 start_dtm=`date +%Y%m%d%H%M%S`
+dtm=`date +%Y%m%d`
 
 # --last 
 mkdir -p ${outdir}/
@@ -114,14 +115,22 @@ if [[ $do_copy -gt 0 ]]; then
    echo "cp ${station_name}_bad_antennas.csv /exports/calibration/${station_name}/antenna_health/"
    cp ${station_name}_bad_antennas.csv /exports/calibration/${station_name}/antenna_health/
    
-   echo "cp ${station_name}_health_report.txt /exports/calibration/${station_name}/antenna_health/${station_name}_health_report_${start_dtm}.txt"
-   cp ${station_name}_health_report.txt /exports/calibration/${station_name}/antenna_health/${station_name}_health_report_${start_dtm}.txt
-   
-   echo "cp ${station_name}_bad_antennas.txt /exports/calibration/${station_name}/${station_name}_bad_antennas_${start_dtm}.txt"
-   cp ${station_name}_bad_antennas.txt /exports/calibration/${station_name}/${station_name}_bad_antennas_${start_dtm}.txt
-   
    echo "cp ${station_name}_median_?.txt /exports/calibration/${station_name}/antenna_health/"
    cp ${station_name}_median_?.txt /exports/calibration/${station_name}/antenna_health/
+
+   echo "cp ${station_name}_instr_config.txt /exports/calibration/${station_name}/antenna_health/"
+   cp ${station_name}_instr_config.txt /exports/calibration/${station_name}/antenna_health/
+
+   # create copy named by today's date :   
+   mkdir -p /exports/calibration/${station_name}/antenna_health/${dtm}
+   echo "cp ${station_name}_instr_config.txt /exports/calibration/${station_name}/antenna_health/${dtm}/${station_name}_instr_config_${start_dtm}.txt"
+   cp ${station_name}_instr_config.txt /exports/calibration/${station_name}/antenna_health/${dtm}/${station_name}_instr_config_${start_dtm}.txt
+   
+   echo "cp ${station_name}_health_report.txt /exports/calibration/${station_name}/antenna_health/${dtm}/${station_name}_health_report_${start_dtm}.txt"
+   cp ${station_name}_health_report.txt /exports/calibration/${station_name}/antenna_health/${dtm}/${station_name}_health_report_${start_dtm}.txt
+   
+   echo "cp ${station_name}_bad_antennas.txt /exports/calibration/${station_name}/antenna_health/${dtm}/${station_name}_bad_antennas_${start_dtm}.txt"
+   cp ${station_name}_bad_antennas.txt /exports/calibration/${station_name}/antenna_health/${dtm}/${station_name}_bad_antennas_${start_dtm}.txt
 
    # images :
    echo "mkdir -p /exports/calibration/${station_name}/images/"
