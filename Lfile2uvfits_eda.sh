@@ -82,9 +82,9 @@ function generate_header_file
 
    # MS : 2021-11-24 - this change is for the transition period when AAVS2 has new firmware with correct sign and EDA2 still old sign (wrong convention):
    if [[ $station_name == "aavs2" || $station_name == "AAVS2" ]]; then
-      echo "CONJUGATE 1     # conjugate the raw data to fix sign convention problem if necessary" >> ${header_file}
-   else
       echo "CONJUGATE 0     # conjugate the raw data to fix sign convention problem if necessary" >> ${header_file}
+   else
+      echo "CONJUGATE 1     # conjugate the raw data to fix sign convention problem if necessary" >> ${header_file}
    fi
 
    echo "GEOM_CORRECT 1  # apply geometric phase corrections when 1. Don't when 0" >> ${header_file}         
