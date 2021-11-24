@@ -79,7 +79,14 @@ function generate_header_file
    fi   
    
    echo "INVERT_FREQ 0   # 1 if the freq decreases with channel number" >> ${header_file}
-   echo "CONJUGATE 1     # conjugate the raw data to fix sign convention problem if necessary" >> ${header_file}
+
+   # MS : 2021-11-24 - this change is for the transition period when AAVS2 has new firmware with correct sign and EDA2 still old sign (wrong convention):
+   if [[ $station_name == "aavs2" || $station_name == "AAVS2" ]]; then
+      echo "CONJUGATE 1     # conjugate the raw data to fix sign convention problem if necessary" >> ${header_file}
+   else
+      echo "CONJUGATE 0     # conjugate the raw data to fix sign convention problem if necessary" >> ${header_file}
+   fi
+
    echo "GEOM_CORRECT 1  # apply geometric phase corrections when 1. Don't when 0" >> ${header_file}         
    
    echo "TIME    ${tstart}.${frac_int}" >> ${header_file}
@@ -200,8 +207,18 @@ for t in `seq 0 $((ntimes-1))` ; do
     generate_header_file $header $tstart $dstart ${cent_freq} $inttime $useradec $ra_hrs $dec_degs $frac
         
     # chop out relevant section of L-files
-    dd bs=${la_chunksize} skip=$((nchunks*t)) count=$nchunks if=$bname.LACSPC > $lacspc
-    dd bs=${lc_chunksize} skip=$((nchunks*t)) count=$nchunks if=$bname.LCCSPC > $lccspc
+    skip_bytes=$((nchunks*t))
+    echo "DEBUG : skip_bytes = $skip_bytes = $nchunks * $t"
+    
+    echo "dd bs=${la_chunksize} skip=$skip_bytes count=$nchunks if=$bname.LACSPC > $lacspc"
+    dd bs=${la_chunksize} skip=$skip_bytes count=$nchunks if=$bname.LACSPC > $lacspc
+    
+    echo "dd bs=${lc_chunksize} skip=$skip_bytes count=$nchunks if=$bname.LCCSPC > $lccspc"
+    dd bs=${lc_chunksize} skip=$skip_bytes count=$nchunks if=$bname.LCCSPC > $lccspc
+    
+    echo "ls -al $lccspc $lacspc"
+    ls -al $lccspc $lacspc
+    
     # convert to uvfits
     startutc=`date -u --date=@${start} "+%Y%m%dT%H%M%S"`
     
