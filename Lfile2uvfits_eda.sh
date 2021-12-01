@@ -52,7 +52,7 @@ function generate_header_file
    
    station_name_upper=`echo ${station_name} | awk '{print toupper($1)}'`
    
-   echo "PARAMS : $header_file / $frac"
+   echo "PARAMS : $header_file / $frac / $station_name / $station_name_upper"
       
 
    # generate header file here (not copy from repo):
@@ -93,6 +93,11 @@ function generate_header_file
    echo "DATE    $dstart" >> ${header_file}
    echo "FREQCENT ${cent_freq}" >> ${header_file}
    echo "INT_TIME $inttime" >> ${header_file}
+
+   if [[ ! -s header_example.hdr ]]; then
+      echo "cp ${header_file} header_example.hdr"
+      cp ${header_file} header_example.hdr
+   fi
 }
 
 if [ $# -eq 0 ] ; then
