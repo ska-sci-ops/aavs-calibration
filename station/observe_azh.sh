@@ -104,6 +104,11 @@ if [[ -n "${13}" && "${13}" != "-" ]]; then
    calibration_options=${13}
 fi
 
+daq_options=""
+if [[ -n "${14}" && "${14}" != "-" ]]; then
+   daq_options=${14}
+fi
+
 
 channel_from_start=4
 
@@ -122,6 +127,7 @@ echo "sleep_time           = $sleep_time"
 echo "full_time_resolution = ${full_time_resolution}"
 echo "channel_from_start   = $channel_from_start"
 echo "calibration_options  = $calibration_options"
+echo "daq_options          = $daq_options"
 echo "###################################################"
 
 ux=`date +%s`
@@ -232,12 +238,12 @@ do
 
    if [[ $full_time_resolution -gt 0 ]]; then   
       echo "INFO : running full resolution acquisition"
-      echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} > daq.out 2>&1"
-      /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} > daq.out 2>&1
+      echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} ${daq_options} > daq.out 2>&1"
+      /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} ${daq_options} > daq.out 2>&1
    else
       echo "INFO : running normal station beam in very low time resolution"
-      echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -S --channel_samples=262144 --beam_channels=8 --station_samples=1048576 --acquisition_duration=${interval}"
-      python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -S --channel_samples=262144 --beam_channels=8 --station_samples=1048576 --acquisition_duration=${interval}
+      echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -S --channel_samples=262144 --beam_channels=8 --station_samples=1048576 --acquisition_duration=${interval} ${daq_options}"
+      python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -S --channel_samples=262144 --beam_channels=8 --station_samples=1048576 --acquisition_duration=${interval} ${daq_options}
    fi
    
    i=$(($i+1))
