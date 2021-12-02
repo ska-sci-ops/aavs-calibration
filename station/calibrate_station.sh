@@ -46,7 +46,7 @@ cd ${cal_dir}
 last_calib=`ls -tr *_ch${channel_str}*.pkl | tail -1`
 echo "Last calibration pickle file is $last_calib"
 
-if [[ $n_channels -gt 0 ]]; then
+if [[ $n_channels -gt 4 ]]; then
    end_channel=$(($channel+$n_channels))
 
    echo "Calibrating $n_channels channels starting from channel = $channel to $end_channel (inclusive) ..."
