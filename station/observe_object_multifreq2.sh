@@ -99,8 +99,8 @@ do
    fi
 
 
-   echo "observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - \"${calibration_options}\" - - \"${daq_options}\" $end_channel"
-   observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - "${calibration_options}" - - "${daq_options}" $end_channel
+   echo "observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - \"${calibration_options}\" - - $n_channels \"${daq_options}\""
+   observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}"
 
    # have to re-initialise every time due to change in observing frequency : 
    # first observation has 2 station initialisation (due to bug), but the next ones can do just one
