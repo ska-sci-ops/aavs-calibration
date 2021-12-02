@@ -53,8 +53,8 @@ if [[ $n_channels -gt 0 ]]; then
    
    while [[ $channel -le $end_channel ]];
    do
-      echo "python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db ${pol_swap_options} ${calibration_options}"
-      python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db ${pol_swap_options} ${calibration_options}
+      echo "python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db --n_channels=1 ${pol_swap_options} ${calibration_options}"
+      python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db --n_channels=1 ${pol_swap_options} ${calibration_options}
 
       channel=$(($channel+1))
    done
