@@ -139,8 +139,18 @@ if [[ -n "${17}" && "${17}" != "-" ]]; then
 fi
 
 daq_options=""
+n_channels=1
 if [[ -n "${18}" && "${18}" != "-" ]]; then
-   daq_options=${18}
+   n_channels=${18}
+fi
+end_channel=-1
+if [[ $n_channels -gt 0 ]]; then
+   end_channel=$(($ch+$n_channels))
+   daq_options="--start_channel 0 --nof_channels ${n_channels}"
+fi
+
+if [[ -n "${19}" && "${19}" != "-" ]]; then
+   daq_options=${19}
 fi
 
 
@@ -168,6 +178,7 @@ echo "calibration_options   = $calibration_options"
 echo "point_station         = $point_station"
 echo "calibrate_station     = $calibrate_station"
 echo "daq_options           = $daq_options"
+echo "N channels = $n_channels -> end_channel = $end_channel"
 echo "###################################################"
 
 ux=`date +%s`
@@ -254,8 +265,8 @@ fi
 
 
 if [[ $calibrate_station -gt 0 ]]; then
-  echo "~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file} \"${calibration_options}\""
-  ~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file} "${calibration_options}"
+  echo "~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file} \"${calibration_options}\" $end_channel"
+  ~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file} "${calibration_options}" $end_channel
 else
   echo "WARNING : station calibration is not required"
 fi   
