@@ -51,11 +51,6 @@ n_channels=1
 if [[ -n "${10}" && "${10}" != "-" ]]; then
    n_channels=${10}
 fi
-end_channel=-1
-if [[ $n_channels -gt 0 ]]; then
-   end_channel=$(($ch+$n_channels))
-   daq_options="--start_channel 0 --nof_channels ${n_channels}"
-fi
 
 if [[ -n "${11}" && "${11}" != "-" ]]; then
    daq_options=${11}
@@ -76,7 +71,7 @@ echo "start_uxtime = $start_uxtime"
 echo "freq_list = $freq_list"
 echo "calibration_options = $calibration_options"
 echo "daq_options = $daq_options"
-echo "N channels = $n_channels -> end_channel = $end_channel"
+echo "N channels = $n_channels"
 echo "###################################################"
 
 
@@ -97,6 +92,13 @@ do_init_station=2
 # start 2 hours before transit is good 
 for ch in `echo $freq_list`
 do   
+   end_channel=-1
+   if [[ $n_channels -gt 0 ]]; then
+      end_channel=$(($ch+$n_channels))
+      daq_options="$daq_options --start_channel 0 --nof_channels ${n_channels}"
+   fi
+
+
    echo "observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - \"${calibration_options}\" - - \"${daq_options}\" $end_channel"
    observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - "${calibration_options}" - - "${daq_options}" $end_channel
 
