@@ -23,9 +23,9 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    calibration_options=$4
 fi
 
-end_channel=-1
+n_channels=-1
 if [[ -n "$5" && "$5" != "-" ]]; then
-   end_channel=$5
+   n_channels=$5
 fi
 
 
@@ -46,8 +46,10 @@ cd ${cal_dir}
 last_calib=`ls -tr *_ch${channel_str}*.pkl | tail -1`
 echo "Last calibration pickle file is $last_calib"
 
-if [[ $end_channel -gt 0 ]]; then
-   echo "Calibrating channels starting from channel = $channel ..."
+if [[ $n_channels -gt 0 ]]; then
+   end_channel=$(($channel+$n_channels))
+
+   echo "Calibrating $n_channels channels starting from channel = $channel to $end_channel (inclusive) ..."
    
    while [[ $channel -le $end_channel ]];
    do

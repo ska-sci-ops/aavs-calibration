@@ -210,8 +210,8 @@ fi
 
 
 if [[ $calibrate_station -gt 0 ]]; then
-  echo "~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file} \"${calibration_options}\" $end_channel"
-  ~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file} "${calibration_options}" $end_channel
+  echo "~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file} \"${calibration_options}\" $n_channels"
+  ~/aavs-calibration/station/calibrate_station.sh ${freq_channel} ${station} ${config_file} "${calibration_options}" $n_channels
 else
   echo "WARNING : station calibration is not required"
 fi   
