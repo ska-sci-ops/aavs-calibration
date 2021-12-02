@@ -23,14 +23,9 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    calibration_options=$4
 fi
 
-all_channels=0
+end_channel=-1
 if [[ -n "$5" && "$5" != "-" ]]; then
-   all_channels=$5
-fi
-
-end_channel=512
-if [[ -n "$6" && "$6" != "-" ]]; then
-   end_channel=$6
+   end_channel=$5
 fi
 
 
@@ -51,17 +46,16 @@ cd ${cal_dir}
 last_calib=`ls -tr *_ch${channel_str}*.pkl | tail -1`
 echo "Last calibration pickle file is $last_calib"
 
-if [[ $all_channels -gt 0 ]]; then
-   echo "Calibrating channels starting from channel = $all_channels ..."
+if [[ $end_channel -gt 0 ]]; then
+   echo "Calibrating channels starting from channel = $channel ..."
    
-   channel=$all_channels
-   
-   while [[ $channel -le $end_channel ]]; then      
+   while [[ $channel -le $end_channel ]];
+   do
       echo "python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db ${pol_swap_options} ${calibration_options}"
       python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db ${pol_swap_options} ${calibration_options}
 
       channel=$(($channel+1))
-   fi
+   done
 else 
    echo "WARNING : calibrating a single channel = $channel , which may not be sufficient when recording multiple channels !"
       
