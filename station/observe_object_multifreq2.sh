@@ -106,16 +106,17 @@ do
       daq_options="$daq_options --start_channel 0 --nof_channels ${n_channels}"
    fi
 
-   subdir=""
+   # subdirectory is the name of the channel, but if already exists prefix _001 , _002 etc will be added:
+   subdir=${ch}
    if [[ -d ${data_dir}/${ch} ]]; then
       cnt=`ls -d ${data_dir}/${ch}* | wc -l`
       subdir=`echo $cnt | awk -v ch=${ch} '{printf("%d_%03d\n",ch,$1);}'`
-      echo "DEBUG : subdir = $subdir -> ${data_dir}/${ch}/${subdir}/"
+      echo "DEBUG : subdir = $subdir -> ${data_dir}/${subdir}/"
    fi
 
    pwd
-   echo "observe_object.sh $ch ${data_dir}/${ch}/${subdir}/ ${object} $ra $dec $interval - 1 - - - $station $do_init_station - \"${calibration_options}\" - - $n_channels \"${daq_options}\""
-   observe_object.sh $ch ${data_dir}/${ch}/${subdir}/ ${object} $ra $dec $interval - 1 - - - $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}"
+   echo "observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval - 1 - - - $station $do_init_station - \"${calibration_options}\" - - $n_channels \"${daq_options}\""
+   observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval - 1 - - - $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}"
    
    # just to make sure the internally changed variable does not propagate here, which seems to be the case
    data_dir=${data_dir_local}
