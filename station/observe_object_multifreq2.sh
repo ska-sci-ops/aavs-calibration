@@ -118,7 +118,7 @@ do
    observe_object.sh $ch ${data_dir}/${ch}/${subdir}/ ${object} $ra $dec $interval - 1 - - - $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}"
    
    # just to make sure the internally changed variable does not propagate here, which seems to be the case
-   data_dir=data_dir_local
+   data_dir=${data_dir_local}
    
    if [[ $wait_beteen_observations -gt 0 ]]; then
       echo "sleep $wait_beteen_observations"
