@@ -317,8 +317,9 @@ do
    # WAS : /home/aavs/Software/aavs-system/src/build_new/acquire_station_beam
    
    if [[ $full_time_resolution -gt 0 ]]; then
-      echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} ${daq_options} >> daq.out 2>&1"
-      /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} ${daq_options} >> daq.out 2>&1
+      # set maximum file of 10 GB to avoid merging:
+      echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} --max_file_size 10 ${daq_options} >> daq.out 2>&1"
+      /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} --max_file_size 10 ${daq_options} >> daq.out 2>&1
    else
       echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -SX --channel_samples=262144 --continuous_period=300 --beam_channels=8 --station_samples=1048576 --description=\"DAQ acquisition channel $freq_channel voltages and station beam\" --station-config=$config_file --acquisition_duration=${interval} ${daq_options}"
       python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -SX --channel_samples=262144 --continuous_period=300 --beam_channels=8 --station_samples=1048576 --description="DAQ acquisition channel $freq_channel voltages and station beam" --station-config=$config_file --acquisition_duration=${interval} ${daq_options}
