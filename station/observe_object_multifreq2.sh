@@ -30,6 +30,7 @@ data_dir=/data/chris_lee/${dt}/${object}/
 if [[ -n "$6" && "$6" != "-" ]]; then
    data_dir=$6
 fi
+data_dir_local=${data_dir}
 
 start_uxtime=-1
 if [[ -n "$7" && "$7" != "-" ]]; then
@@ -65,6 +66,7 @@ echo "###################################################"
 echo "PARAMETERS:"
 echo "###################################################"
 echo "station  = $station"
+echo "data_dir_local = $data_dir_local (data_dir = $data_dir)"
 echo "object   = $object"
 echo "ra       = $ra"
 echo "dec      = $dec"
@@ -96,6 +98,8 @@ do_init_station=2
 # start 2 hours before transit is good 
 for ch in `echo $freq_list`
 do   
+   echo "DEBUG : observing channel = $ch , data_dir = $data_dir"
+
    end_channel=-1
    if [[ $n_channels -gt 0 ]]; then
       end_channel=$(($ch+$n_channels))
@@ -112,6 +116,9 @@ do
    pwd
    echo "observe_object.sh $ch ${data_dir}/${ch}/${subdir}/ ${object} $ra $dec $interval - 1 - - - $station $do_init_station - \"${calibration_options}\" - - $n_channels \"${daq_options}\""
    observe_object.sh $ch ${data_dir}/${ch}/${subdir}/ ${object} $ra $dec $interval - 1 - - - $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}"
+   
+   # just to make sure the internally changed variable does not propagate here, which seems to be the case
+   data_dir=data_dir_local
    
    if [[ $wait_beteen_observations -gt 0 ]]; then
       echo "sleep $wait_beteen_observations"
