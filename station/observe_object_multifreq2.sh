@@ -56,7 +56,10 @@ if [[ -n "${11}" && "${11}" != "-" ]]; then
    daq_options=${11}
 fi
 
-
+wait_beteen_observations=-1
+if [[ -n "${12}" && "${12}" != "-" ]]; then
+   wait_beteen_observations=${12}
+fi
 
 echo "###################################################"
 echo "PARAMETERS:"
@@ -72,6 +75,7 @@ echo "freq_list = $freq_list"
 echo "calibration_options = $calibration_options"
 echo "daq_options = $daq_options"
 echo "N channels = $n_channels"
+echo "wait_beteen_observations = $wait_beteen_observations"
 echo "###################################################"
 
 
@@ -98,9 +102,19 @@ do
       daq_options="$daq_options --start_channel 0 --nof_channels ${n_channels}"
    fi
 
+   subdir=""
+   if [[ -d ${data_dir}/${ch} ]]; then
+      cnt=`ls -d ${data_dir}/${ch}* | wc -l`
+      subdir=`echo $cnt | awk -v ch=${ch} '{printf("%d_%03d\n",ch,$1);}'`
+   fi
 
-   echo "observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - \"${calibration_options}\" - - $n_channels \"${daq_options}\""
-   observe_object.sh $ch ${data_dir}/${ch} ${object} $ra $dec $interval - 1 - - - $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}"
+   echo "observe_object.sh $ch ${data_dir}/${ch}/${subdir}/ ${object} $ra $dec $interval - 1 - - - $station $do_init_station - \"${calibration_options}\" - - $n_channels \"${daq_options}\""
+   observe_object.sh $ch ${data_dir}/${ch}/${subdir}/ ${object} $ra $dec $interval - 1 - - - $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}"
+   
+   if [[ $wait_beteen_observations -gt 0 ]]; then
+      echo "sleep $wait_beteen_observations"
+      sleep $wait_beteen_observations
+   fi
 
    # have to re-initialise every time due to change in observing frequency : 
    # first observation has 2 station initialisation (due to bug), but the next ones can do just one
