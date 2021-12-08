@@ -106,8 +106,10 @@ do
    if [[ -d ${data_dir}/${ch} ]]; then
       cnt=`ls -d ${data_dir}/${ch}* | wc -l`
       subdir=`echo $cnt | awk -v ch=${ch} '{printf("%d_%03d\n",ch,$1);}'`
+      echo "DEBUG : subdir = $subdir -> ${data_dir}/${ch}/${subdir}/"
    fi
 
+   pwd
    echo "observe_object.sh $ch ${data_dir}/${ch}/${subdir}/ ${object} $ra $dec $interval - 1 - - - $station $do_init_station - \"${calibration_options}\" - - $n_channels \"${daq_options}\""
    observe_object.sh $ch ${data_dir}/${ch}/${subdir}/ ${object} $ra $dec $interval - 1 - - - $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}"
    
