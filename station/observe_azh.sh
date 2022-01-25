@@ -254,8 +254,12 @@ do
 
    # start pointing :
    pwd   
-   echo "~/aavs-calibration/station/pointing/point_station_azh.sh ${az} ${h} ${station}"
-   ~/aavs-calibration/station/pointing/point_station_azh.sh ${az} ${h} ${station}
+   if [[ $point_station -gt 0 ]]; then
+      echo "~/aavs-calibration/station/pointing/point_station_azh.sh ${az} ${h} ${station}"
+      ~/aavs-calibration/station/pointing/point_station_azh.sh ${az} ${h} ${station}
+   else
+      echo "WARNING : pointing of station is not required"
+   fi
    pwd
    ps
    
