@@ -153,6 +153,11 @@ if [[ -n "${19}" && "${19}" != "-" ]]; then
    daq_options=${19}
 fi
 
+use_config_per_freq=1
+if [[ -n "${20}" && "${20}" != "-" ]]; then
+   use_config_per_freq=${20}
+fi
+
 
 # RW/Chris Lee : I'm 99% sure the offset is 3 channels. (not 4). And that confirms the 3-channel offset also.
 channel_from_start=4
@@ -179,6 +184,7 @@ echo "point_station         = $point_station"
 echo "calibrate_station     = $calibrate_station"
 echo "daq_options           = $daq_options"
 echo "N channels = $n_channels -> end_channel = $end_channel"
+echo "use_config_per_freq   = $use_config_per_freq"
 echo "###################################################"
 
 ux=`date +%s`
@@ -199,8 +205,6 @@ config_file=/opt/aavs/config/${station}.yml
 if [[ $do_init_station -gt 0 ]]; then
    echo "Initialising the station"
 
-   use_config_per_freq=1
-   
    if [[ $use_config_per_freq -gt 0 ]]; then
       freq_config_file=/opt/aavs/config/freq/${station}_ch${freq_channel}.yml
                   
