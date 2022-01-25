@@ -119,6 +119,15 @@ if [[ -n "${15}" && "${15}" != "-" ]]; then
    daq_options=${15}
 fi
 
+calibrate_station=1
+if [[ -n "${16}" && "${16}" != "-" ]]; then
+   calibrate_station=${16}
+fi
+
+point_station=1
+if [[ -n "${17}" && "${17}" != "-" ]]; then
+   point_station=${17}
+fi
 
 
 channel_from_start=4
@@ -140,6 +149,8 @@ echo "channel_from_start   = $channel_from_start"
 echo "calibration_options  = $calibration_options"
 echo "daq_options          = $daq_options"
 echo "N channels = $n_channels -> end_channel = $end_channel"
+echo "calibrate_station    = $calibrate_station"
+echo "point_station        = $point_station"
 echo "###################################################"
 
 ux=`date +%s`
@@ -151,8 +162,6 @@ if [[ $start_uxtime_int -gt $ux ]]; then
    wait_for_unixtime.sh $start_uxtime_int
 fi
 
-
-calibrate_station=1
 
 mkdir -p ${data_dir}
 cd ${data_dir}
