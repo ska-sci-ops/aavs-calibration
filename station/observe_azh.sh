@@ -129,6 +129,11 @@ if [[ -n "${17}" && "${17}" != "-" ]]; then
    point_station=${17}
 fi
 
+use_config_per_freq=1
+if [[ -n "${18}" && "${18}" != "-" ]]; then
+   use_config_per_freq=${18}
+fi
+
 
 channel_from_start=4
 
@@ -151,6 +156,7 @@ echo "daq_options          = $daq_options"
 echo "N channels = $n_channels -> end_channel = $end_channel"
 echo "calibrate_station    = $calibrate_station"
 echo "point_station        = $point_station"
+echo "use_config_per_freq  = $use_config_per_freq"
 echo "###################################################"
 
 ux=`date +%s`
@@ -179,7 +185,6 @@ if [[ $do_init_station -gt 0 ]]; then
    echo "Initialising the station"
 
    config_file=/opt/aavs/config/${station}.yml   
-   use_config_per_freq=1
    
    if [[ $use_config_per_freq -gt 0 ]]; then
       freq_config_file=/opt/aavs/config/freq/${station}_ch${freq_channel}.yml
