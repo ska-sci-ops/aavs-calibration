@@ -67,6 +67,11 @@ if [[ -n "${13}" && "${13}" != "-" ]]; then
    use_config_per_freq=${13}
 fi
 
+config_file=/opt/aavs/config/${station}.yml
+if [[ -n "${14}" && "${14}" != "-" ]]; then
+   config_file=${14}
+fi
+
 
 echo "###################################################"
 echo "PARAMETERS:"
@@ -85,6 +90,7 @@ echo "daq_options = $daq_options"
 echo "N channels = $n_channels"
 echo "wait_beteen_observations = $wait_beteen_observations"
 echo "use_config_per_freq = $use_config_per_freq"
+echo "configuration file  = $config_file"
 echo "###################################################"
 
 
@@ -122,8 +128,8 @@ do
    fi
 
    pwd
-   echo "observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval - 1 - - - $station $do_init_station - \"${calibration_options}\" - - $n_channels \"${daq_options}\" $use_config_per_freq"
-   observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval - 1 - - - $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}" $use_config_per_freq
+   echo "observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval - 1 - - - $station $do_init_station - \"${calibration_options}\" - - $n_channels \"${daq_options}\" $use_config_per_freq $config_file"
+   observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval - 1 - - - $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}" $use_config_per_freq $config_file
    
    # just to make sure the internally changed variable does not propagate here, which seems to be the case
    data_dir=${data_dir_local}
