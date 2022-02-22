@@ -241,12 +241,12 @@ for t in `seq 0 $((ntimes-1))` ; do
 #         nice corr2uvfits -d -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits
 
         if [[ $fractional_seconds -gt 0 ]]; then
-           echo "nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}${frac_int}.uvfits"
-           nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}${frac_int}.uvfits
+           echo "nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -I instr_config.txt -o ${oname}_${startutc}${frac_int}.uvfits"
+           nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -I instr_config.txt -o ${oname}_${startutc}${frac_int}.uvfits
         else
            # this is default for backward compatibility if -F not enabled 
-           echo "nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits"
-           nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits
+           echo "nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -I instr_config.txt -o ${oname}_${startutc}.uvfits"
+           nice corr2uvfits $debug -a $lacspc -c $lccspc -H $header -I instr_config.txt -o ${oname}_${startutc}.uvfits
         fi
         
         if [[ $debug_flag -gt 0 ]]; then
