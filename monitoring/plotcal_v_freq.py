@@ -31,7 +31,8 @@ def do_plots( station_id, target=None ):
    if target is None :      
       target=mytz.localize(datetime.strptime(currdir,"%Y_%m_%d-%H:%M"))
    query="select fit_time from calibration_solution where station_id=%s order by abs(extract(epoch from (fit_time - %s))) limit 1"
-   print("Query is: %s. Date is: %s" % (query,str(target)))
+   query_str = (query % (query,str(target)))
+   print("Query is: %s. Date is: %s -> SQL = %s" % (query,str(target),query_str))
    cur.execute(query,(station_id,target,))
 
    rows = cur.fetchall()

@@ -21,7 +21,7 @@ options=""
 fittime=
 if [[ -n "$3" && "$3" != "-" ]]; then
    fittime=$3
-   options="--fittime=$fittime"
+   options="--fittime=\"$fittime\""
 fi
 
 
