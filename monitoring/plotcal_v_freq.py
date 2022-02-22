@@ -18,7 +18,7 @@ from datetime import timedelta
 import pytz
 from optparse import OptionParser,OptionGroup
 
-def do_plots( station_id ): 
+def do_plots( station_id, target=None ): 
    conn = psycopg2.connect("dbname='aavs'")
 
    cur = conn.cursor()
@@ -28,7 +28,8 @@ def do_plots( station_id ):
    #target_fittime="2018_09_16-10:00"
    currdir=os.path.split(os.getcwd())[-1] # the local time for the dump is encoded in the directory name for now
    mytz=pytz.timezone('Australia/West')
-   target=mytz.localize(datetime.strptime(currdir,"%Y_%m_%d-%H:%M"))
+   if target is None :      
+      target=mytz.localize(datetime.strptime(currdir,"%Y_%m_%d-%H:%M"))
    query="select fit_time from calibration_solution where station_id=%s order by abs(extract(epoch from (fit_time - %s))) limit 1"
    print("Query is: %s. Date is: %s" % (query,str(target)))
    cur.execute(query,(station_id,target,))
@@ -108,6 +109,7 @@ def parse_options(idx=0):
    usage+='\tPlots visibilities for given tile and all other tiles\n'
    parser = OptionParser(usage=usage,version=1.00)
    parser.add_option("--station_id", '--station', dest="station_id", default=2, help="Station ID (as in the station configuratio file) [default: %]", type=int )
+   parser.add_option("--fit_time", '--fittime', dest="fittime", default=None, help="Fittime to plot as in the database [default: %]")
    
 
    (options, args) = parser.parse_args(sys.argv[idx:])
@@ -117,6 +119,6 @@ def parse_options(idx=0):
 
 if __name__ == "__main__":
    (options, args) = parse_options()
-   do_plots( station_id = options.station_id )
+   do_plots( station_id = options.station_id, target=options.fittime )
    
    

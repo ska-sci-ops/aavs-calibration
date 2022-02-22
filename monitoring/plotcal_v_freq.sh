@@ -17,8 +17,16 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    cd ${data_dir}
 fi
 
+options=""
+fittime=
+if [[ -n "$3" && "$3" != "-" ]]; then
+   fittime=$3
+   options="--fittime=$fittime"
+fi
+
+
 # but on aavs1-server
-www_dir="/exports/calibration/"
+www_dir="/exports/calibration/${station_name}/antenna_health/"
 if [[ -n "$3" && "$3" != "-" ]]; then
    www_dir=$3
 fi
@@ -27,6 +35,7 @@ echo "################################################"
 echo "PARAMETERS:"
 echo "################################################"
 echo "station_name = $station_name ( station_id = $station_id )"
+echo "fittime      = $fittime ($options)"
 echo "################################################"
 
 
@@ -34,8 +43,8 @@ curr_path=`pwd`
 cal_dtm=`basename $curr_path`
 echo "Real-time calibration path = $curr_path -> cal_dtm = $cal_dtm"
 
-echo "python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id}"
-python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id}
+echo "python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id} ${options}"
+python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id} ${options}
 
 # prepare directorios and copy images to WWW server :
 images_dir=${www_dir}/${station_name_lower}/${cal_dtm}
