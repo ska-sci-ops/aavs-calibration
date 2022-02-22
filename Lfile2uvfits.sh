@@ -116,7 +116,9 @@ for t in `seq 0 $((ntimes-1))` ; do
     dd bs=${lc_chunksize} skip=$((nchunks*t)) count=$nchunks if=$bname.LCCSPC > $lccspc
     # convert to uvfits
     startutc=`date -u --date=@${start} "+%Y%m%dT%H%M%S"`
-    nice corr2uvfits -a $lacspc -c $lccspc -H $header -o ${oname}_${startutc}.uvfits
+    
+    echo "nice corr2uvfits -a $lacspc -c $lccspc -H $header -I instr_config.txt -o ${oname}_${startutc}.uvfits"
+    nice corr2uvfits -a $lacspc -c $lccspc -H $header -I instr_config.txt -o ${oname}_${startutc}.uvfits
 done
 
 rm $lacspc
