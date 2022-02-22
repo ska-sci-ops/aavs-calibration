@@ -17,18 +17,17 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    cd ${data_dir}
 fi
 
-options=""
-fittime=
-if [[ -n "$3" && "$3" != "-" ]]; then
-   fittime=$3
-   options="--fittime=\"$fittime\""
-fi
-
-
 # but on aavs1-server
 www_dir="/exports/calibration/${station_name}/antenna_health/"
 if [[ -n "$3" && "$3" != "-" ]]; then
    www_dir=$3
+fi
+
+options=""
+fittime=
+if [[ -n "$4" && "$4" != "-" ]]; then
+   fittime=$4
+   options="--fittime=\"$fittime\""
 fi
 
 echo "################################################"
