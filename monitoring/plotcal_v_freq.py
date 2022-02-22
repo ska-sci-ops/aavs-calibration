@@ -120,6 +120,13 @@ def parse_options(idx=0):
 
 if __name__ == "__main__":
    (options, args) = parse_options()
+   
+   print("########################################################")  
+   print("PARAMETERS :")
+   print("########################################################")
+   print("fittime = %s" % (options.fittime))
+   print("########################################################")
+   
    do_plots( station_id = options.station_id, target=options.fittime )
    
    
