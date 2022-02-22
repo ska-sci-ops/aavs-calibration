@@ -239,15 +239,18 @@ def calc_mean_delays_per_tpm( ant_name, ant_delay, ant_tpm, outfile="delay_vs_tp
          out_f.write( line )
          
          tpm_delays_round_string=""
+         tpm_delays_float_string=""
          for d in range(0,len(tpm_delays_round)) :
             tpm_delays_round_string += str(int(tpm_delays_round[d]))
+            tpm_delays_float_string += ("%.4f " % str( tpm_delays[d] ))
             if d < (len(tpm_delays_round)-1) :
                tpm_delays_round_string += ", "
+               tpm_delays_float_string += ", "
          
          line = "    - %d [%s]\n" % (int(round(median_delay)),tpm_delays_round_string)
          out_conf_f.write( line )
 
-         full_line = (" delays[%d] = %s\n" % (tpm-1,line))
+         full_line = (" delays[%d] = %s\n" % (tpm-1,tpm_delays_float_string))
          out_f_python.write( full_line )
       else :
          print("WARNING : tpm=%d has no delays ????" % (tpm))
