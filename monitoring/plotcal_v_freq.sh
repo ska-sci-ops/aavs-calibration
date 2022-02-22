@@ -23,18 +23,16 @@ if [[ -n "$3" && "$3" != "-" ]]; then
    www_dir=$3
 fi
 
-options=""
 fittime=
 if [[ -n "$4" && "$4" != "-" ]]; then
    fittime=$4
-   options="--fittime=\"$fittime\""
 fi
 
 echo "################################################"
 echo "PARAMETERS:"
 echo "################################################"
 echo "station_name = $station_name ( station_id = $station_id )"
-echo "fittime      = $fittime ($options)"
+echo "fittime      = $fittime"
 echo "################################################"
 
 
@@ -42,8 +40,13 @@ curr_path=`pwd`
 cal_dtm=`basename $curr_path`
 echo "Real-time calibration path = $curr_path -> cal_dtm = $cal_dtm"
 
-echo "python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id} ${options}"
-python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id} ${options}
+if [[ -n "$fittime" && "$fittime" != "-" ]]; then
+   echo "python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id} --fittime=\"$fittime\""
+   python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id} --fittime="$fittime"
+else
+   echo "python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id} --fittime=\"$fittime\""
+   python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id} --fittime="$fittime"
+fi
 
 # prepare directorios and copy images to WWW server :
 images_dir=${www_dir}/${station_name_lower}/${cal_dtm}
