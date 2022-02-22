@@ -239,13 +239,17 @@ def calc_mean_delays_per_tpm( ant_name, ant_delay, ant_tpm, outfile="delay_vs_tp
          out_f.write( line )
          
          tpm_delays_round_string=""
-         tpm_delays_float_string=""
          for d in range(0,len(tpm_delays_round)) :
             tpm_delays_round_string += str(int(tpm_delays_round[d]))
-            tpm_delays_float_string += ("%.4f " % tpm_delays[d])
             if d < (len(tpm_delays_round)-1) :
                tpm_delays_round_string += ", "
+               
+         tpm_delays_float_string=""
+         for d in range(0,len(tpm_delays)) :
+            tpm_delays_float_string += ("%.4f " % tpm_delays[d])
+            if d < (len(tpm_delays)-1) :
                tpm_delays_float_string += ", "
+
          
          line = "    - %d [%s]\n" % (int(round(median_delay)),tpm_delays_round_string)
          out_conf_f.write( line )
