@@ -18,7 +18,9 @@ if [[ -n "$2" && "$2" != "-" ]]; then
 fi
 
 # but on aavs1-server
-www_dir="/exports/calibration/${station_name}/antenna_health/"
+# 2022-02-24 : changed back to /exports/calibration/ - but may require to be set as below for the antenna health monitor :
+# www_dir="/exports/calibration/${station_name}/antenna_health/"
+www_dir="/exports/calibration/"
 if [[ -n "$3" && "$3" != "-" ]]; then
    www_dir=$3
 fi
