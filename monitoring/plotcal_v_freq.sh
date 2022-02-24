@@ -44,8 +44,8 @@ if [[ -n "$fittime" && "$fittime" != "-" ]]; then
    echo "python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id} --fittime=\"$fittime\""
    python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id} --fittime="$fittime"
 else
-   echo "python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id} --fittime=\"$fittime\""
-   python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id} --fittime="$fittime"
+   echo "python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id}"
+   python ~/aavs-calibration/monitoring/plotcal_v_freq.py --station_id=${station_id}
 fi
 
 # prepare directorios and copy images to WWW server :
