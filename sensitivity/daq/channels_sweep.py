@@ -142,8 +142,12 @@ if __name__ == "__main__":
     
     
     # running a loop over specified channel range :
-    print("Running a loop over channels %d - %d" % (conf.start_channel,conf.stop_channel))
-    channel_list = numpy.arange( conf.start_channel,conf.stop_channel,conf.step_channel )
+    channel_list = []
+    if conf.start_channel > 0 and conf.stop_channel > 0 :
+       print("Running a loop over channels %d - %d" % (conf.start_channel,conf.stop_channel))
+       channel_list = numpy.arange( conf.start_channel,conf.stop_channel,conf.step_channel )
+    else :
+       print("WARNING : no channel range specified")
     
     if conf.add_uav_channels :
        channel_list = numpy.append( channel_list, [ 64, 90, 141, 204, 294, 410 ] )
