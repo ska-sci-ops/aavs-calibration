@@ -61,8 +61,22 @@ do
    extra_options="$options"
    rest=$(($iteration%$reprogram_every_n_iter))
    echo "Iteration = $iteration -> rest from division by $reprogram_every_n_iter is $rest"
+   reprogram=0
    if [[ $rest == 0 && $iteration -gt 0 ]]; then
       extra_options="-IP"
+      reprogram=1
+   fi
+   
+   if [[ $interval -le 0 ]]; then
+      # file started.txt is expected to be created in daq_sensitivity.sh script just before daq_receiver.py is started, we allow additional 10seconds for it to launch and 
+      # start looping over channels after this 
+      echo "~/aavs-calibration/sensitivity/daq/wait_for_file.sh started.txt"
+      ~/aavs-calibration/sensitivity/daq/wait_for_file.sh started.txt
+
+      if [[ $reprogram -le 0 ]]; then
+         echo "sleep 10"
+         sleep 10
+      fi
    fi
    
    # just one iteration over channels :      
@@ -75,11 +89,6 @@ do
    if [[ $interval -gt 0 ]]; then
       echo "sleep $interval"
       sleep $interval
-   else 
-      echo "~/aavs-calibration/sensitivity/daq/wait_for_file.sh started.txt"
-      ~/aavs-calibration/sensitivity/daq/wait_for_file.sh started.txt
-      
-      sleep 10
    fi
    
    iteration=$(($iteration+1))
