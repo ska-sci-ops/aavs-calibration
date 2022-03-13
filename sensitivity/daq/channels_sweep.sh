@@ -72,8 +72,15 @@ do
    echo "rm -f current_channel.txt"
    rm -f current_channel.txt   
 
-   echo "sleep $interval"
-   sleep $interval
+   if [[ $interval -gt 0 ]]; then
+      echo "sleep $interval"
+      sleep $interval
+   else 
+      echo "~/aavs-calibration/sensitivity/daq/wait_for_file.sh started.txt"
+      ~/aavs-calibration/sensitivity/daq/wait_for_file.sh started.txt
+      
+      sleep 10
+   fi
    
    iteration=$(($iteration+1))
 done
