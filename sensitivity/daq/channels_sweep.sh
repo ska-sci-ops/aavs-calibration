@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # default EDA2:
-config_file=/opt/aavs/config/eda2_full_delayperant.yml
+config_file=/opt/aavs/config/eda2.yml
 if [[ -n "$1" && "$1" != "-" ]]; then
    config_file=$1
 fi
