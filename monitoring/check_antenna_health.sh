@@ -70,6 +70,11 @@ if [[ -n "$9" && "$9" != "-" ]]; then
    backup_dir=$9
 fi
 
+max_spreadsheet_age=86400
+if [[ -n "${10}" && "${10}" != "-" ]]; then
+   max_spreadsheet_age=${10}
+fi
+
 
 out_file=${outdir}_antenna_health.out
 
@@ -85,6 +90,7 @@ echo "station_name = $station_name"
 echo "do_copy      = $do_copy"
 echo "www_dir      = $www_dir"
 echo "backup_dir   = $backup_dir"
+echo "max_spreadsheet_age = $max_spreadsheet_age [sec]"
 echo "###################################################"
 
 start_dtm=`date +%Y%m%d%H%M%S`
