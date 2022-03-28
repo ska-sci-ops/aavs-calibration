@@ -1207,7 +1207,7 @@ def check_antenna_health( hdf_file_template, options,
             # Antname and tile :
             # remove strong
 #            html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,antname,font_type_end,font_color,font_type_start,tile+1,font_type_end))
-            html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,tile+1,font_type_end,font_color,font_type_start,antname,font_type_end))
+            html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,tile+1,font_type_end,font_color,font_type_start,antname,font_type_end))
             # X polarisation :
             html_line += ("   <td> <font color=\"%s\">%s%s%s</s></font> <a href=\"images/%s_x.png\"><u>%s</u></a></td>\n" % (font_color_x,font_type_start,fault_type_x,font_type_end,antname,flag_x))
             # Y polarisation :
