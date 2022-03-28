@@ -90,10 +90,32 @@ echo "###################################################"
 start_dtm=`date +%Y%m%d%H%M%S`
 dtm=`date +%Y%m%d`
 
+# try to get Dave's spreadsheet :
+date
+echo "get_spreadsheet.sh"
+get_spreadsheet.sh
+
+use_spreadsheet=""
+uxtime=`date +%s`
+if [[ -s ${station_name}.csv ]]; then
+   spreadsheet_uxtime=`ls -l --time-style=+%s ${station_name}.csv | awk '{print $6;}'`
+   spreadsheet_age=$(($uxtime-$spreadsheet_uxtime))
+   
+   if [[ $spreadsheet_age -le $max_spreadsheet_age ]]; then
+      echo "INFO : spreadsheet age is $spreadsheet_age seconds which is ok (less than allowed $max_spreadsheet_age [sec]) -> setting use_spreadsheet to --use_spreadsheet"
+      use_spreadsheet="--use_spreadsheet"
+   else
+      echo "WARNING : spreadsheet age is $spreadsheet_age seconds more than allowed $max_spreadsheet_age [sec] -> ignored (some information will not be available in the reports)"
+   fi
+else 
+   echo "WARNING : spreadsheet file ${station_name}.csv does not exist -> some information will not be available in the reports"   
+fi   
+
+
 # --last 
 mkdir -p ${outdir}/
-echo "python ~/aavs-calibration/monitoring/check_antenna_health.py $hdf5_file_template --n_timesteps=${n_timesteps} --outdir=${outdir} --station=${station_name} --images --plot_db ${extra_options} > ${outdir}/${out_file}"
-python ~/aavs-calibration/monitoring/check_antenna_health.py $hdf5_file_template --n_timesteps=${n_timesteps} --outdir=${outdir} --station=${station_name} --images --plot_db ${extra_options} > ${outdir}/${out_file}
+echo "python ~/aavs-calibration/monitoring/check_antenna_health.py $hdf5_file_template --n_timesteps=${n_timesteps} --outdir=${outdir} --station=${station_name} --images --plot_db ${extra_options} ${use_spreadsheet} > ${outdir}/${out_file}"
+python ~/aavs-calibration/monitoring/check_antenna_health.py $hdf5_file_template --n_timesteps=${n_timesteps} --outdir=${outdir} --station=${station_name} --images --plot_db ${extra_options} ${use_spreadsheet} > ${outdir}/${out_file}
 
 
 # make plots :

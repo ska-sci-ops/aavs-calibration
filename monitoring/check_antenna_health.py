@@ -22,6 +22,18 @@ matplotlib.use('Agg')
 import pylab
 import matplotlib.pyplot as plt
 
+# try to import panda module, but do not crash if it's not available:
+g_spreadsheet_csv_file=None
+g_use_spreadsheet=False
+try:
+  import pandas
+  
+  print("INFO : pandas module imported correctly -> will be able to googldoc spreadsheet information in the reports")
+  g_use_spreadsheet=True
+except:
+  print("WARNING : panda module is not available. It will not be possible to read CSV files (use googldoc spreadsheet information)")
+  g_use_spreadsheet=False
+
 # from matplotlib import rc
 # rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 # rc('text', usetex=True)
@@ -902,8 +914,8 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
    out_bad_html_f.write( "<table style=\"width:100%\">\n" )   
    out_bad_html_f.write( "<tr>\n" )
    out_bad_html_f.write( "<th>Table Index</th>\n" )
-   out_bad_html_f.write( "<th>Antenna</th>\n" )
    out_bad_html_f.write( "<th>Tile</th>\n" )
+   out_bad_html_f.write( "<th>Antenna</th>\n" )
    out_bad_html_f.write( "<th>X polarisation</th>\n" )
    out_bad_html_f.write( "<th>Y polarisation</th>\n" )
    out_bad_html_f.write( "<th> Additional information </th>\n" )
@@ -1194,7 +1206,8 @@ def check_antenna_health( hdf_file_template, options,
             html_line = "<tr>\n"
             # Antname and tile :
             # remove strong
-            html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,antname,font_type_end,font_color,font_type_start,tile+1,font_type_end))
+#            html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,antname,font_type_end,font_color,font_type_start,tile+1,font_type_end))
+            html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,tile+1,font_type_end,font_color,font_type_start,antname,font_type_end))
             # X polarisation :
             html_line += ("   <td> <font color=\"%s\">%s%s%s</s></font> <a href=\"images/%s_x.png\"><u>%s</u></a></td>\n" % (font_color_x,font_type_start,fault_type_x,font_type_end,antname,flag_x))
             # Y polarisation :
@@ -1272,8 +1285,25 @@ def check_antenna_health( hdf_file_template, options,
    for tile in range(0,nof_tiles) :   
       f_array[tile].close()
 
+def read_spreadsheet_file( spreadsheet_csvfile, use_spreadsheet ) :
+   global g_use_spreadsheet
+   global g_spreadsheet_csv_file
+   
+   if use_spreadsheet and spreadsheet_csvfile is not None and g_use_spreadsheet :
+      print("INFO : trying to read spreadsheet file %s using pandas ..." % (spreadsheet_csvfile))
+      try :
+         g_spreadsheet_csv_file = pandas.read_csv( spreadsheet_csvfile )
+         print("INFO : spreadsheet file read OK !")
+         
+         return g_spreadsheet_csv_file
+      except :
+         print("WARNING : could not read spreadsheet information from CSV file %s -> some report fields will not be populated" % (g_spreadsheet_csv_file))
+   else :
+      print("WARNING : using spreadsheet information is not required or not possible (no pandas module or csv file not specified)")
+    
 
-
+   g_spreadsheet_csv_file = None
+   return None
 
 def parse_options(idx):
    parser=optparse.OptionParser()
@@ -1288,6 +1318,10 @@ def parse_options(idx):
    # plotting :
    parser.add_option('--images','--plot',action="store_true",dest="do_images",default=False, help="Do images [default %default]")
    parser.add_option('--plot_db',action="store_true",dest="plot_db",default=False, help="Do images in dB scale [default %default]")
+   
+   # using external spreadsheets
+   parser.add_option("--use_spreadsheet","--use_googledoc",action="store_true",dest="use_spreadsheet", default=False, help="Use spreadsheet with information about signal chains to generate more detailed report [default %default]")
+   parser.add_option("--spreadsheet_csvfile","--spreadsheet_file",dest="spreadsheet_csvfile",default=None,help="File name of the spreadsheet CSV file [default %default]")
    
    (options,args)=parser.parse_args(sys.argv[idx:])
 
@@ -1307,6 +1341,8 @@ if __name__ == '__main__' :
       hdf_file_template = sys.argv[1]
 
    (options, args) = parse_options(1)
+   if options.spreadsheet_csvfile is None :
+      options.spreadsheet_csvfile = ("%s.csv" % options.station_name)
    
    print("######################################################################################")
    print("PARAMETERS:")
@@ -1317,6 +1353,7 @@ if __name__ == '__main__' :
    print("Station           = %s" % (options.station_name))
    print("Do images         = %s (dB = %s)" % (options.do_images,options.plot_db))
    print("threshold_in_sigma = %.2f" % (options.threshold_in_sigma))
+   print("Use spreadsheet   = %s (csvfile = %s)" % (options.use_spreadsheet,options.spreadsheet_csvfile))
    print("######################################################################################")
    
    if len(options.outdir) and options.outdir != "./" :
@@ -1327,6 +1364,9 @@ if __name__ == '__main__' :
       if options.do_images :
          print("Creating images directory %s ..." % (options.outdir + "/images/"))
          mkdir_p( options.outdir + "/images/" )
+
+   print("INFO : reading spreadsheet file %s" % (options.spreadsheet_csvfile))
+   read_spreadsheet_file( options.spreadsheet_csvfile, options.use_spreadsheet )
 
 #   t_sample_list=None
 #   if options.n_timesteps > 0 :
