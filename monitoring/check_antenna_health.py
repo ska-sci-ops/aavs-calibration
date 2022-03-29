@@ -1302,6 +1302,8 @@ def check_antenna_health( hdf_file_template, options,
 # >>> s['POP_GRID_REF'][idx]
 # >>> s['SMART_BOX_PORT'][idx]
 # >>> s['FIBRE_TAIL_NO'][idx]
+# tile    - integer expected
+# antenna - integer expected for example 63 for Ant063 
 def find_anttile( spreadsheet, tile, antenna ) :
    len_tile = len( spreadsheet['TILE_NO'] ) 
    len_ant  = len( spreadsheet['ANT_NO'] )
@@ -1326,11 +1328,13 @@ def find_anttile( spreadsheet, tile, antenna ) :
    print("WARNING : could not find tile = %d and antenna = %d in the spreadsheet -> spreadsheet information will not be used" % (tile,antenna))
    return (None)
 
+# tile    - integer expected
+# antname - string for example Ant063 
 def get_details_from_spreadsheet( tile, antname ) :
    global g_spreadsheet_csv_file
 
    if g_spreadsheet_csv_file is not None :
-      ant_number = antname[3:]
+      ant_number = antname[3:] # get antenna number from string like Ant063
       idx = find_anttile( g_spreadsheet_csv_file, int(tile), int(ant_number) )
       
       if idx is not None :
