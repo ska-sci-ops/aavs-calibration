@@ -1248,7 +1248,7 @@ def check_antenna_health( hdf_file_template, options,
             # CSV file :
             csv_line = ""
             # Warning : MIRIAD INDEX in Dave's script has indexes starting from 1 too (in the config file they are from ZERO !)
-            csv_line += ( "%d,%s,,,,,,,,,,,,,,,,,,,,,,%d,,%s,%s,,\n" % ((tile+1),antname,(ant_idx+1),fault_type_x,fault_type_y))
+            csv_line += ( "%d,%s,%s,,,%s,,%s,,,,,,,,,,,,,,,,%d,,%s,%s,,\n" % ((tile+1),antname,pop,smartbox_port,fibre_tail,(ant_idx+1),fault_type_x,fault_type_y))
             out_bad_csv_f.write( csv_line )
 
          instr_config_line_x = "%d\t%d\tX\t0\t%d\t\t# %s\n" % (ant_idx*2,ant_idx,flag_x_value,antname)
@@ -1323,7 +1323,7 @@ def find_anttile( spreadsheet, tile, antenna ) :
       except :
          pass
 
-   print("WARNING : could not find tile = %d and antenna = %d in the spreadsheet -> spreadsheet information will not be used" % (tile,antenna))
+   print("WARNING : could not find tile = %d and antenna = %s in the spreadsheet -> spreadsheet information will not be used" % (tile,antenna))
    return (None)
 
 def get_details_from_spreadsheet( tile, antname ) :
