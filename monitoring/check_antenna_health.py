@@ -916,6 +916,9 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
    out_bad_html_f.write( "<th>Table Index</th>\n" )
    out_bad_html_f.write( "<th>Tile</th>\n" )
    out_bad_html_f.write( "<th>Antenna</th>\n" )
+   out_bad_html_f.write( "<th>POP</th>\n" )
+   out_bad_html_f.write( "<th>SMARTBOX-PORT</th>\n" )
+   out_bad_html_f.write( "<th>FIBRE_TAIL</th>\n" )
    out_bad_html_f.write( "<th>X polarisation</th>\n" )
    out_bad_html_f.write( "<th>Y polarisation</th>\n" )
    out_bad_html_f.write( "<th> Additional information </th>\n" )
@@ -1152,6 +1155,15 @@ def check_antenna_health( hdf_file_template, options,
          antname = " ?? " 
          if antenna_names is not None :
             antname = antenna_names[ant_idx]         
+      
+         pop = "?"
+         smartbox_port = "?"
+         fibre_tail = "?"
+         if g_spreadsheet_csv_file is not None :
+            print("INFO : will try to use information from the spreadsheet")
+            # TODO 
+            # antname, tile+1
+            (spreadsheet_idx,pop,smartbox_port,fibre_tail) = get_details_from_spreadsheet( tile+1 , antname )
 
          status = "OK"      
          flag = ""
@@ -1208,6 +1220,8 @@ def check_antenna_health( hdf_file_template, options,
             # remove strong
 #            html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,antname,font_type_end,font_color,font_type_start,tile+1,font_type_end))
             html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,tile+1,font_type_end,font_color,font_type_start,antname,font_type_end))
+            # details from the spreadsheet :
+            html_line += ("   <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td>\n" % (font_color,font_type_start,pop,font_type_end,font_color,font_type_start,smartbox_port,font_type_end,font_color,font_type_start,fibre_tail,font_type_end))
             # X polarisation :
             html_line += ("   <td> <font color=\"%s\">%s%s%s</s></font> <a href=\"images/%s_x.png\"><u>%s</u></a></td>\n" % (font_color_x,font_type_start,fault_type_x,font_type_end,antname,flag_x))
             # Y polarisation :
@@ -1284,6 +1298,48 @@ def check_antenna_health( hdf_file_template, options,
 #  CLOSE HDF5 files :
    for tile in range(0,nof_tiles) :   
       f_array[tile].close()
+
+# >>> s['POP_GRID_REF'][idx]
+# >>> s['SMART_BOX_PORT'][idx]
+# >>> s['FIBRE_TAIL_NO'][idx]
+def find_anttile( spreadsheet, tile, antenna ) :
+   len_tile = len( spreadsheet['TILE_NO'] ) 
+   len_ant  = len( spreadsheet['ANT_NO'] )
+   
+   len_common = len_tile
+   if len_tile == len_ant :
+      print("DEBUG : lengths of TILE_NO and ANT_NO columns are the same = |%s|" % (len_common))
+   else :
+      print("WARNING : number of entries in TILE_NO column = %d != number of entries in ANT_NO column = %d -> using smaller" % (len_tile,len_ant))
+      len_common = min(len_tile,len_ant)
+      
+   for idx in range(0,len_common):
+      try : 
+         spreadsheet_tile = int( spreadsheet['TILE_NO'][idx] )
+         spreadsheet_ant  = int( spreadsheet['ANT_NO'][idx] )
+         if tile == spreadsheet_tile and antenna == spreadsheet_ant :
+            print("DEBUG : found tile = %d and antenna = %d in the spreadsheet at position %d" % (tile,antenna,idx))
+            return (idx)
+      except :
+         pass
+
+   print("WARNING : could not find tile = %d and antenna = %d in the spreadsheet -> spreadsheet information will not be used" % (tile,antenna))
+   return (None)
+
+def get_details_from_spreadsheet( tile, antname ) :
+   global g_spreadsheet_csv_file
+
+   if g_spreadsheet_csv_file is not None :
+      idx = find_anttile( g_spreadsheet_csv_file, tile, antname )
+      
+      if idx is not None :
+         pop = g_spreadsheet_csv_file['POP_GRID_REF'][idx]
+         smartbox_port = g_spreadsheet_csv_file['SMART_BOX_PORT'][idx]
+         fibre_tail = g_spreadsheet_csv_file['FIBRE_TAIL_NO'][idx]
+         
+         return (idx,pop,smartbox_port,fibre_tail)
+
+   return (None,None,None,None)
 
 def read_spreadsheet_file( spreadsheet_csvfile, use_spreadsheet ) :
    global g_use_spreadsheet
