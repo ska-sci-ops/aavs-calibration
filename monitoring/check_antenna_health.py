@@ -1344,7 +1344,7 @@ def get_details_from_spreadsheet( tile, antname ) :
          
          return (idx,pop,smartbox_port,fibre_tail)
 
-   return (None,None,None,None)
+   return (None,"?","?","?")
 
 def read_spreadsheet_file( spreadsheet_csvfile, use_spreadsheet ) :
    global g_use_spreadsheet
