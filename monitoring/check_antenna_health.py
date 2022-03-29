@@ -1308,7 +1308,7 @@ def find_anttile( spreadsheet, tile, antenna ) :
    
    len_common = len_tile
    if len_tile == len_ant :
-      print("DEBUG : lengths of TILE_NO and ANT_NO columns are the same = |%s|" % (len_common))
+      print("DEBUG : lengths of TILE_NO and ANT_NO columns are the same = |%d|" % (len_common))
    else :
       print("WARNING : number of entries in TILE_NO column = %d != number of entries in ANT_NO column = %d -> using smaller" % (len_tile,len_ant))
       len_common = min(len_tile,len_ant)
@@ -1323,14 +1323,15 @@ def find_anttile( spreadsheet, tile, antenna ) :
       except :
          pass
 
-   print("WARNING : could not find tile = %d and antenna = %s in the spreadsheet -> spreadsheet information will not be used" % (tile,antenna))
+   print("WARNING : could not find tile = %d and antenna = %d in the spreadsheet -> spreadsheet information will not be used" % (tile,antenna))
    return (None)
 
 def get_details_from_spreadsheet( tile, antname ) :
    global g_spreadsheet_csv_file
 
    if g_spreadsheet_csv_file is not None :
-      idx = find_anttile( g_spreadsheet_csv_file, tile, antname )
+      ant_number = antname[3:]
+      idx = find_anttile( g_spreadsheet_csv_file, int(tile), int(ant_number) )
       
       if idx is not None :
          pop = g_spreadsheet_csv_file['POP_GRID_REF'][idx]
