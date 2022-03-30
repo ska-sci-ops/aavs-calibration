@@ -176,7 +176,7 @@ def run_calibration(directory, nof_channels, threads, station_name="EDA2", updat
     cleanup_parameters = ['cleanup_temp_files.sh', '-D', directory]
     if options.keep_uv_files :
        cleanup_parameters.append("-u")
-       cleanup_parameters.append("1")
+       cleanup_parameters.append("0")
        
     subprocess.check_call( cleanup_parameters )
 
