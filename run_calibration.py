@@ -16,14 +16,21 @@ try :
    import psycopg2
    psycopg2_found=True
 except :
-   print("WARNING : package psycopg2 -> will not be able to save results to the database if required")
+   print("WARNING : package psycopg2 is not available -> will not be able to save results to the database if required")
    pass   
 
 
 import fit_phase_delay
 
 # import pyaavs.logger
-from aavs_calibration.common import add_new_calibration_solution
+aavs_calibration_common_ok=False
+try :
+   from aavs_calibration.common import add_new_calibration_solution
+   aavs_calibration_common_ok=True
+except :
+   print("WARNING : package aavs_calibration.common is not available -> will not save results to the database if required")
+   aavs_calibration_common_ok=False
+   
 
 nyquist_freq = 400.0  # MHz
 nof_antennas = 256
@@ -276,13 +283,16 @@ def save_coefficients_mongo(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y
     # should relate to the base number.
 
     # Save coefficients
-    add_new_calibration_solution(station_name,
-                                 acquisition_time,
-                                 solution,
-                                 delay_x=x_delay[1, :],
-                                 phase_x=x_delay[0, :],
-                                 delay_y=y_delay[1, :],
-                                 phase_y=y_delay[0, :])
+    if aavs_calibration_common_ok :
+       add_new_calibration_solution(station_name,
+                                    acquisition_time,
+                                    solution,
+                                    delay_x=x_delay[1, :],
+                                    phase_x=x_delay[0, :],
+                                    delay_y=y_delay[1, :],
+                                    phase_y=y_delay[0, :])
+    else :       
+       raise Exception("ERROR : aavs_calibration_common package is not available -> could not save calibration coefficients to Mongo DB")
 
     logging.info("Persisted calibration coefficients in Mongo database")
 
@@ -398,3 +408,4 @@ if __name__ == "__main__":
        cal_script = "/home/aavs/aavs-calibration/monitoring/plotcal_v_freq.sh"
        command = [ cal_script , conf.station_name, conf.directory ] # add parameters separated by commas : , "-D", directory,  etc 
        subprocess.call(command, stdout=stdout, stderr=subprocess.STDOUT)
+       
