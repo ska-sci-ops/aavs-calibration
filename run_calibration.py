@@ -387,7 +387,7 @@ if __name__ == "__main__":
         if psycopg2_found :
            save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_id=conf.station_id )
         else :
-           raise Exception('ERROR : module psycopg2 could not be loaded -> calibration solutions not saved to the database")
+           raise Exception("ERROR : module psycopg2 could not be loaded -> calibration solutions not saved to the database")
 
     # Save calibration to Mongo database
     if not conf.no_db :
