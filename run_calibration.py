@@ -10,7 +10,15 @@ from datetime import timedelta
 from glob import glob
 
 import numpy as np
-import psycopg2
+
+psycopg2_found=False
+try : 
+   import psycopg2
+   psycopg2_found=True
+except :
+   print("WARNING : package psycopg2 -> will not be able to save results to the database if required")
+   pass   
+
 
 import fit_phase_delay
 
@@ -376,7 +384,10 @@ if __name__ == "__main__":
 
     # Save calibration to Postgres database
     if not conf.skip_postgres and not conf.no_db :
-        save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_id=conf.station_id )
+        if psycopg2_found :
+           save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_id=conf.station_id )
+        else :
+           raise Exception('ERROR : module psycopg2 could not be loaded -> calibration solutions not saved to the database")
 
     # Save calibration to Mongo database
     if not conf.no_db :

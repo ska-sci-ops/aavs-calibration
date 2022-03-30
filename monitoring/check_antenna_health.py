@@ -918,6 +918,7 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
    out_bad_html_f.write( "<th>Antenna</th>\n" )
    out_bad_html_f.write( "<th>POP</th>\n" )
    out_bad_html_f.write( "<th>SMARTBOX-PORT</th>\n" )
+   out_bad_html_f.write( "<th>SMARTBOX-NUMBER</th>\n" )
    out_bad_html_f.write( "<th>FIBRE_TAIL</th>\n" )
    out_bad_html_f.write( "<th>X polarisation</th>\n" )
    out_bad_html_f.write( "<th>Y polarisation</th>\n" )
@@ -1158,12 +1159,13 @@ def check_antenna_health( hdf_file_template, options,
       
          pop = "?"
          smartbox_port = "?"
+         smartbox_number = "?"
          fibre_tail = "?"
          if g_spreadsheet_csv_file is not None :
             print("INFO : will try to use information from the spreadsheet")
             # TODO 
             # antname, tile+1
-            (spreadsheet_idx,pop,smartbox_port,fibre_tail) = get_details_from_spreadsheet( tile+1 , antname )
+            (spreadsheet_idx,pop,smartbox_port,smartbox_number,fibre_tail) = get_details_from_spreadsheet( tile+1 , antname )
 
          status = "OK"      
          flag = ""
@@ -1221,7 +1223,11 @@ def check_antenna_health( hdf_file_template, options,
 #            html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,antname,font_type_end,font_color,font_type_start,tile+1,font_type_end))
             html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,tile+1,font_type_end,font_color,font_type_start,antname,font_type_end))
             # details from the spreadsheet :
-            html_line += ("   <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td>\n" % (font_color,font_type_start,pop,font_type_end,font_color,font_type_start,smartbox_port,font_type_end,font_color,font_type_start,fibre_tail,font_type_end))
+            html_line += ("   <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td>\n" % \
+                         (font_color,font_type_start,pop,font_type_end, \
+                          font_color,font_type_start,smartbox_port,font_type_end, \
+                          font_color,font_type_start,smartbox_number,font_type_end, \
+                          font_color,font_type_start,fibre_tail,font_type_end))
             # X polarisation :
             html_line += ("   <td> <font color=\"%s\">%s%s%s</s></font> <a href=\"images/%s_x.png\"><u>%s</u></a></td>\n" % (font_color_x,font_type_start,fault_type_x,font_type_end,antname,flag_x))
             # Y polarisation :
@@ -1248,7 +1254,7 @@ def check_antenna_health( hdf_file_template, options,
             # CSV file :
             csv_line = ""
             # Warning : MIRIAD INDEX in Dave's script has indexes starting from 1 too (in the config file they are from ZERO !)
-            csv_line += ( "%d,%s,%s,,,%s,,%s,,,,,,,,,,,,,,,,%d,,%s,%s,,\n" % ((tile+1),antname,pop,smartbox_port,fibre_tail,(ant_idx+1),fault_type_x,fault_type_y))
+            csv_line += ( "%d,%s,%s,,,%s,%s,%s,,,,,,,,,,,,,,,,%d,,%s,%s,,\n" % ((tile+1),antname,pop,smartbox_port,smartbox_number,fibre_tail,(ant_idx+1),fault_type_x,fault_type_y))
             out_bad_csv_f.write( csv_line )
 
          instr_config_line_x = "%d\t%d\tX\t0\t%d\t\t# %s\n" % (ant_idx*2,ant_idx,flag_x_value,antname)
@@ -1338,13 +1344,14 @@ def get_details_from_spreadsheet( tile, antname ) :
       idx = find_anttile( g_spreadsheet_csv_file, int(tile), int(ant_number) )
       
       if idx is not None :
-         pop = g_spreadsheet_csv_file['POP_GRID_REF'][idx]
-         smartbox_port = g_spreadsheet_csv_file['SMART_BOX_PORT'][idx]
-         fibre_tail = g_spreadsheet_csv_file['FIBRE_TAIL_NO'][idx]
+         pop             = g_spreadsheet_csv_file['POP_GRID_REF'][idx]
+         smartbox_port   = g_spreadsheet_csv_file['SMART_BOX_PORT'][idx]
+         smartbox_number = g_spreadsheet_csv_file['SMART_BOX_NUMBER'][idx]
+         fibre_tail      = g_spreadsheet_csv_file['FIBRE_TAIL_NO'][idx]
          
-         return (idx,pop,smartbox_port,fibre_tail)
+         return (idx,pop,smartbox_port,smartbox_number,fibre_tail)
 
-   return (None,"?","?","?")
+   return (None,"?","?","?","?")
 
 def read_spreadsheet_file( spreadsheet_csvfile, use_spreadsheet ) :
    global g_use_spreadsheet
