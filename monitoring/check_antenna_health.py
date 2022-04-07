@@ -851,7 +851,7 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
    line = "<li>Total power is flagged as bad if it's lower than 1/2 of total power of median spectrum or larger than 2 times total power of median spectrum (= %.2f and %.2f for X and Y polarisations respectively)</li>\n" % (median_total_power_x,median_total_power_y)
    out_bad_html_f.write( line )
    
-   line = "<li>If number of bad channels is larger than %d (out of 512), where bad channels are counted as those which deviate from the median spectrum by more than %.2f sigma.<br> Number of bad channels is specified as values of BAD_CH_X and BAD_CH_Y variables</li>\n" % (options.max_bad_channels,options.threshold_in_sigma)
+   line = "<li>If number of bad channels is larger than %d (out of 512), where bad channels are counted as those which deviate from the median spectrum by more than %.2f standard deviations.<br> Number of bad channels is specified as values of BAD_CH_X and BAD_CH_Y variables</li>\n" % (options.max_bad_channels,options.threshold_in_sigma)
    out_bad_html_f.write( line )
    
    out_bad_html_f.write( "</ul>\n" )
@@ -907,7 +907,7 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
 #   out_bad_html_f.write( "<body>\n" )
 #   out_bad_html_f.write( "<br>\n" )
    out_bad_html_f.write( "<br>\n" )
-   out_bad_html_f.write( "<h2>Antenna spectra compared with a median spectrum +/- %.1f x sigma_iqr :</h2>\n" % (options.threshold_in_sigma) )
+   out_bad_html_f.write( "<h2>Antenna spectra compared with a median spectrum +/- %.1f x standard deviation (calculated using the interquartile range or IQR) :</h2>\n" % (options.threshold_in_sigma) )
 #   out_bad_html_f.write( "<ol>\n" )
    
    # table :
@@ -916,12 +916,12 @@ def write_bad_antenna_html_header( out_bad_html_f , options, median_total_power_
    out_bad_html_f.write( "<th>Table Index</th>\n" )
    out_bad_html_f.write( "<th>Tile</th>\n" )
    out_bad_html_f.write( "<th>Antenna</th>\n" )
+   out_bad_html_f.write( "<th>Polarisation</th>\n" )
    out_bad_html_f.write( "<th>POP</th>\n" )
    out_bad_html_f.write( "<th>SMARTBOX-PORT</th>\n" )
    out_bad_html_f.write( "<th>SMARTBOX-NUMBER</th>\n" )
    out_bad_html_f.write( "<th>FIBRE_TAIL</th>\n" )
-   out_bad_html_f.write( "<th>X polarisation</th>\n" )
-   out_bad_html_f.write( "<th>Y polarisation</th>\n" )
+   out_bad_html_f.write( "<th>Status</th>\n" )
    out_bad_html_f.write( "<th> Additional information </th>\n" )
    out_bad_html_f.write( "</tr>\n" )
 #   out_bad_html_f.write( "</table>\n" )
@@ -1104,6 +1104,8 @@ def check_antenna_health( hdf_file_template, options,
          ( n_bad_channels_x , n_total_power_x, start_bad_ch_x, end_bad_ch_x ) = check_antenna( ant_median_spectrum_x, median_spectrum_x , iqr_spectrum_x, ant_idx=ant_idx, threshold_in_sigma=options.threshold_in_sigma )
          ( n_bad_channels_y , n_total_power_y, start_bad_ch_y, end_bad_ch_y ) = check_antenna( ant_median_spectrum_y, median_spectrum_y , iqr_spectrum_y, ant_idx=ant_idx, threshold_in_sigma=options.threshold_in_sigma )
          
+         # TODO : html_line_x = generate_html_line( ... , pol='X' )
+         # TODO : html_line_y = generate_html_line( ... , pol='Y' )
          flag_x = ""
          flag_y = ""
          bad_power_x = False
@@ -1171,12 +1173,15 @@ def check_antenna_health( hdf_file_template, options,
          flag = ""
 
          is_ok = True
+         is_x_ok = True
+         is_y_ok = True
          flag_x_value = 0
          flag_y_value = 0
          if len(flag_x) <= 0 :
             flag_x = "OK"
          else :
             is_ok = False
+            is_x_ok = False
             if "flatline_x" in fault_type_x :
                flag_x_value = 1
             
@@ -1184,6 +1189,7 @@ def check_antenna_health( hdf_file_template, options,
             flag_y = "OK"
          else :
             is_ok = False
+            is_y_ok = False
             flag_y_value = 1
             if "flatline_y" in fault_type_y :
                flag_y_value = 1
@@ -1217,24 +1223,47 @@ def check_antenna_health( hdf_file_template, options,
                font_type_start = "<strong>"
                font_type_end   = "</strong>"
                         
-            html_line = "<tr>\n"
-            # Antname and tile :
-            # remove strong
-#            html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,antname,font_type_end,font_color,font_type_start,tile+1,font_type_end))
-            html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,tile+1,font_type_end,font_color,font_type_start,antname,font_type_end))
-            # details from the spreadsheet :
-            html_line += ("   <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td>\n" % \
-                         (font_color,font_type_start,pop,font_type_end, \
-                          font_color,font_type_start,smartbox_port,font_type_end, \
-                          font_color,font_type_start,smartbox_number,font_type_end, \
-                          font_color,font_type_start,fibre_tail,font_type_end))
-            # X polarisation :
-            html_line += ("   <td> <font color=\"%s\">%s%s%s</s></font> <a href=\"images/%s_x.png\"><u>%s</u></a></td>\n" % (font_color_x,font_type_start,fault_type_x,font_type_end,antname,flag_x))
-            # Y polarisation :
-            html_line += ("   <td> <font color=\"%s\">%s%s%s</s></font> <a href=\"images/%s_y.png\"><u>%s</u></a></td>\n" % (font_color_y,font_type_start,fault_type_y,font_type_end,antname,flag_y))
-            # extra information 
-            html_line += ("   <td> <font color=\"%s\">%s config file index = %05d  , in tile index = %05d %s</font></td>\n" % (font_color,font_type_start,ant_idx,ant,font_type_end) )
-            html_line += "</tr>\n"
+            # HTML line for polarisation X :
+            if not is_x_ok or options.show_both_pols :
+               html_line = "<tr>\n"
+               # Antname and tile :
+               # remove strong
+#              html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,antname,font_type_end,font_color,font_type_start,tile+1,font_type_end))
+               html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td><td><font color=\"%s\">%s%s%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,tile+1,font_type_end,font_color,font_type_start,antname,font_type_end,font_color,font_type_start,"X",font_type_end))
+               # details from the spreadsheet :
+               html_line += ("   <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td>\n" % \
+                            (font_color,font_type_start,pop,font_type_end, \
+                             font_color,font_type_start,smartbox_port,font_type_end, \
+                             font_color,font_type_start,smartbox_number,font_type_end, \
+                             font_color,font_type_start,fibre_tail,font_type_end))
+               # X polarisation :
+               html_line += ("   <td> <font color=\"%s\">%s%s%s</s></font> <a href=\"images/%s_x.png\"><u>%s</u></a></td>\n" % (font_color_x,font_type_start,fault_type_x,font_type_end,antname,flag_x))
+               # Y polarisation :
+               # html_line += ("   <td> <font color=\"%s\">%s%s%s</s></font> <a href=\"images/%s_y.png\"><u>%s</u></a></td>\n" % (font_color_y,font_type_start,fault_type_y,font_type_end,antname,flag_y))
+               # extra information 
+               html_line += ("   <td> <font color=\"%s\">%s config file index = %05d  , in tile index = %05d %s</font></td>\n" % (font_color,font_type_start,ant_idx,ant,font_type_end) )
+               html_line += "</tr>\n"
+               
+            if not is_y_ok or options.show_both_pols :               
+               # HTML line for polarisation Y :
+               html_line += "<tr>\n"
+               # Antname and tile :
+               # remove strong
+               html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td><td><font color=\"%s\">%s%s%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,tile+1,font_type_end,font_color,font_type_start,antname,font_type_end,font_color,font_type_start,"Y",font_type_end))
+               # details from the spreadsheet :
+               html_line += ("   <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%s%s%s</font></td>\n" % \
+                               (font_color,font_type_start,pop,font_type_end, \
+                               font_color,font_type_start,smartbox_port,font_type_end, \
+                               font_color,font_type_start,smartbox_number,font_type_end, \
+                               font_color,font_type_start,fibre_tail,font_type_end))
+               # X polarisation :
+               # html_line += ("   <td> <font color=\"%s\">%s%s%s</s></font> <a href=\"images/%s_x.png\"><u>%s</u></a></td>\n" % (font_color_x,font_type_start,fault_type_x,font_type_end,antname,flag_x))
+               # Y polarisation :
+               html_line += ("   <td> <font color=\"%s\">%s%s%s</s></font> <a href=\"images/%s_y.png\"><u>%s</u></a></td>\n" % (font_color_y,font_type_start,fault_type_y,font_type_end,antname,flag_y))
+               # extra information 
+               html_line += ("   <td> <font color=\"%s\">%s config file index = %05d  , in tile index = %05d %s</font></td>\n" % (font_color,font_type_start,ant_idx,ant,font_type_end) )
+               html_line += "</tr>\n"
+                        
             
 # <li> version (not table):            
 #            html_line += "   <li> <font color=\"%s\"><strong>%s / Tile%s</strong> (config file index = %05d  , in tile index = %05d) : </font>" % (font_color,antname,tile+1,ant_idx,ant) # tile+1 for to be easier matched with other pages etc
@@ -1383,6 +1412,9 @@ def parse_options(idx):
    parser.add_option('--threshold','--threshold_in_sigma',dest="threshold_in_sigma",default=3,help="Threshold in sigma [default %default]")
    parser.add_option('--max_bad_channels','--max_bad_ch',dest="max_bad_channels",default=100,help="Maximum number of bad channels [default %default]",type="int")
    
+   # presentation of bad antennas :
+   parser.add_option('--show_both_pols','--show_both_pols',action="store_true",dest="show_both_pols",default=False, help="Show both polarisations in a bad antenna (also the one which is OK) [default %default]")
+   
    # plotting :
    parser.add_option('--images','--plot',action="store_true",dest="do_images",default=False, help="Do images [default %default]")
    parser.add_option('--plot_db',action="store_true",dest="plot_db",default=False, help="Do images in dB scale [default %default]")
@@ -1422,6 +1454,7 @@ if __name__ == '__main__' :
    print("Do images         = %s (dB = %s)" % (options.do_images,options.plot_db))
    print("threshold_in_sigma = %.2f" % (options.threshold_in_sigma))
    print("Use spreadsheet   = %s (csvfile = %s)" % (options.use_spreadsheet,options.spreadsheet_csvfile))
+   print("Show both pols (the OK one) = %s" % (options.show_both_pols))
    print("######################################################################################")
    
    if len(options.outdir) and options.outdir != "./" :
