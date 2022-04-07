@@ -1223,9 +1223,11 @@ def check_antenna_health( hdf_file_template, options,
                font_type_start = "<strong>"
                font_type_end   = "</strong>"
                         
+                        
+            html_line = ""            
             # HTML line for polarisation X :
             if not is_x_ok or options.show_both_pols :
-               html_line = "<tr>\n"
+               html_line += "<tr>\n"
                # Antname and tile :
                # remove strong
 #              html_line += ("   <td><font color=\"%s\">%s%d%s</font></td> <td><font color=\"%s\">%s%s%s</font></td> <td><font color=\"%s\">%sTile%d%s</font></td>\n" % (font_color,font_type_start,n_bad_ant_count,font_type_end,font_color,font_type_start,antname,font_type_end,font_color,font_type_start,tile+1,font_type_end))
