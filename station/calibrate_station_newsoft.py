@@ -78,7 +78,9 @@ if __name__ == "__main__":
     
     flag_antennas_list=None
     if conf.flag_antennas_list is not None :
-       flag_antennas_list = conf.flag_antennas_list.split(",")
+       # remove " and replace with nothing this is to fix a string like '"4,5,6,7"' which has to have " removed :
+       flag_antennas_list_str = conf.flag_antennas_list.replace('"','')
+       flag_antennas_list = flag_antennas_list_str.split(",")       
        flag_antennas_list = list( map(int,flag_antennas_list) )
        print("DEBUG : %d antennas will be flagged" % (len(flag_antennas_list)))
                       
