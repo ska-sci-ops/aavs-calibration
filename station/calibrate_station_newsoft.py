@@ -41,6 +41,7 @@ if __name__ == "__main__":
     parser.add_option("--ch",'--channel','--chan', '--freq_channel', '--frequency_channel',  action="store", dest="freq_channel",   type="int", default=204,  help="Frequency channel [default: %]")
     parser.add_option('--n_channels','--n_ch', action="store", dest="n_channels",   default=8,  help="Number of channels to calibrate in a single call [default: %]",type="int")
     parser.add_option('--apply_amplitudes','--apply_amps','--amplitudes',action="store_true",dest="apply_amplitudes",default=False, help="Apply calibration amplitudes [default %]")
+    parser.add_option('--invert_amplitudes','--invert_amps','--one_over_amp',action="store_true",dest="invert_amplitudes",default=False, help="Invert calibration amplitudes (use 1/ampplitude) [default %]")
     parser.add_option('--enable_antenna','--debug_antenna', action="store", dest="enable_antenna",   default=None,  help="Enable single antenna [default: %]",type="int")
     
     # antenna flagging :
@@ -109,7 +110,7 @@ if __name__ == "__main__":
 #                                                                                 apply_amplitudes=conf.apply_amplitudes, x_amp_par=x_amp, y_amp_par=y_amp, flag_antennas_list=flag_antennas_list, sign_value=conf.sign_value ) # n_channels=conf.n_channels
 # 2022-03-28 : looks like this version does not work correctly, station calibration does not throw error, but data look rubbish 
            calibration_coefficients = calibration.get_calibration_coeff_from_db( station_id=station.configuration['station']['id'], start_frequency_channel=conf.freq_channel, swap_pols=conf.polarisation_swap, nof_antennas=nof_antennas, 
-                                                                                 apply_amplitudes=conf.apply_amplitudes, x_amp_par=x_amp, y_amp_par=y_amp, flag_antennas_list=flag_antennas_list, sign_value=conf.sign_value, n_channels=conf.n_channels )
+                                                                                 apply_amplitudes=conf.apply_amplitudes, x_amp_par=x_amp, y_amp_par=y_amp, flag_antennas_list=flag_antennas_list, sign_value=conf.sign_value, n_channels=conf.n_channels, invert_amplitudes=conf.invert_amplitudes )
         else :
            print("INFO : station calibration using provided pkl file (%s)" % (conf.calibration_file))
            calibration_coefficients = calibration.get_calibration_coeff( calibration_file = conf.calibration_file , swap_pols=conf.polarisation_swap, sign_value=conf.sign_value )

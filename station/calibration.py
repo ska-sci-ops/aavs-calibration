@@ -205,7 +205,7 @@ def read_calibration_phase_offsets( phase_offset_file_X=None, phase_offset_file_
 
 # TODO : frequency_channel - should be central channel and 8 channels should start from -4 channels :
 def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True, apply_amplitudes=False, 
-                                   x_amp_par=None, y_amp_par=None, flag_antennas_list=None , sign_value=1 ) : # use database 
+                                   x_amp_par=None, y_amp_par=None, flag_antennas_list=None , sign_value=1 , invert_amplitudes=False ) : # use database 
 
     if sign_value < 1 :
        if sign_value < 0 :
@@ -263,6 +263,15 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
           if apply_amplitudes :
              amplitude_x = x_amp[ant_idx]
              amplitude_y = y_amp[ant_idx]
+             
+             if invert_amplitudes :
+                print("DEBUG : inverting amplitudes (%.6f,%.6f) -> (%.6f,%.6f)" % (amplitude_x,amplitude_y,(1.00 / amplitude_x),(1.00 / amplitude_y)))
+
+                if amplitude_x != 0 :
+                   amplitude_x = 1.00 / amplitude_x
+
+                if amplitude_y != 0 :
+                   amplitude_y = 1.00 / amplitude_y
           
           # initialising all channels with the same coefficients and leaving cross-pols XY and YX (2,3) = ZERO :
           if swap_pols : 
