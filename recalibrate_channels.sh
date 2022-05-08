@@ -121,8 +121,8 @@ do
    beam_y_final=$beam_y
    
    if [[ -s beam_on_sun.txt ]]; then
-      beam_x_final=`cat $beam_on_sun.txt | awk -v channel=${ch} '{if($1!="#" && $1==channel){print $2;}}'`
-      beam_y_final=`cat $beam_on_sun.txt | awk -v channel=${ch} '{if($1!="#" && $1==channel){print $3;}}'`
+      beam_x_final=`cat beam_on_sun.txt | awk -v channel=${ch} '{if($1!="#" && $1==channel){print $2;}}'`
+      beam_y_final=`cat beam_on_sun.txt | awk -v channel=${ch} '{if($1!="#" && $1==channel){print $3;}}'`
       
       echo "DEBUG : using BEAM values for channel $ch = $beam_x_final / $beam_y_final"
    else
