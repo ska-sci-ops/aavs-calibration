@@ -117,8 +117,20 @@ do
 #   echo "~/aavs-calibration/calibration_script.sh -D ./ -T 1.9818086 -N 1 -S ${station} -k ${ch}"
 #   ~/aavs-calibration/calibration_script.sh -D ./ -T 1.9818086 -N 1 -S ${station} -k ${ch}
 
-   echo "~/aavs-calibration/calibration_script.sh -D ./ -T 1.9818086 -N 1 -S ${station} -m sun -x ${beam_x} -y ${beam_y} -k ${ch} > ${ch}.out 2>&1"
-   ~/aavs-calibration/calibration_script.sh -D ./ -T 1.9818086 -N 1 -S ${station} -m sun -x ${beam_x} -y ${beam_y} -k ${ch} > ${ch}.out 2>&1
+   beam_x_final=$beam_x
+   beam_y_final=$beam_y
+   
+   if [[ -s beam_on_sun.txt ]]; then
+      beam_x_final=`cat $beam_on_sun.txt | awk -v channel=${ch} '{if($1!="#" && $1==channel){print $2;}}'`
+      beam_y_final=`cat $beam_on_sun.txt | awk -v channel=${ch} '{if($1!="#" && $1==channel){print $3;}}'`
+      
+      echo "DEBUG : using BEAM values for channel $ch = $beam_x_final / $beam_y_final"
+   else
+      echo "WARNING : file beam_on_sun.txt not found using the same BEAM X / Y = $beam_x_final / $beam_y_final for all channels"
+   fi
+
+   echo "~/aavs-calibration/calibration_script.sh -D ./ -T 1.9818086 -N 1 -S ${station} -m sun -x ${beam_x_final} -y ${beam_y_final} -k ${ch} > ${ch}.out 2>&1"
+   ~/aavs-calibration/calibration_script.sh -D ./ -T 1.9818086 -N 1 -S ${station} -m sun -x ${beam_x_final} -y ${beam_y_final} -k ${ch} > ${ch}.out 2>&1
 
    ch=$(($ch+1))
 done
