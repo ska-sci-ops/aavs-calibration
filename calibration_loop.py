@@ -91,7 +91,7 @@ def run_observation_burst(config):
        logging.info("Calculating beam values in the direction of the Sun (for now it's just Sun)")
        dtm=os.path.basename(directory)
        dirpath=os.path.dirname(directory)
-       cmdline = ("beam_correct_latest_cal.sh %s %s %s" % (station_name,dtm,dirpath))
+       cmdline = ("/home/aavs/Software/station_beam/scripts/beam_correct_latest_cal.sh %s %s %s" % (station_name,dtm,dirpath))
        logging.info("Executing command : %s" % cmdline )
        
        subprocess.call( cmdline )
