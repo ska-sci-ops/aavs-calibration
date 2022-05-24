@@ -86,10 +86,19 @@ def run_observation_burst(config):
 
     # Run calibration on dumped data
     logging.info("Calibrating data")
+    
+    if opts.beam_correct :
+       logging.info("Calculating beam values in the direction of the Sun (for now it's just Sun)")
+       dtm=os.path.basename(directory)
+       dirpath=os.path.dirname(directory)
+       cmdline = ("beam_correct_latest_cal.sh %s %s %s" % (station_name,dtm,dirpath))
+       logging.info("Executing command : %s" % cmdline )
+       
+       subprocess.call( cmdline )
 
     cal_script = "/home/aavs/aavs-calibration/run_calibration.py"
     # # MS : testing call instead of check_call to avoid crash of the whole script due to crash on a single channel :
-    param_list = ["python", cal_script, "-D", directory, "--station_id", str(station_id), "--station_name", station_name , "--show-output" ]
+    param_list = ["python", cal_script, "-D", directory, "--station_id", str(station_id), "--station_name", station_name , "--show-output" ] # , "--beam_x" , config.beam_x , "--beam_y" , config.beam_y ]
     if opts.no_db :
         param_list.append( "--nodb" )
     subprocess.call( param_list )
@@ -122,8 +131,14 @@ if __name__ == "__main__":
                  help="Time at which to start observation. For multi-channel observations, each channel will start"
                       "at the specified on subsequent days. Format: dd/mm/yyyy_hh:mm. Default: now")
     p.add_option("--skip-db", '--no-db', '--nodb', action="store_true", dest="no_db", default=False,
-                 help="Skip saving coefficients to any database [default: False]")                      
-
+                 help="Skip saving coefficients to any database [default: False]")                                       
+    p.add_option("--beam_correct", '--beam_corr', action="store_true", dest="beam_correct", default=False,
+                 help="Beam correct and calculate apparent flux of the Sun or sky model in general [default: False]")                      
+                 
+    # beam in the direction of Sun :
+#    parser.add_option("--beam_x", '--beamx', '--bx' , dest="beam_x", default=1.00, help="Beam power in X polarisation [default: %]", type=float )
+#    parser.add_option("--beam_y", '--beamy', '--by' , dest="beam_y", default=1.00, help="Beam power in Y polarisation [default: %]", type=float )
+                 
     opts, args = p.parse_args(sys.argv[1:])
 
     # Set current thread name
