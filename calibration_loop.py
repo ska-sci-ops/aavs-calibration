@@ -94,7 +94,8 @@ def run_observation_burst(config):
        cmdline = ("/home/aavs/Software/station_beam/scripts/beam_correct_latest_cal.sh %s %s %s" % (station_name,dtm,dirpath))
        logging.info("Executing command : %s" % cmdline )
        
-       subprocess.call( cmdline )
+       # subprocess.call( cmdline )
+       os.system( cmdline )
 
     cal_script = "/home/aavs/aavs-calibration/run_calibration.py"
     # # MS : testing call instead of check_call to avoid crash of the whole script due to crash on a single channel :
