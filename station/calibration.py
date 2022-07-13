@@ -453,17 +453,17 @@ def save_calcoeff_to_text_file( calibration_coef, out_text_file, freq_channel ) 
    out_f.write( line )
    
    for ant in range(0,ant_count) :
-      amp_x = numpy.abs( calibration_coef[ant,0,0]) ) 
-      phase_x = numpy.angle( calibration_coef[ant,0,0]) )*(180.00/numpy.pi)
+      amp_x = numpy.abs( calibration_coef[ant,0,0] ) 
+      phase_x = numpy.angle( calibration_coef[ant,0,0] )*(180.00/numpy.pi)
       
-      amp_xy = numpy.abs( calibration_coef[ant,0,1]) ) 
-      phase_xy = numpy.angle( calibration_coef[ant,0,1]) )*(180.00/numpy.pi)
+      amp_xy = numpy.abs( calibration_coef[ant,0,1] ) 
+      phase_xy = numpy.angle( calibration_coef[ant,0,1] )*(180.00/numpy.pi)
       
-      amp_yx = numpy.abs( calibration_coef[ant,0,2]) ) 
-      phase_yx = numpy.angle( calibration_coef[ant,0,2]) )*(180.00/numpy.pi)
+      amp_yx = numpy.abs( calibration_coef[ant,0,2] ) 
+      phase_yx = numpy.angle( calibration_coef[ant,0,2] )*(180.00/numpy.pi)
       
-      amp_y = numpy.abs( calibration_coef[ant,0,3]) ) 
-      phase_y = numpy.angle( calibration_coef[ant,0,3]) )*(180.00/numpy.pi)
+      amp_y = numpy.abs( calibration_coef[ant,0,3] ) 
+      phase_y = numpy.angle( calibration_coef[ant,0,3] )*(180.00/numpy.pi)
            
       line = "%.8f %.4f %.8f %.4f %.8f %.4f %.8f %.4f\n" % (amp_x,phase_x,amp_y,phase_y,amp_xy,phase_xy,amp_yx,phase_yx)
       out_f.write( line )
