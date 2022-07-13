@@ -369,6 +369,10 @@ def parse_options(idx=0):
    parser.add_option('--pol_swap','--polarisation_swap','--swap_pols',action="store_true",dest="polarisation_swap",default=False, help="Swap polarisations as done in EDA2 [default %]")
 
    parser.add_option('-s','--sign','--sign_value',dest="sign_value",default=1, help="Sign value [default %]",type="int")
+   parser.add_option('--start_freq_channel','--start_freq_ch',dest="start_freq_channel",default=204, help="Start frequency channel [default %]",type="int")
+   parser.add_option('--get_cal_from_db','--get_db_cal','--save_db_cal','--save_db_cal_file',dest="out_db_calfile",default=None, help="Save MCCS calibration to text file [default %]")
+   parser.add_option("--station_id", '--station', dest="station_id", default=0, help="Station ID (as in the station configuratio file) [default: %]", type=int )
+
 #   parser.add_option('-c','--cal','--calibrator',dest="calibrator",default="HerA", help="Calibrator name [default %]")
 #   parser.add_option('--meta_fits','--metafits',dest="metafits",default=None, help="Metafits file [default %]")
 
@@ -436,6 +440,35 @@ def test_calibration( pickle_file , sign_value=1 ) :
                  print("DIFFERENCE !!!")
                  
     print("No difference ???")             
+
+def save_calcoeff_to_text_file( calibration_coef, out_text_file, freq_channel ) :
+   out_f = open( out_text_file , "w" )
+
+   ant_count = calibration_coef.shape[0]
+   print("Saving calibration coefficients for frequency channel %d to output file %s , number of antennas = %d" % (freq_channel,out_text_file,ant_count))
+
+   out_f.write("# frequency channel %d = %.4f MHz\n" % (freq_channel,freq_channel*(400.00/512.00)))
+
+   line = "# AMP_X PHASE_X AMP_Y PHASE_Y AMP_XY PHASE_XY AMP_YX PHASE_YX\n"
+   out_f.write( line )
+   
+   for ant in range(0,ant_count) :
+      amp_x = numpy.abs( calibration_coef[ant,0,0]) ) 
+      phase_x = numpy.angle( calibration_coef[ant,0,0]) )*(180.00/numpy.pi)
+      
+      amp_xy = numpy.abs( calibration_coef[ant,0,1]) ) 
+      phase_xy = numpy.angle( calibration_coef[ant,0,1]) )*(180.00/numpy.pi)
+      
+      amp_yx = numpy.abs( calibration_coef[ant,0,2]) ) 
+      phase_yx = numpy.angle( calibration_coef[ant,0,2]) )*(180.00/numpy.pi)
+      
+      amp_y = numpy.abs( calibration_coef[ant,0,3]) ) 
+      phase_y = numpy.angle( calibration_coef[ant,0,3]) )*(180.00/numpy.pi)
+           
+      line = "%.8f %.4f %.8f %.4f %.8f %.4f %.8f %.4f\n" % (amp_x,phase_x,amp_y,phase_y,amp_xy,phase_xy,amp_yx,phase_yx)
+      out_f.write( line )
+   
+   out_f.close()
                  
 if __name__ == '__main__':
 
@@ -459,23 +492,33 @@ if __name__ == '__main__':
     print("Output pkl file = %s" % (options.outfile))
     print("polarisation_swap = %s" % (options.polarisation_swap))
     print("Sign_value        = %d" % (options.sign_value))
+    print("Save MCCS DB calfile = %s" % (options.out_db_calfile))
     print("####################################################")
     
-    if options.test_pickle_file is not None :
-        test_calibration( options.test_pickle_file , sign_value=options.sign_value )
-    else :
-        (calibration_coef) = read_calibration_phase_offsets( phase_offset_file_X , phase_offset_file_Y, debug=options.debug )
-        ant_count = calibration_coef.shape[0]
+    if options.out_db_calfile is not None :
+       print("INFO : getting calibration from MCCS DB and saving to text file")
+       
+       # def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True, apply_amplitudes=False, 
+       #                            x_amp_par=None, y_amp_par=None, flag_antennas_list=None , sign_value=1 , invert_amplitudes=False ) : # use database    
+       ( calibration_coef ) = get_calibration_coeff_from_db( options.start_freq_channel, options.station_id, swap_pols=False, n_channels=1, apply_amplitudes=True, invert_amplitudes=True )
+       
+       save_calcoeff_to_text_file( calibration_coef , options.out_db_calfile, options.start_freq_channel )
+    else :    
+       if options.test_pickle_file is not None :
+           test_calibration( options.test_pickle_file , sign_value=options.sign_value )
+       else :
+           (calibration_coef) = read_calibration_phase_offsets( phase_offset_file_X , phase_offset_file_Y, debug=options.debug )
+           ant_count = calibration_coef.shape[0]
         
-        if options.debug :
-           print("Complex EDA-1 calibration coefficients:")
-           for ant in range(0,ant_count) :
-               print("X  pol antenna%02d : %s" % (ant,calibration_coef[ant,:,0]))    
-               print("XY pol antenna%02d : %s" % (ant,calibration_coef[ant,:,1]))
-               print("YX pol antenna%02d : %s" % (ant,calibration_coef[ant,:,2]))
-               print("Y  pol antenna%02d : %s" % (ant,calibration_coef[ant,:,3]))
-               print()
-               print()
+           if options.debug :
+              print("Complex EDA-1 calibration coefficients:")
+              for ant in range(0,ant_count) :
+                  print("X  pol antenna%02d : %s" % (ant,calibration_coef[ant,:,0]))    
+                  print("XY pol antenna%02d : %s" % (ant,calibration_coef[ant,:,1]))
+                  print("YX pol antenna%02d : %s" % (ant,calibration_coef[ant,:,2]))
+                  print("Y  pol antenna%02d : %s" % (ant,calibration_coef[ant,:,3]))
+                  print()
+                  print()
 
-        save_coeff( calibration_coef, options.outfile )
+           save_coeff( calibration_coef, options.outfile )
     
