@@ -449,7 +449,7 @@ def save_calcoeff_to_text_file( calibration_coef, out_text_file, freq_channel ) 
 
    out_f.write("# frequency channel %d = %.4f MHz\n" % (freq_channel,freq_channel*(400.00/512.00)))
 
-   line = "# AMP_X PHASE_X AMP_Y PHASE_Y AMP_XY PHASE_XY AMP_YX PHASE_YX\n"
+   line = "# ANT AMP_X PHASE_X AMP_Y PHASE_Y AMP_XY PHASE_XY AMP_YX PHASE_YX\n"
    out_f.write( line )
    
    for ant in range(0,ant_count) :
@@ -465,7 +465,7 @@ def save_calcoeff_to_text_file( calibration_coef, out_text_file, freq_channel ) 
       amp_y = numpy.abs( calibration_coef[ant,0,3] ) 
       phase_y = numpy.angle( calibration_coef[ant,0,3] )*(180.00/numpy.pi)
            
-      line = "%.8f %.4f %.8f %.4f %.8f %.4f %.8f %.4f\n" % (amp_x,phase_x,amp_y,phase_y,amp_xy,phase_xy,amp_yx,phase_yx)
+      line = "%d %.8f %.4f %.8f %.4f %.8f %.4f %.8f %.4f\n" % (ant,amp_x,phase_x,amp_y,phase_y,amp_xy,phase_xy,amp_yx,phase_yx)
       out_f.write( line )
    
    out_f.close()
