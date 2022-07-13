@@ -369,9 +369,12 @@ def parse_options(idx=0):
    parser.add_option('--pol_swap','--polarisation_swap','--swap_pols',action="store_true",dest="polarisation_swap",default=False, help="Swap polarisations as done in EDA2 [default %]")
 
    parser.add_option('-s','--sign','--sign_value',dest="sign_value",default=1, help="Sign value [default %]",type="int")
+
+   # options of saving calibration solutions to text file :
    parser.add_option('--start_freq_channel','--start_freq_ch',dest="start_freq_channel",default=204, help="Start frequency channel [default %]",type="int")
    parser.add_option('--get_cal_from_db','--get_db_cal','--save_db_cal','--save_db_cal_file',dest="out_db_calfile",default=None, help="Save MCCS calibration to text file [default %]")
    parser.add_option("--station_id", '--station', dest="station_id", default=0, help="Station ID (as in the station configuratio file) [default: %]", type=int )
+   parser.add_option('--invamp','--ampinv',action="store_true",dest="invamp",default=False, help="Invert amplitudes [default %]")
 
 #   parser.add_option('-c','--cal','--calibrator',dest="calibrator",default="HerA", help="Calibrator name [default %]")
 #   parser.add_option('--meta_fits','--metafits',dest="metafits",default=None, help="Metafits file [default %]")
@@ -493,6 +496,7 @@ if __name__ == '__main__':
     print("polarisation_swap = %s" % (options.polarisation_swap))
     print("Sign_value        = %d" % (options.sign_value))
     print("Save MCCS DB calfile = %s" % (options.out_db_calfile))
+    print("\tinvamp = %s" % (options.invamp))
     print("####################################################")
     
     if options.out_db_calfile is not None :
@@ -500,7 +504,7 @@ if __name__ == '__main__':
        
        # def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True, apply_amplitudes=False, 
        #                            x_amp_par=None, y_amp_par=None, flag_antennas_list=None , sign_value=1 , invert_amplitudes=False ) : # use database    
-       ( calibration_coef ) = get_calibration_coeff_from_db( options.start_freq_channel, options.station_id, swap_pols=False, n_channels=1, apply_amplitudes=True, invert_amplitudes=True )
+       ( calibration_coef ) = get_calibration_coeff_from_db( options.start_freq_channel, options.station_id, swap_pols=False, n_channels=1, apply_amplitudes=True, invert_amplitudes=options.invamp )
        
        save_calcoeff_to_text_file( calibration_coef , options.out_db_calfile, options.start_freq_channel )
     else :    
