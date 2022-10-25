@@ -404,7 +404,7 @@ if __name__ == "__main__":
     # Save calibration to Postgres database
     print('Before PostgreSQL if %d/%d' % (conf.skip_postgres,conf.no_db))
     if not conf.skip_postgres and not conf.no_db :
-        print('Before if psycopg2_found (%d)'.format(psycopg2_found))
+        print('Before if psycopg2_found (%d)' % (psycopg2_found))
         if psycopg2_found :
            db_host="127.0.0.1"
            try : 
@@ -413,6 +413,7 @@ if __name__ == "__main__":
               logging.warning("PGHOST environment variable not defined, using default db_host = {}".format(db_host))              
               
            save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_id=conf.station_id, db_host_ip=db_host )
+           print("DEBUG : connected to database on host = %s" % (db_host))
         else :
            raise Exception("ERROR : module psycopg2 could not be loaded -> calibration solutions not saved to the database")
 
