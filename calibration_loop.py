@@ -100,8 +100,13 @@ def run_observation_burst(config):
     cal_script = "/home/aavs/aavs-calibration/run_calibration.py"
     # # MS : testing call instead of check_call to avoid crash of the whole script due to crash on a single channel :
     param_list = ["python", cal_script, "-D", directory, "--station_id", str(station_id), "--station_name", station_name , "--show-output" ] # , "--beam_x" , config.beam_x , "--beam_y" , config.beam_y ]
+
     if opts.no_db :
         param_list.append( "--nodb" )
+        
+    if not opts.save_to_mongo_db
+        param_list.append( "--nomongo" )
+        
     subprocess.call( param_list )
 
 
@@ -135,6 +140,10 @@ if __name__ == "__main__":
                  help="Skip saving coefficients to any database [default: False]")                                       
     p.add_option("--beam_correct", '--beam_corr', action="store_true", dest="beam_correct", default=False,
                  help="Beam correct and calculate apparent flux of the Sun or sky model in general [default: False]")                      
+                 
+    p.add_option("--no_mongo", "--no_mongodb", "--nomongo", action="store_false", dest="save_to_mongo_db", default=True,
+                 help="Turn off saving calibration solutions to Mongo DB too [default: %s]")
+                 
                  
     # beam in the direction of Sun :
 #    parser.add_option("--beam_x", '--beamx', '--bx' , dest="beam_x", default=1.00, help="Beam power in X polarisation [default: %]", type=float )
