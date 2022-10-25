@@ -312,7 +312,7 @@ if __name__ == "__main__":
                       help="Show output from calibration scripts, for debugging [default: False]")
     parser.add_option("-T", "--threads", action="store", dest="threads", default=4, type=int,
                       help="Number of thread to use [default: 4]")
-    parser.add_option("--skip-postgres", action="store_true", dest="skip_postgres",
+    parser.add_option("--skip-postgres", action="store_true", dest="skip_postgres", default=False,
                       help="Skip saving coefficients to postgres database [default: False]")
     parser.add_option("--skip-db", '--no-db', '--nodb', action="store_true", dest="no_db", default=False,
                       help="Skip saving coefficients to any database [default: False]")                      
@@ -402,7 +402,9 @@ if __name__ == "__main__":
         exit()
 
     # Save calibration to Postgres database
+    logging.info('Before PostgreSQL if {}/{}'.format(conf.skip_postgres,conf.no_db))
     if not conf.skip_postgres and not conf.no_db :
+        logging.info('Before if psycopg2_found ({})'.format(psycopg2_found))
         if psycopg2_found :
            db_host="127.0.0.1"
            try : 
@@ -413,6 +415,9 @@ if __name__ == "__main__":
            save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_id=conf.station_id, db_host_ip=db_host )
         else :
            raise Exception("ERROR : module psycopg2 could not be loaded -> calibration solutions not saved to the database")
+
+    logging.info('After PostgreSQL')
+    
 
     # Save calibration to Mongo database
     if not conf.no_db and conf.save_to_mongo_db :
