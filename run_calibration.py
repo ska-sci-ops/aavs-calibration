@@ -402,9 +402,9 @@ if __name__ == "__main__":
         exit()
 
     # Save calibration to Postgres database
-    logging.debug('Before PostgreSQL if {}/{}'.format(conf.skip_postgres,conf.no_db))
+    print('Before PostgreSQL if %d/%d' % (conf.skip_postgres,conf.no_db))
     if not conf.skip_postgres and not conf.no_db :
-        logging.debug('Before if psycopg2_found ({})'.format(psycopg2_found))
+        print('Before if psycopg2_found (%d)'.format(psycopg2_found))
         if psycopg2_found :
            db_host="127.0.0.1"
            try : 
@@ -416,7 +416,7 @@ if __name__ == "__main__":
         else :
            raise Exception("ERROR : module psycopg2 could not be loaded -> calibration solutions not saved to the database")
 
-    logging.debug('After PostgreSQL')
+    print('After PostgreSQL')
     
 
     # Save calibration to Mongo database
