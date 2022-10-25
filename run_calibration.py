@@ -224,7 +224,7 @@ def save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay
     # Create connection to the calibration database.
     # Do not have to use password here since DB is set up to recognise aavs user
     logging.info('Connecting to PostgreSQL database aavs/aavs at {}'.format(db_host_ip))
-    conn = psycopg2.connect(database='aavs' , user='aavs' , host=db_host_ip ) do not use paramter but rely on PGHOST 
+    conn = psycopg2.connect(database='aavs' , user='aavs' , host=db_host_ip ) # do not use paramter but rely on PGHOST 
     cur = conn.cursor()
 
     # Get acqusition time
