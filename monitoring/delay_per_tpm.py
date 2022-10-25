@@ -298,7 +298,15 @@ def main() :
 
    if options.dbname is not None :
       global conn
-      conn = db_connect()
+      
+      db_host="127.0.0.1"
+      try : 
+         db_host=os.environ['PGHOST']
+      except :
+         logging.warning("PGHOST environment variable not defined, using default db_host = {}".format(db_host))
+
+      print("DEBUG : connecting to PostgreSQL on host = %s" % (db_host))      
+      conn = db_connect( db_host_ip=db_host )
     
       outfile = "delay_vs_tpm_lastdb.txt"
       outconfig = "delay_vs_tpm_lastdb.conf"
