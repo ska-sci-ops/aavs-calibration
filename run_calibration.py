@@ -328,6 +328,14 @@ if __name__ == "__main__":
     parser.add_option("--do_not_update", "--do_not_update_last_cal", action="store_false", dest="update_last_calibration", default=True,
                       help="Do not update last calibration [default: False]")
 
+    parser.add_option("--mongo", "--mongodb", "--mongo_db", action="store_false", dest="save_to_mongo_db", default=False,
+                      help="Save calibration solutions to Mongo DB too [default: %s]")
+                      
+    # beam in the direction of Sun :
+#    parser.add_option("--beam_x", '--beamx', '--bx' , dest="beam_x", default=1.00, help="Beam power in X polarisation [default: %]", type=float )
+#    parser.add_option("--beam_y", '--beamy', '--by' , dest="beam_y", default=1.00, help="Beam power in Y polarisation [default: %]", type=float )
+                      
+
 
     (conf, args) = parser.parse_args(argv[1:])
     
@@ -400,7 +408,7 @@ if __name__ == "__main__":
            raise Exception("ERROR : module psycopg2 could not be loaded -> calibration solutions not saved to the database")
 
     # Save calibration to Mongo database
-    if not conf.no_db :
+    if not conf.no_db and conf.save_to_mongo_db :
         save_coefficients_mongo(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_name=conf.station_name )
 
     if conf.plot_solutions :
