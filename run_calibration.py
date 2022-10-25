@@ -223,7 +223,8 @@ def get_acquisition_time(conf):
 def save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_id, db_host_ip="10.0.10.200" ):
     # Create connection to the calibration database.
     # Do not have to use password here since DB is set up to recognise aavs user
-    conn = psycopg2.connect(database='aavs' , host=db_host_ip, user='aavs' )
+    logging.info('Connecting to PostgreSQL database aavs/aavs at %s" % (db_host_ip))
+    conn = psycopg2.connect(database='aavs' , user='aavs' , host=db_host_ip ) do not use paramter but rely on PGHOST 
     cur = conn.cursor()
 
     # Get acqusition time
@@ -403,7 +404,13 @@ if __name__ == "__main__":
     # Save calibration to Postgres database
     if not conf.skip_postgres and not conf.no_db :
         if psycopg2_found :
-           save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_id=conf.station_id )
+           db_host="127.0.0.1"
+           try : 
+              db_host=os.environ['PGHOST']
+           except :
+              logging.warning("PGHOST environment variable not defined, using default db_host = {}".format(db_host))              
+              
+           save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_id=conf.station_id, db_host_ip=db_host )
         else :
            raise Exception("ERROR : module psycopg2 could not be loaded -> calibration solutions not saved to the database")
 
