@@ -104,7 +104,7 @@ def run_observation_burst(config):
     if opts.no_db :
         param_list.append( "--nodb" )
         
-    if not opts.save_to_mongo_db
+    if not opts.save_to_mongo_db :
         param_list.append( "--nomongo" )
         
     subprocess.call( param_list )
