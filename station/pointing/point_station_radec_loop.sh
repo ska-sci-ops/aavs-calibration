@@ -31,9 +31,9 @@ if [[ -n "$6" && "$6" != "-" ]]; then
 fi
 
 options=""
-if [[ $station_name == "aavs2" || $station_name == "AAVS2" ]]; then
-   options="--delay_sign=-1"
-fi
+# if [[ $station_name == "aavs2" || $station_name == "AAVS2" ]]; then
+#   options="--delay_sign=-1"
+# fi
 
 ux=`date +%s`
 end_ux=$(($ux + $interval))
