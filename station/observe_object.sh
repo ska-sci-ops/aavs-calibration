@@ -144,9 +144,13 @@ if [[ -n "${18}" && "${18}" != "-" ]]; then
    n_channels=${18}
 fi
 end_channel=-1
-if [[ $n_channels -gt 0 ]]; then
+if [[ $n_channels -gt 0 && $full_time_resolution -gt 0 ]]; then
    end_channel=$(($ch+$n_channels))
    daq_options="--start_channel 0 --nof_channels ${n_channels}"
+
+   echo "INFO : adding extra DAQ options for acquire_station_beam program : $daq_options"
+else
+   echo "WARNING : no need for extra DAQ options (1 channel or not full time resolution ) for acquire_station_beam program : $daq_options"
 fi
 
 if [[ -n "${19}" && "${19}" != "-" ]]; then
