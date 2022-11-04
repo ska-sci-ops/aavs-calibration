@@ -111,11 +111,12 @@ def add_new_calibration_solution(station, acquisition_time, solution, comment=""
     antennas = db.antenna.find({'station_id': station_info.id}).sort("antenna_station_id", pymongo.ASCENDING)
 
     # Sanity checks on delay and phase values
-    if delay_x is not None and len(delay_x) != antennas.count():
+    ant_count = len(list(antennas))
+    if delay_x is not None and len(delay_x) != ant_count:
         logging.warning("Number of delay and phase values does not match number of antennas. Ignoring")
-        delay_x = delay_y = phase_x = phase_y = [None] * antennas.count()
+        delay_x = delay_y = phase_x = phase_y = [None] * ant_count
     elif delay_y is None:
-        delay_x = delay_y = phase_x = phase_y = [None] * antennas.count()
+        delay_x = delay_y = phase_x = phase_y = [None] * ant_count
 
     # Loop over all antennas and save solutions to database
     for antenna in antennas:
@@ -194,13 +195,14 @@ def get_latest_calibration_solution(station, include_delays=False):
     antennas = db.antenna.find({'station_id': station_info.id}).sort("antenna_station_id", pymongo.ASCENDING)
 
     # Generate arrays to store amp and phase
-    amplitudes = np.zeros((antennas.count(), 2, 512))
-    phases = np.zeros((antennas.count(), 2, 512))
+    ant_count = len(list(antennas))
+    amplitudes = np.zeros((ant_count, 2, 512))
+    phases = np.zeros((ant_count, 2, 512))
 
     phase0, delays = None, None
     if include_delays:
-        phase0 = np.zeros((antennas.count(), 2))
-        delays = np.zeros((antennas.count(), 2))
+        phase0 = np.zeros((ant_count, 2))
+        delays = np.zeros((ant_count, 2))
 
     # Loop over all antennas
     for antenna in antennas:
@@ -266,8 +268,9 @@ def get_calibration_solution(station, timestamp):
     antennas = db.antenna.find({'station_id': station_info.id}).sort("antenna_station_id", pymongo.ASCENDING)
 
     # Generate arrays to store amp and phase
-    amplitudes = np.zeros((antennas.count(), 2, 512))
-    phases = np.zeros((antennas.count(), 2, 512))
+    ant_count = len(list(antennas))
+    amplitudes = np.zeros((ant_count, 2, 512))
+    phases = np.zeros((ant_count, 2, 512))
 
     # Create datetime object from timestamp
     if type(timestamp) is float:
@@ -344,7 +347,8 @@ def get_latest_coefficient_download(station):
     antennas = db.antenna.find({'station_id': station_info.id}).sort("antenna_station_id", pymongo.ASCENDING)
 
     # Generate arrays to store amp and phase
-    coefficients = np.empty((antennas.count(), 2, 512), dtype=np.complex64)
+    ant_count = len(list(antennas))
+    coefficients = np.empty((ant_count, 2, 512), dtype=np.complex64)
 
     # Loop over all antennas
     for antenna in antennas:
