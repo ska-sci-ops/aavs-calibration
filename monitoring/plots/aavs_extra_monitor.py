@@ -345,7 +345,7 @@ if __name__ == "__main__":
                       default="/storage/monitoring/integrated_data",
                       help="Directory where plots will be generated (default: /storage/monitoring/integrated_data)")
     parser.add_option("--interface", action="store", dest="interface",
-                      default="eth3", help="Network interface (default: eth3)")
+                      default="eno1", help="Network interface (default: eno1)") # managment interface for EDA2 on eda2-server 
 
     (opts, args) = parser.parse_args(argv[1:])
 
