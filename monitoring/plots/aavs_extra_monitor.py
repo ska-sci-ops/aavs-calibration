@@ -234,9 +234,9 @@ def plotting_thread(directory, cadence):
 
         # if not os.path.exists(LOCK_FILE):
         # Wait for a while
-        sleep(cadence)
+            sleep(cadence)
 
-        try:
+#        try:
             # Connect to the station
             _connect_station(aavs_station)
 
@@ -294,12 +294,12 @@ def plotting_thread(directory, cadence):
             fname = img_dir + station_dir + station_file
             fig.savefig(fname)
             logging.info("Generated plots for timestamp " + t_timestamp + " on " + fname)
-        except:
-            logging.warning("Something went wrong plotting timestamp " + t_timestamp + " ...skipping...")
-            logging.warning("Tile RMS len: "+str(len(tile_rms)))
-            logging.warning("Wait for a minute to automatic restart...")
-            sleep(60)
-            pass
+#        except:
+#            logging.warning("Something went wrong plotting timestamp " + t_timestamp + " ...skipping...")
+#            logging.warning("Tile RMS len: "+str(len(tile_rms)))
+#            logging.warning("Wait for a minute to automatic restart...")
+#            sleep(60)
+#            pass
 
 
 def daq_thread(interface, port, nof_tiles, directory):
@@ -345,7 +345,7 @@ if __name__ == "__main__":
                       default="/storage/monitoring/integrated_data",
                       help="Directory where plots will be generated (default: /storage/monitoring/integrated_data)")
     parser.add_option("--interface", action="store", dest="interface",
-                      default="eno1", help="Network interface (default: eno1)") # managment interface for EDA2 on eda2-server 
+                      default="eno1", help="Network interface (default: eno1)")
 
     (opts, args) = parser.parse_args(argv[1:])
 

@@ -524,9 +524,9 @@ def bandpass_monitor(config_path, plot_directory, interface, monitor_rms=False, 
     plotting_thread.start()
     
     # Wait for stop, monitoring disk space in the meantime
-    while not stop_bandpass:
+    while not stop_bandpass :
         dir_size = sum(os.path.getsize(f) for f in os.listdir(data_directory) if os.path.isfile(f))
-        if dir_size > 200 * 1024 * 1024:
+        if dir_size > 200 * 1024 * 1024 and False : # False added to never check space again - at least for now 
             logging.error("Consuming too much disk space! Exiting")
             stop_bandpass = True
             break
