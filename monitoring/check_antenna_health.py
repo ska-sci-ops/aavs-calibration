@@ -133,7 +133,7 @@ def read_spectrum( file_name ) :
 
        file.close()
    
-   print "Read %d points from file %s" % (len(freq),file_name)
+   print("Read %d points from file %s" % (len(freq),file_name))
    return (freq,power,rms_power)    
 
 
