@@ -52,8 +52,8 @@ if [[ $n_channels -gt 4 ]]; then
    echo "Calibrating $n_channels channels starting from channel = $channel to $end_channel (inclusive) ..."
 
 # 2022-03-28 : looks like this version does not work correctly, station calibration does not throw error, but data look rubbish
-   echo "python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db --n_channels=$n_channels ${pol_swap_options} ${calibration_options}"
-   python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db --n_channels=$n_channels ${pol_swap_options} ${calibration_options}
+   echo "python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db --sign=-1 --n_channels=$n_channels ${pol_swap_options} ${calibration_options}"
+   python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db --sign=-1 --n_channels=$n_channels ${pol_swap_options} ${calibration_options}
 
 # 2022-03-26 : OLD - not working for multichannel on AAVS2 anymore
 #   while [[ $channel -le $end_channel ]];
@@ -66,7 +66,7 @@ if [[ $n_channels -gt 4 ]]; then
 else 
    echo "WARNING : calibrating a single channel = $channel , which may not be sufficient when recording multiple channels !"
       
-   echo "python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db ${pol_swap_options} ${calibration_options}"
-   python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db ${pol_swap_options} ${calibration_options}
+   echo "python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db --sign=-1 ${pol_swap_options} ${calibration_options}"
+   python ~/aavs-calibration/station/calibrate_station_newsoft.py --config=${config}  --calibrate_station --calibrate_file=${last_calib} --frequency_channel=${channel} --mccs_db --sign=-1 ${pol_swap_options} ${calibration_options}
 fi
 cd -

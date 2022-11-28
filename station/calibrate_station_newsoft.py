@@ -48,7 +48,7 @@ if __name__ == "__main__":
     parser.add_option('--flag_antennas','--flag_ant_list','--flagants', '--flagant', action="store", dest="flag_antennas_list",   default=None,  help="Flag antenna list [default: %]")
     
     # testing SIGN CONVENTION :
-    parser.add_option('-s','--sign','--sign_value',dest="sign_value",default=1, help="Sign value [default %]",type="int")
+    parser.add_option('-s','--sign','--sign_value',dest="sign_value",default=-1, help="Sign value [default %]",type="int")
 
 
     (conf, args) = parser.parse_args(argv[1:])
