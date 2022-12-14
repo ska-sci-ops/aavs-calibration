@@ -31,6 +31,11 @@ if [[ -n "$6" && "$6" != "-" ]]; then
 fi
 
 options=""
+if [[ -n "$7" && "$7" != "-" ]]; then
+   options=$7
+fi
+
+# 2022-11-03 : after both stations use the same firmware --delay_sign=-1 option added as default in point_station_radec.sh
 # if [[ $station_name == "aavs2" || $station_name == "AAVS2" ]]; then
 #   options="--delay_sign=-1"
 # fi
