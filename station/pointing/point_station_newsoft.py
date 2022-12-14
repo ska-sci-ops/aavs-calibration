@@ -151,7 +151,7 @@ class Pointing(object):
 
         # Compute the delays
         new_delays = self._delays_from_altitude_azimuth(altitude.rad, azimuth.rad)
-        new_delay_rate = self._delays * 0
+        new_delay_rate = new_delays * 0
         if update_delays :
            # could be : self._delays = new_delays - just not sure about python doing the same thing
            self._delays = self._delays_from_altitude_azimuth(altitude.rad, azimuth.rad)
