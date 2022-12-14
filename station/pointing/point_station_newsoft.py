@@ -132,7 +132,7 @@ class Pointing(object):
         # Compute delays
         self.point_array_static(alt, az)
 
-    def point_array_static(self, altitude, azimuth):
+    def point_array_static(self, altitude, azimuth, update_delays=True):
         """ Calculate the delay given the altitude and azimuth coordinates of a sky object as astropy angles
         :param altitude: altitude coordinates of a sky object as astropy angle
         :param azimuth: azimuth coordinates of a sky object as astropy angles
@@ -150,12 +150,21 @@ class Pointing(object):
             self._below_horizon = False
 
         # Compute the delays
-        self._delays = self._delays_from_altitude_azimuth(altitude.rad, azimuth.rad)
-        self._delay_rate = self._delays * 0
+        new_delays = self._delays_from_altitude_azimuth(altitude.rad, azimuth.rad)
+        new_delay_rate = self._delays * 0
+        if update_delays :
+           # could be : self._delays = new_delays - just not sure about python doing the same thing
+           self._delays = self._delays_from_altitude_azimuth(altitude.rad, azimuth.rad)
+           self._delay_rate = self._delays * 0
+        else:
+           print("INFO : Delays are not updated (self._delays not set)")
         
         # show delays :
         for i in range(0,len(self._delays)):
-           print("Delay[%d] = %.4f [ns] = %.2f [ps]" % (i,self._delays[i]*1e9,self._delays[i]*1e12))
+           print("Delay[%d] = %.4f [ns] = %.2f [ps]" % (i,new_delays[i]*1e9,new_delays[i]*1e12))
+
+  
+        return (new_delays)
 
     def point_array(self, right_ascension, declination, pointing_time=None, delta_time=1.0):
         """ Calculate the phase shift between two antennas which is given by the phase constant (2 * pi / wavelength)
@@ -189,7 +198,7 @@ class Pointing(object):
             return
 
         # Generate delays from calculated altitude and azimuth
-        self.point_array_static(altitude=alt, azimuth=az)
+        self.point_array_static(altitude=alt, azimuth=az)        
 
         # Calculate required delay rate
         if delta_time == 0:
@@ -198,7 +207,10 @@ class Pointing(object):
             pointing_time = pointing_time + TimeDelta(delta_time, format='sec')
             alt, az = self._ra_dec_to_alt_az(right_ascension, declination,
                                              Time(pointing_time), self._reference_antenna_loc)
-            self._delay_rate = self.point_array_static(alt, az) - self._delays
+            
+            # just calculate delays for the time after delta_time to calculate delay_rate, but do not update                                 
+            next_delays = self.point_array_static(alt, az,change_delays=False)                                 
+            self._delay_rate = next_delays - self._delays
 
         # Set above horizon flag
         self._below_horizon = False
