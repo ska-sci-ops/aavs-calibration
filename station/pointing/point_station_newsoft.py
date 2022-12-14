@@ -209,7 +209,7 @@ class Pointing(object):
                                              Time(pointing_time), self._reference_antenna_loc)
             
             # just calculate delays for the time after delta_time to calculate delay_rate, but do not update                                 
-            next_delays = self.point_array_static(alt, az,change_delays=False)                                 
+            next_delays = self.point_array_static(alt, az, update_delays=False)                                 
             self._delay_rate = next_delays - self._delays
 
         # Set above horizon flag
