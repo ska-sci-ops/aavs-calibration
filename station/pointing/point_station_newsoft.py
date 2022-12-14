@@ -211,6 +211,11 @@ class Pointing(object):
             # just calculate delays for the time after delta_time to calculate delay_rate, but do not update                                 
             next_delays = self.point_array_static(alt, az, update_delays=False)                                 
             self._delay_rate = next_delays - self._delays
+            
+            print("DEBUG : delay rates:")
+            for i in range(0,len(self._delays)):
+                print("Next delay[%d] = %.4f [ns] , current_delay = %.4f [ns] -> delay_rate = %.8f [ns/sec]" % (i,next_delays[i]*1e9,self._delays[i]*1e9,self._delay_rate[i]*1e9))
+
 
         # Set above horizon flag
         self._below_horizon = False
