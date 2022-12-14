@@ -352,7 +352,7 @@ if __name__ == "__main__":
                       help="Tracking resolution in seconds [default: %default]",type="int")
     parser.add_option("--delay_sign", "--firmware_delay_sign", dest="delay_sign", default=1,
                       help="Sign of delays loaded to firmware [default: %default]",type="int")
-    parser.add_option("--delta_time", "--dt_delay_rate", "--delay_rate_dt" dest="delta_time", default=0,
+    parser.add_option("--delta_time", "--dt_delay_rate", "--delay_rate_dt", dest="delta_time", default=0,
                       help="Delta time to calculate delay rate [default: %default]. When 0 [default] delay rate is not used",type="int")
                       
                       
