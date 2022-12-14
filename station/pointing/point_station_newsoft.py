@@ -352,6 +352,8 @@ if __name__ == "__main__":
                       help="Tracking resolution in seconds [default: %default]",type="int")
     parser.add_option("--delay_sign", "--firmware_delay_sign", dest="delay_sign", default=1,
                       help="Sign of delays loaded to firmware [default: %default]",type="int")
+    parser.add_option("--delta_time", "--dt_delay_rate", "--delay_rate_dt" dest="delta_time", default=0,
+                      help="Delta time to calculate delay rate [default: %default]. When 0 [default] delay rate is not used",type="int")
                       
                       
                       
@@ -425,8 +427,8 @@ if __name__ == "__main__":
                  logging.info("Waiting {} seconds before next pointing command".format(opts.tracking_resolution))
                  time.sleep( opts.tracking_resolution )
         else :        
-           logging.info("Pointing to RA {}, DEC {}".format(opts.ra, opts.dec))
-           pointing.point_array(opts.ra, opts.dec,  pointing_time=pointing_time, delta_time=0)
+           logging.info("Pointing to RA {}, DEC {} , delta_time {}".format(opts.ra, opts.dec, opts.delta_time))
+           pointing.point_array(opts.ra, opts.dec,  pointing_time=pointing_time, delta_time=opts.delta_time)
 
            # Download coefficients to station
            pointing.download_delays( delay_sign=opts.delay_sign )
