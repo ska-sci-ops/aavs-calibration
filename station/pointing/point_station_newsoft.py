@@ -376,6 +376,12 @@ if __name__ == "__main__":
                       
 
     (opts, args) = parser.parse_args(argv[1:])
+    
+    print("#########################################")
+    print("PARAMETERS:")
+    print("#########################################")
+    print("delta_time = %d" % (opts.delta_time))
+    print("#########################################")
 
     # Check if a configuration file was defined
     if opts.config is None or not os.path.exists(opts.config):
@@ -434,8 +440,8 @@ if __name__ == "__main__":
               opts.tracking_time = 86400*365 # one year is close enough to inifinity
            start_uxtime = time.time()
            while time.time() < ( start_uxtime + opts.tracking_time ) :
-              logging.info("Pointing to RA {}, DEC {} at unix_time {}".format(opts.ra, opts.dec,time.time()))
-              pointing.point_array(opts.ra, opts.dec,  pointing_time=pointing_time, delta_time=0)
+              logging.info("Pointing to RA {}, DEC {} at unix_time {} , delta_time {}".format(opts.ra, opts.dec,time.time(),opts.delta_time))
+              pointing.point_array(opts.ra, opts.dec,  pointing_time=pointing_time, delta_time=opts.delta_time)
               
               # Download coefficients to station
               pointing.download_delays( delay_sign=opts.delay_sign )
