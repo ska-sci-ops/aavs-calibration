@@ -265,7 +265,7 @@ class Pointing(object):
             # Form TPM-compatible delays
             tpm_delays = np.zeros((self._nof_antennas, 2))
             tpm_delays[:, 0] = delay_sign * self._delays
-            tpm_delays[:, 1] = (-1) * delay_sign * self._delay_rate
+            tpm_delays[:, 1] = delay_sign * self._delay_rate # test -1 and it was much much worse !!!
 
             # Download to tiles
             t0 = time.time()
