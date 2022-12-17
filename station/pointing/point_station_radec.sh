@@ -50,5 +50,7 @@ config_file=/opt/aavs/config/${station_name_lower}.yml
 cd ~/aavs-calibration/station/pointing
 date
 # 2022-11-03 : after both stations use the same firmware --delay_sign=-1 option added as default here :
-echo "python ./point_station_newsoft.py --ra=$RA_deg --dec=$DEC_deg --antenna_locations=${antfile} --delay_sign=-1 --delta_time=1 --config=${config_file} ${options}"
-python ./point_station_newsoft.py --ra=$RA_deg --dec=$DEC_deg --antenna_locations=${antfile} --delay_sign=-1 --delta_time=1 --config=${config_file} ${options}
+# --delta_time=1 -> ripple from 30 seconds to ~60 seconds , sign of delay rate -> -1 -> horrible seesaw
+# 2022-12-17 : testing --delta_time=30
+echo "python ./point_station_newsoft.py --ra=$RA_deg --dec=$DEC_deg --antenna_locations=${antfile} --delay_sign=-1 --delta_time=30 --config=${config_file} ${options}"
+python ./point_station_newsoft.py --ra=$RA_deg --dec=$DEC_deg --antenna_locations=${antfile} --delay_sign=-1 --delta_time=30 --config=${config_file} ${options}
