@@ -371,7 +371,7 @@ if __name__ == "__main__":
     parser.add_option("--delay_sign", "--firmware_delay_sign", dest="delay_sign", default=-1,
                       help="Sign of delays loaded to firmware [default: %default]",type="int")
     # 2022-12-18 : default delta_time=30 seconds the same as standard re-pointing time this delta time is used to calculate delay_rate as delay_rate = DELAYS(T+30secons) - DELAYS(T) :
-    parser.add_option("--delta_time", "--dt_delay_rate", "--delay_rate_dt", dest="delta_time", default=30,
+    parser.add_option("--delta_time", "--dt_delay_rate", "--delay_rate_dt", dest="delta_time", default=1,
                       help="Delta time to calculate delay rate [default: %default]. When 0 [default] delay rate is not used",type="int")
                       
                       
