@@ -171,6 +171,10 @@ fi
 
 # RW/Chris Lee : I'm 99% sure the offset is 3 channels. (not 4). And that confirms the 3-channel offset also.
 channel_from_start=4
+ux=`date +%s`
+start_uxtime_int=`echo $start_uxtime | awk '{printf("%d",$1);}'`
+start_repointing=$(($start_uxtime_int+120))
+
 
 echo "###################################################"
 echo "PARAMETERS:"
@@ -182,7 +186,7 @@ echo "freq_channel          = $freq_channel"
 echo "data_dir              = $data_dir"
 echo "interval              = $interval"
 echo "pointing_interval     = $pointing_interval"
-echo "start_uxtime          = $start_uxtime"
+echo "start_uxtime          = $start_uxtime (start_repointing = $start_repointing)"
 echo "n_iter                = $n_iter"
 echo "sleep_time            = $sleep_time"
 echo "repointing_resolution = $repointing_resolution"
@@ -196,10 +200,9 @@ echo "daq_options           = $daq_options"
 echo "N channels = $n_channels -> end_channel = $end_channel"
 echo "use_config_per_freq   = $use_config_per_freq"
 echo "configuration file    = $config_file"
+echo "current ux            = $ux"
 echo "###################################################"
 
-ux=`date +%s`
-start_uxtime_int=`echo $start_uxtime | awk '{printf("%d",$1);}'`
 if [[ $start_uxtime_int -gt $ux ]]; then
    echo "Start unix time = $start_uxtime ($start_uxtime_int) -> waiting ..."
    which wait_for_unixtime.sh
@@ -311,8 +314,8 @@ do
       # start pointing :
       echo "INFO : starting station pointing scripts"
       pwd   
-      echo "nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} ${repointing_resolution} ${station} ${object} >> pointing.out 2>&1 &"
-      nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} ${repointing_resolution} ${station} ${object} >> pointing.out 2>&1 &
+      echo "nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} ${repointing_resolution} ${station} ${object} - ${start_repointing} >> pointing.out 2>&1 &"
+      nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} ${repointing_resolution} ${station} ${object} - ${start_repointing} >> pointing.out 2>&1 &
       pwd
       ps
    else

@@ -35,6 +35,26 @@ if [[ -n "$7" && "$7" != "-" ]]; then
    options=$7
 fi
 
+start_uxtime=-1
+if [[ -n "$8" && "$8" != "-" ]]; then
+   start_uxtime=$8
+fi
+
+echo "#################################################"
+echo "PARAMETERS:"
+echo "#################################################"
+echp "start_uxtime = $start_uxtime"
+echo "#################################################"
+
+if [[ $start_uxtime -gt 0 ]]; then
+   echo "INFO : start_uxtime = $start_uxtime -> waiting for the start of re-pointing loop until uxtime = $start_uxtime"
+
+   echo "wait_for_unixtime.sh $start_uxtime"
+   wait_for_unixtime.sh $start_uxtime
+else 
+   echo "INFO : no start_uxtime specified -> starting re-pointing loop immediately"
+fi
+
 # 2022-11-03 : after both stations use the same firmware --delay_sign=-1 option added as default in point_station_radec.sh
 # if [[ $station_name == "aavs2" || $station_name == "AAVS2" ]]; then
 #   options="--delay_sign=-1"
