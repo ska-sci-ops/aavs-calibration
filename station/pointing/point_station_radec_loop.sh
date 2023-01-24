@@ -43,7 +43,7 @@ fi
 echo "#################################################"
 echo "PARAMETERS:"
 echo "#################################################"
-echp "start_uxtime = $start_uxtime"
+echo "start_uxtime = $start_uxtime"
 echo "#################################################"
 
 if [[ $start_uxtime -gt 0 ]]; then

@@ -167,6 +167,10 @@ if [[ -n "${21}" && "${21}" != "-" ]]; then
    config_file=${21}
 fi
 
+pointing_options=""
+if [[ -n "${22}" && "${22}" != "-" ]]; then
+   pointing_options=${22}
+fi
 
 
 # RW/Chris Lee : I'm 99% sure the offset is 3 channels. (not 4). And that confirms the 3-channel offset also.
@@ -201,6 +205,7 @@ echo "N channels = $n_channels -> end_channel = $end_channel"
 echo "use_config_per_freq   = $use_config_per_freq"
 echo "configuration file    = $config_file"
 echo "current ux            = $ux"
+echo "pointing_options      = $pointing_options"
 echo "###################################################"
 
 if [[ $start_uxtime_int -gt $ux ]]; then
@@ -314,8 +319,8 @@ do
       # start pointing :
       echo "INFO : starting station pointing scripts"
       pwd   
-      echo "nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} ${repointing_resolution} ${station} ${object} - ${start_repointing} >> pointing.out 2>&1 &"
-      nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} ${repointing_resolution} ${station} ${object} - ${start_repointing} >> pointing.out 2>&1 &
+      echo "nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} ${repointing_resolution} ${station} ${object} ${pointing_options} ${start_repointing} >> pointing.out 2>&1 &"
+      nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} ${repointing_resolution} ${station} ${object} ${pointing_options} ${start_repointing} >> pointing.out 2>&1 &
       pwd
       ps
    else

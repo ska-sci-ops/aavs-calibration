@@ -77,6 +77,10 @@ if [[ -n "${15}" && "${15}" != "-" ]]; then
    repointing_resolution=${15}
 fi
 
+pointing_options=""
+if [[ -n "${16}" && "${16}" != "-" ]]; then
+   pointing_options=${16}
+fi
 
 echo "###################################################"
 echo "PARAMETERS:"
@@ -97,6 +101,7 @@ echo "wait_beteen_observations = $wait_beteen_observations"
 echo "use_config_per_freq = $use_config_per_freq"
 echo "configuration file  = $config_file"
 echo "repointing_resolution = $repointing_resolution"
+echo "pointing_options      = $pointing_options"
 echo "###################################################"
 
 
@@ -134,8 +139,8 @@ do
    fi
 
    pwd
-   echo "observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval - 1 - - $repointing_resolution $station $do_init_station - \"${calibration_options}\" - - $n_channels \"${daq_options}\" $use_config_per_freq $config_file"
-   observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval - 1 - - $repointing_resolution $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}" $use_config_per_freq $config_file
+   echo "observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval - 1 - - $repointing_resolution $station $do_init_station - \"${calibration_options}\" - - $n_channels \"${daq_options}\" $use_config_per_freq $config_file ${pointing_options}"
+   observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval - 1 - - $repointing_resolution $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}" $use_config_per_freq $config_file ${pointing_options}
    
    # just to make sure the internally changed variable does not propagate here, which seems to be the case
    data_dir=${data_dir_local}
