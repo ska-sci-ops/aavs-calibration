@@ -139,8 +139,8 @@ do
    fi
 
    pwd
-   echo "observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval - 1 - - $repointing_resolution $station $do_init_station - \"${calibration_options}\" - - $n_channels \"${daq_options}\" $use_config_per_freq $config_file ${pointing_options}"
-   observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval - 1 - - $repointing_resolution $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}" $use_config_per_freq $config_file ${pointing_options}
+   echo "observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval ${start_uxtime} 1 - - $repointing_resolution $station $do_init_station - \"${calibration_options}\" - - $n_channels \"${daq_options}\" $use_config_per_freq $config_file ${pointing_options}"
+   observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval ${start_uxtime} 1 - - $repointing_resolution $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}" $use_config_per_freq $config_file ${pointing_options}
    
    # just to make sure the internally changed variable does not propagate here, which seems to be the case
    data_dir=${data_dir_local}
