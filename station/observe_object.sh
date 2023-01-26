@@ -177,7 +177,7 @@ fi
 channel_from_start=4
 ux=`date +%s`
 start_uxtime_int=`echo $start_uxtime | awk '{printf("%d",$1);}'`
-start_repointing=$(($start_uxtime_int+120))
+start_repointing=$(($start_uxtime_int+180))
 
 
 echo "###################################################"
