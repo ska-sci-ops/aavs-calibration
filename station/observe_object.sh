@@ -167,7 +167,7 @@ if [[ -n "${21}" && "${21}" != "-" ]]; then
    config_file=${21}
 fi
 
-pointing_options=""
+pointing_options="-"
 if [[ -n "${22}" && "${22}" != "-" ]]; then
    pointing_options=${22}
 fi

@@ -30,9 +30,11 @@ if [[ -n "$6" && "$6" != "-" ]]; then
    object=$6
 fi
 
-options=""
+options="-"
 if [[ -n "$7" && "$7" != "-" ]]; then
    options=$7
+else
+   options=""   
 fi
 
 start_uxtime=-1

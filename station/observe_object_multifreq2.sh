@@ -77,7 +77,7 @@ if [[ -n "${15}" && "${15}" != "-" ]]; then
    repointing_resolution=${15}
 fi
 
-pointing_options=""
+pointing_options="-"
 if [[ -n "${16}" && "${16}" != "-" ]]; then
    pointing_options=${16}
 fi
