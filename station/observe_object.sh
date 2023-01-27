@@ -317,10 +317,22 @@ do
 
    if [[ $point_station -gt 0 ]]; then
       # start pointing :
+      
+      # 2023-01-27 : moved from inside point_station_radec_loop.sh to here as point_station_radec_loop.sh is called in the second thread (nohup/&) -> could even start after data acquisition!
+      #              hence some first 1min of data could had wrong pointing (not at the source)
+      if [[ $start_repointing -gt 0 ]]; then
+         echo "INFO : start re-pointing uxtime = $start_repointing -> waiting for the start of re-pointing loop until uxtime = $start_repointing"
+
+         echo "wait_for_unixtime.sh $start_repointing"
+         wait_for_unixtime.sh $start_repointing
+      else 
+         echo "INFO : no start_repointing unix time specified -> starting re-pointing loop immediately"
+      fi
+      
       echo "INFO : starting station pointing scripts"
       pwd   
-      echo "nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} ${repointing_resolution} ${station} ${object} ${pointing_options} ${start_repointing} >> pointing.out 2>&1 &"
-      nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} ${repointing_resolution} ${station} ${object} ${pointing_options} ${start_repointing} >> pointing.out 2>&1 &
+      echo "nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} ${repointing_resolution} ${station} ${object} ${pointing_options} -1 >> pointing.out 2>&1 &"
+      nohup ~/aavs-calibration/station/pointing/point_station_radec_loop.sh ${ra} ${dec} ${pointing_interval} ${repointing_resolution} ${station} ${object} ${pointing_options} -1 >> pointing.out 2>&1 &
       pwd
       ps
    else

@@ -48,6 +48,9 @@ echo "#################################################"
 echo "start_uxtime = $start_uxtime"
 echo "#################################################"
 
+# The code remains here just in case start of repointing is required later, but this very same code is made also before execution of script point_station_radec_loop.sh
+# in the calling script observe_object.sh as pointing script (this script) is called in asynch (nohup/&) mode there and this way the pointing could start even after the 
+# data acquisition itself -> causing initial part of the data to be recorded without beam pointed at the target object
 if [[ $start_uxtime -gt 0 ]]; then
    echo "INFO : start_uxtime = $start_uxtime -> waiting for the start of re-pointing loop until uxtime = $start_uxtime"
 
