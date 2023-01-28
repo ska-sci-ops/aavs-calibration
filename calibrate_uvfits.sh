@@ -1,21 +1,81 @@
 #!/bin/bash
 
+do_xx_yy=0 # WARNING : do not use =1 as this when applied to other observation (calibration transfer) produces wrong flux scale !!!
+           # 2023-01-28 : I think the above comment is no longer valid, at least for visibilities phase centred on the Sun 
+if [[ -n "$1" && "$1" != "-" ]]; then
+   do_xx_yy=$1
+fi
+
 list_file=uvfits_list
 do_mfcal_object="sun" # use mfcal with proper solar flux scale (as in Randall's script to get SEFD and other proper flux scale)
 channel=204
 reference_antenna=3
 control_image=1
 save_calsolutions=1
-do_xx_yy=0 # WARNING : do not use =1 as this when applied to other observation (calibration transfer) produces wrong flux scale !!!
+station_name=EDA
 
-export PATH=~/aavs-calibration:$PATH
+export PATH=~/aavs-calibration:~/Software/station_beam/python/:$PATH
 
+# Quiet sun (http://extras.springer.com/2009/978-3-540-88054-7/06_vi4b_4116.pdf
+# 4.1.1.6 Quiet and slowly varying radio emissions of the sun
+# Ref. p. 88] 4.1.1.6 Quiet and slowly varying radio emissions of the sun 81 Table 1. Flux density, F, and brightness temperature, T rad, of the quiet sun. F = radio ﬂux density of the quiet sun during sunspot m
+# extras.springer.com )
+# note change in spectral index of sun around 150 MHz, so better to use different
+# power law at low vs high freqs
+# MFCAL flux parameters : 51000,0.15,1.6
+solar_flux=51000
+apparent_solar_flux=${solar_flux}
+apparent_solar_flux_x=${solar_flux}
+apparent_solar_flux_y=${solar_flux}
+beam_on_sun_x=1.00 # TODO : add option -b which will calculate this two automatically based on sun position at the time of data collection and beam value in this direction
+beam_on_sun_y=1.00 # TODO : as above 
+beam_set_by_params=0
+beam_on_sun_file=beam_on_sun.txt
+
+########################################################################################################3
 if [[ ! -s ${list_file} ]]; then
    echo "WARNING : UV FITS file list does not exist -> using all"
    
    echo "ls *.uvfits > ${list_file}"
    ls *.uvfits > ${list_file}
 fi
+
+########################################################### Calculating flux density using beam models ###########################################################
+# generate beam values for the sun: 
+# 20180102T010203 -> 2018_01_01-00:00 
+dtm=`head -1 ${list_file} | cut -b 10-24`
+dtm2=`echo ${dtm} | awk '{print substr($1,1,4)"_"substr($1,5,2)"_"substr($1,7,2)"-"substr($1,10,2)":"substr($1,12,2);}'`
+echo "DEBUG : $dtm -> $dtm2"
+
+# echo "~/Software/station_beam/scripts/beam_correct_latest_cal.sh ${station} ${dtm2}"
+# ~/Software/station_beam/scripts/beam_correct_latest_cal.sh ${station} ${dtm2}
+ls -tr *.hdf5 > hdf5_list
+path=`which fits_beam.py`
+echo "python $path --infile_hdf5list=hdf5_list --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name}"
+python $path --infile_hdf5list=hdf5_list --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name}
+
+echo "DEBUG : experimental version, beam not set by external parameters -> checking text file ${beam_on_sun_file} ..."
+if [[ -s ${beam_on_sun_file} ]]; then
+    echo "DEBUG : file ${beam_on_sun_file} exists -> trying to find beam-on-sun values for the specific channel"
+    line=`awk -v channel=${channel} '{if($1!="#" && $1==channel){print $0;}}' ${beam_on_sun_file}`
+       
+    if [[ -n $line ]]; then
+       beam_on_sun_x=`echo $line | awk '{print $2;}'`
+       beam_on_sun_y=`echo $line | awk '{print $3;}'`
+          
+       # calculate apparent solar flux 
+       apparent_solar_flux_x=`echo $solar_flux" "$beam_on_sun_x | awk '{print ($1*$2);}'` 
+       apparent_solar_flux_y=`echo $solar_flux" "$beam_on_sun_y | awk '{print ($1*$2);}'` 
+       apparent_solar_flux=`echo "$apparent_solar_flux_x $apparent_solar_flux_y" | awk '{print ($1+$2)/2.00;}'`
+
+       echo "DEBUG : Sun beam information = |$line| -> Beam on sun values beam_x = $beam_on_sun_x , beam_y = $beam_on_sun_y -> solar flux $solar_flux -> apparent solar flux X/Y = $apparent_solar_flux_x / $apparent_solar_flux_y"
+    else
+       echo "WARNING : beam values not calculated for channel = $channel -> will use the default beam settings for the Sun location beam_x/beam_y = $beam_on_sun_x / $beam_on_sun_y -> no Sun beam correction"
+    fi
+else
+    echo "WARNING : file $beam_on_sun_file does not exist -> will use the default beam settings for the Sun location beam_x/beam_y = $beam_on_sun_x / $beam_on_sun_y -> no Sun beam correction"
+fi
+
 
 # 
 for uvfitsfile in `cat ${list_file}` ; 
@@ -51,14 +111,14 @@ do
        if [[ $do_xx_yy -gt 0 ]]; then
           # mfcal on XX and YY or rather uvcat to split .uv -> _XX.uv and _YY.uv ?
           # current way is a bit in-efficient, so I will change it later
-          echo "mfcal vis=${src}_XX.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"  
-          mfcal vis=${src}_XX.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
+          echo "mfcal vis=${src}_XX.uv flux=${apparent_solar_flux_x},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"  
+          mfcal vis=${src}_XX.uv flux=${apparent_solar_flux_x},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
 
-          echo "mfcal vis=${src}_YY.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"  
-          mfcal vis=${src}_YY.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz          
+          echo "mfcal vis=${src}_YY.uv flux=${apparent_solar_flux_y},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"  
+          mfcal vis=${src}_YY.uv flux=${apparent_solar_flux_y},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz          
        else
-          echo "mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"
-          mfcal vis=${src}.uv flux=51000,0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz          
+          echo "mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"
+          mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz          
        fi
     else
         # verifyed on 2020-04-23 :
@@ -74,14 +134,14 @@ do
         if [[ $do_xx_yy -gt 0 ]]; then
            # mfcal on XX and YY or rather uvcat to split .uv -> _XX.uv and _YY.uv ?
            # current way is a bit in-efficient, so I will change it later
-           echo "mfcal vis=${src}_XX.uv flux=51000,0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
-           mfcal vis=${src}_XX.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
+           echo "mfcal vis=${src}_XX.uv flux=${apparent_solar_flux_x},0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
+           mfcal vis=${src}_XX.uv flux=${apparent_solar_flux_x},0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
 
-           echo "mfcal vis=${src}_YY.uv flux=51000,0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
-           mfcal vis=${src}_YY.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz                          
+           echo "mfcal vis=${src}_YY.uv flux=${apparent_solar_flux_y},0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
+           mfcal vis=${src}_YY.uv flux=${apparent_solar_flux_y},0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz                          
         else
-           echo "mfcal vis=${src}.uv flux=51000,0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
-           mfcal vis=${src}.uv flux=51000,0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
+           echo "mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
+           mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
         fi
     fi
     
