@@ -422,7 +422,10 @@ if __name__ == "__main__":
 
     # Save calibration to Mongo database
     if not conf.no_db and conf.save_to_mongo_db :
-        save_coefficients_mongo(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_name=conf.station_name )
+        try :
+           save_coefficients_mongo(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_name=conf.station_name )
+        except :
+           logging.warning("Could not save solutions to MongoDB - please verify the errors above")
 
     if conf.plot_solutions :
        print("Plotting the latest calibration solutions with fits from the database:")
