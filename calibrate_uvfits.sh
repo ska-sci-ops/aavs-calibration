@@ -6,9 +6,20 @@ if [[ -n "$1" && "$1" != "-" ]]; then
    do_xx_yy=$1
 fi
 
+channel=204
+if [[ -n "$2" && "$2" != "-" ]]; then
+   channel=$2
+fi
+
+echo "#############################################"
+echo "PARAMETERS:"
+echo "#############################################"
+echo "do_xx_yy = $do_xx_yy"
+echo "channel  = $channel"
+echo "#############################################"
+
 list_file=uvfits_list
 do_mfcal_object="sun" # use mfcal with proper solar flux scale (as in Randall's script to get SEFD and other proper flux scale)
-channel=204
 reference_antenna=3
 control_image=1
 save_calsolutions=1
@@ -89,6 +100,9 @@ do
     
     echo "fits op=uvin in=\"$uvfitsfile\" out=\"${src}.uv\" options=compress"
     fits op=uvin in="$uvfitsfile" out="${src}.uv" options=compress
+    
+    # FINAL extra flagging here :
+    # uvflag flagval=flag vis=${src}.uv select='ant(49,50,51,52,57,58,59)'
     
     echo "puthd in=${src}.uv/jyperk value=1310.0"
     puthd in=${src}.uv/jyperk value=1310.0
