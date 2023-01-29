@@ -101,7 +101,7 @@ do
     echo "fits op=uvin in=\"$uvfitsfile\" out=\"${src}.uv\" options=compress"
     fits op=uvin in="$uvfitsfile" out="${src}.uv" options=compress
     
-    # FINAL extra flagging here :
+    # FINAL extra flagging here  :
     # uvflag flagval=flag vis=${src}.uv select='ant(49,50,51,52,57,58,59)'
     
     echo "puthd in=${src}.uv/jyperk value=1310.0"
