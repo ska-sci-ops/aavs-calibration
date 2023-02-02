@@ -11,14 +11,37 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    channel=$2
 fi
 
+list_file=uvfits_list
+if [[ -n "$3" && "$3" != "-" ]]; then
+   list_file=$3
+fi
+
+convert_hdf5_file=1
+if [[ -n "$4" && "$4" != "-" ]]; then
+   convert_hdf5_file=$4
+fi
+
+cal_dir=calibration/
+if [[ -n "$5" && "$5" != "-" ]]; then
+   cal_dir=$5
+fi
+
+clean_old_uv_files=1
+if [[ -n "$6" && "$6" != "-" ]]; then
+   clean_old_uv_files=$6
+fi
+
 echo "#############################################"
 echo "PARAMETERS:"
 echo "#############################################"
+echo "list_file = $list_file"
 echo "do_xx_yy = $do_xx_yy"
 echo "channel  = $channel"
+echo "convert_hdf5_file = $convert_hdf5_file"
+echo "cal_dir = $cal_dir"
+echo "clean_old_uv_files = $clean_old_uv_files"
 echo "#############################################"
 
-list_file=uvfits_list
 do_mfcal_object="sun" # use mfcal with proper solar flux scale (as in Randall's script to get SEFD and other proper flux scale)
 reference_antenna=3
 control_image=1
@@ -56,14 +79,19 @@ fi
 # 20180102T010203 -> 2018_01_01-00:00 
 dtm=`head -1 ${list_file} | cut -b 10-24`
 dtm2=`echo ${dtm} | awk '{print substr($1,1,4)"_"substr($1,5,2)"_"substr($1,7,2)"-"substr($1,10,2)":"substr($1,12,2);}'`
-echo "DEBUG : $dtm -> $dtm2"
 
-# echo "~/Software/station_beam/scripts/beam_correct_latest_cal.sh ${station} ${dtm2}"
-# ~/Software/station_beam/scripts/beam_correct_latest_cal.sh ${station} ${dtm2}
-ls -tr *.hdf5 > hdf5_list
-path=`which fits_beam.py`
-echo "python $path --infile_hdf5list=hdf5_list --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name}"
-python $path --infile_hdf5list=hdf5_list --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name}
+
+if [[ $convert_hdf5_file -gt 0 ]]; then
+   # echo "~/Software/station_beam/scripts/beam_correct_latest_cal.sh ${station} ${dtm2}"
+   # ~/Software/station_beam/scripts/beam_correct_latest_cal.sh ${station} ${dtm2}
+   echo "INFO : conversion hdf5 -> uvfits -> uv is required"
+   ls -tr *.hdf5 > hdf5_list
+   path=`which fits_beam.py`
+   echo "python $path --infile_hdf5list=hdf5_list --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name}"
+   python $path --infile_hdf5list=hdf5_list --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name}
+else
+   echo "WARNING : conversion from HDF5 files is not required"   
+fi   
 
 echo "DEBUG : experimental version, beam not set by external parameters -> checking text file ${beam_on_sun_file} ..."
 if [[ -s ${beam_on_sun_file} ]]; then
@@ -88,18 +116,22 @@ else
 fi
 
 
-# 
+last_uvfits=""
 for uvfitsfile in `cat ${list_file}` ; 
 do
-    src=`basename $uvfitsfile .uvfits`
+    src=`basename $uvfitsfile .uvfits`    
     echo "Processing $uvfitsfile to ${src}.uv"
-    
-    echo "rm -rf ${src}.uv ${src}_XX.uv ${src}_YY.uv"
-    rm -rf ${src}.uv ${src}_XX.uv ${src}_YY.uv
-    
-    
-    echo "fits op=uvin in=\"$uvfitsfile\" out=\"${src}.uv\" options=compress"
-    fits op=uvin in="$uvfitsfile" out="${src}.uv" options=compress
+    last_uvfits=${src}
+
+    if [[ $clean_old_uv_files -gt 0 ]]; then    
+       echo "rm -rf ${src}.uv ${src}_XX.uv ${src}_YY.uv"
+       rm -rf ${src}.uv ${src}_XX.uv ${src}_YY.uv
+       
+       echo "fits op=uvin in=\"$uvfitsfile\" out=\"${src}.uv\" options=compress"
+       fits op=uvin in="$uvfitsfile" out="${src}.uv" options=compress
+    else
+       echo "WARNING : cleaning of .uv files is not required"
+    fi
     
     # FINAL extra flagging here  :
     # uvflag flagval=flag vis=${src}.uv select='ant(49,50,51,52,57,58,59)'
@@ -111,11 +143,19 @@ do
     puthd in=${src}.uv/systemp value=200.0
 
     if [[ $do_xx_yy -gt 0 ]]; then    
-      echo "uvcat vis=${src}.uv stokes=xx out=${src}_XX.uv"
-      uvcat vis=${src}.uv stokes=xx out=${src}_XX.uv
+      if [[ ! -d ${src}_XX.uv ]]; then
+         echo "uvcat vis=${src}.uv stokes=xx out=${src}_XX.uv"
+         uvcat vis=${src}.uv stokes=xx out=${src}_XX.uv
+      else
+         echo "WARNING : using existing file ${src}_XX.uv"
+      fi
     
-      echo "uvcat vis=${src}.uv stokes=yy out=${src}_YY.uv"
-      uvcat vis=${src}.uv stokes=yy out=${src}_YY.uv
+      if [[ ! -d ${src}_YY.uv ]]; then
+         echo "uvcat vis=${src}.uv stokes=yy out=${src}_YY.uv"
+         uvcat vis=${src}.uv stokes=yy out=${src}_YY.uv
+      else
+         echo "WARNING : using existing file ${src}_YY.uv"
+      fi
     fi
 
     # MFCAL : 
@@ -219,3 +259,40 @@ do
        fi
     fi
 done
+
+if [[ -n "$last_uvfits" ]]; then
+   echo "INFO : copying last calibration files from $last_uvfits to calibration directory ${cal_dir}"
+
+   if [[ -d ${cal_dir}/OLD/ ]]; then
+      echo "rm -f ${cal_dir}/OLD/*"
+      rm -f ${cal_dir}/OLD/*
+   fi   
+
+   echo "mkdir -p ${cal_dir}/OLD/"
+   mkdir -p ${cal_dir}/OLD/
+   
+   echo "mv ${cal_dir}/cal*uv ${cal_dir}/OLD/"
+   mv ${cal_dir}/cal*uv ${cal_dir}/OLD/
+
+   echo "cp -a ${last_uvfits}.uv ${cal_dir}/cal.uv"
+   cp -a ${last_uvfits}.uv ${cal_dir}/cal.uv
+
+   echo "cp -a ${last_uvfits}_XX.uv ${cal_dir}/cal_XX.uv"
+   cp -a ${last_uvfits}_XX.uv ${cal_dir}/cal_XX.uv
+   
+   echo "cp -a ${last_uvfits}_YY.uv ${cal_dir}/cal_YY.uv"
+   cp -a ${last_uvfits}_YY.uv ${cal_dir}/cal_YY.uv
+
+   echo "cp -a ${last_uvfits}*fits ${cal_dir}/"
+   cp -a ${last_uvfits}*fits ${cal_dir}/
+
+   # saving last Unix time :
+   dtm=`echo ${last_uvfits} | cut -b 10-24`   
+   dtm_utc=`echo ${dtm} | awk '{print substr($1,1,4)"-"substr($1,5,2)"-"substr($1,7,2)" "substr($1,10,2)":"substr($1,12,2)":"substr($1,14,2);}'`
+   ux=`date -u -d "${dtm_utc}" +%s`
+   echo "DEBUG : $dtm -> $dtm2 -> $dtm_utc -> uxtime = $ux"
+   echo $ux > last_calibration.txt
+   echo $ux > ${cal_dir}/last_calibration.txt
+else
+   echo "WARNING : no last UV fits file found"   
+fi
