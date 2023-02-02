@@ -16,9 +16,9 @@ if [[ -n "$3" && "$3" != "-" ]]; then
    list_file=$3
 fi
 
-convert_hdf5_file=1
+generate_beams=1
 if [[ -n "$4" && "$4" != "-" ]]; then
-   convert_hdf5_file=$4
+   generate_beams=$4
 fi
 
 cal_dir=calibration/
@@ -37,7 +37,7 @@ echo "#############################################"
 echo "list_file = $list_file"
 echo "do_xx_yy = $do_xx_yy"
 echo "channel  = $channel"
-echo "convert_hdf5_file = $convert_hdf5_file"
+echo "generate_beams = $generate_beams"
 echo "cal_dir = $cal_dir"
 echo "clean_old_uv_files = $clean_old_uv_files"
 echo "#############################################"
@@ -79,18 +79,31 @@ fi
 # 20180102T010203 -> 2018_01_01-00:00 
 dtm=`head -1 ${list_file} | cut -b 10-24`
 dtm2=`echo ${dtm} | awk '{print substr($1,1,4)"_"substr($1,5,2)"_"substr($1,7,2)"-"substr($1,10,2)":"substr($1,12,2);}'`
+dtm_utc=`echo ${dtm} | awk '{print substr($1,1,4)"-"substr($1,5,2)"-"substr($1,7,2)" "substr($1,10,2)":"substr($1,12,2)":"substr($1,14,2);}'`
+ux=`date -u -d "${dtm_utc}" +%s`
+echo "INFO : based on the first .uvfits file dtm = $dtm , dtm2 = $dtm2 , dtm_utc = $dtm_utc -> ux = $ux"
 
-
-if [[ $convert_hdf5_file -gt 0 ]]; then
+if [[ $generate_beams -gt 0 ]]; then
    # echo "~/Software/station_beam/scripts/beam_correct_latest_cal.sh ${station} ${dtm2}"
    # ~/Software/station_beam/scripts/beam_correct_latest_cal.sh ${station} ${dtm2}
-   echo "INFO : conversion hdf5 -> uvfits -> uv is required"
-   ls -tr *.hdf5 > hdf5_list
+   echo "INFO : generation of beams on the Sun is required"
+   hdf5_cnt=`ls *.hdf5 2>/dev/null | wc -l`
    path=`which fits_beam.py`
-   echo "python $path --infile_hdf5list=hdf5_list --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name}"
-   python $path --infile_hdf5list=hdf5_list --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name}
+
+   
+   if [[ $hdf5_cnt -gt 0 ]]; then
+      echo "INFO : hdf5 files found -> calculating beam on sun based on HDF5"
+      ls -tr *.hdf5 > hdf5_list   
+      echo "python $path --infile_hdf5list=hdf5_list --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name}"
+      python $path --infile_hdf5list=hdf5_list --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name}
+   else
+      echo "INFO : HDF5 files not found -> using unix time of the first file"
+      
+      echo "python $path --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name} --unix_time=${ux} --channel=${channel}"
+      python $path --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name} --unix_time=${ux} --channel=${channel}      
+   fi
 else
-   echo "WARNING : conversion from HDF5 files is not required"   
+   echo "WARNING : generation of beams on the Sun is not required"   
 fi   
 
 echo "DEBUG : experimental version, beam not set by external parameters -> checking text file ${beam_on_sun_file} ..."
@@ -264,8 +277,8 @@ if [[ -n "$last_uvfits" ]]; then
    echo "INFO : copying last calibration files from $last_uvfits to calibration directory ${cal_dir}"
 
    if [[ -d ${cal_dir}/OLD/ ]]; then
-      echo "rm -f ${cal_dir}/OLD/*"
-      rm -f ${cal_dir}/OLD/*
+      echo "rm -fr ${cal_dir}/OLD/*"
+      rm -fr ${cal_dir}/OLD/*
    fi   
 
    echo "mkdir -p ${cal_dir}/OLD/"
