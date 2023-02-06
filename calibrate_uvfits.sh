@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# The script assumes that the Sun is above the horizon and uses quiet Sun model to calibrate
+# It also tries to calculate apparent flux of the Sun using beam model (single isolated element)
+# Changes phase centre of visibilities to position of the Sun (sunpos.py script)
+
 do_xx_yy=0 # WARNING : do not use =1 as this when applied to other observation (calibration transfer) produces wrong flux scale !!!
            # 2023-01-28 : I think the above comment is no longer valid, at least for visibilities phase centred on the Sun 
 if [[ -n "$1" && "$1" != "-" ]]; then
@@ -36,6 +40,12 @@ if [[ -n "$7" && "$7" != "-" ]]; then
    use_hdf5_files=$7
 fi
 
+set_phase_centre_sun=1
+if [[ -n "$8" && "$8" != "-" ]]; then
+   set_phase_centre_sun=$8
+fi
+
+
 echo "#############################################"
 echo "PARAMETERS:"
 echo "#############################################"
@@ -46,6 +56,7 @@ echo "generate_beams = $generate_beams"
 echo "cal_dir = $cal_dir"
 echo "clean_old_uv_files = $clean_old_uv_files"
 echo "use_hdf5_files = $use_hdf5_files"
+echo "set_phase_centre_sun = $set_phase_centre_sun"
 echo "#############################################"
 
 do_mfcal_object="sun" # use mfcal with proper solar flux scale (as in Randall's script to get SEFD and other proper flux scale)
@@ -88,6 +99,13 @@ dtm2=`echo ${dtm} | awk '{print substr($1,1,4)"_"substr($1,5,2)"_"substr($1,7,2)
 dtm_utc=`echo ${dtm} | awk '{print substr($1,1,4)"-"substr($1,5,2)"-"substr($1,7,2)" "substr($1,10,2)":"substr($1,12,2)":"substr($1,14,2);}'`
 ux=`date -u -d "${dtm_utc}" +%s`
 echo "INFO : based on the first .uvfits file dtm = $dtm , dtm2 = $dtm2 , dtm_utc = $dtm_utc -> ux = $ux"
+sun_pos_line=`python ~/aavs-calibration/sunpos.py $ux | tail -1`
+ra_deg=`echo $sun_pos_line | awk '{print $1*15.00;}'`
+ra_h=`echo $sun_pos_line | awk '{print $1;}'`
+dec_deg=`echo $sun_pos_line | awk '{print $2;}'`
+ra_string=`echo $ra_h | awk '{ra_h=int($1);ra_frac=$1-ra_h;ra_min=int(ra_frac*60.00);ra_s=(ra_frac*60.00-ra_min)*60.00;printf("%02d,%02d,%02d\n",ra_h,ra_min,int(ra_s));}'`
+dec_string=`echo $dec_deg | awk '{dec=$1;dec_abs=$1;sign=1;if(dec<0){dec_abs=-dec;sign=-1;}dec_deg=sign*int(dec_abs);dec_arcmin=(dec_abs-int(dec_abs))*60.00;dec_arcsec=(dec_arcmin-int(dec_arcmin))*60.00;printf("%02d,%02d,%02d\n",dec_deg,dec_arcmin,int(dec_arcsec));}'`
+echo "INFO : sun position (RA,DEC) = ($ra_deg,$dec_deg) [deg] -> string for uvedit $ra_string,$dec_string"
 
 if [[ $generate_beams -gt 0 ]]; then
    # echo "~/Software/station_beam/scripts/beam_correct_latest_cal.sh ${station} ${dtm2}"
@@ -149,6 +167,24 @@ do
        fits op=uvin in="$uvfitsfile" out="${src}.uv" options=compress
     else
        echo "WARNING : cleaning of .uv files is not required"
+    fi
+    
+    # change phase centre of visibilities to Sun :
+    if [[ $set_phase_centre_sun -gt 0 ]]; then
+      echo "uvedit vis=${src}.uv ra=${ra_string} dec=${dec_string}"
+      uvedit vis=${src}.uv ra=${ra_string} dec=${dec_string}
+    
+      echo "mv ${src}.uv ${src}.uv_old_phase_centre"
+      mv ${src}.uv ${src}.uv_old_phase_centre
+    
+      echo "mv ${src}.uv_c ${src}.uv"
+      mv ${src}.uv_c ${src}.uv
+      
+      # TODO:
+      # before conversion 
+      # add python ./setkey.py ${uvfits_file} 
+    else
+      echo "WARNING : changing phase centre to Sun is not required"
     fi
     
     # FINAL extra flagging here  :
