@@ -31,6 +31,11 @@ if [[ -n "$6" && "$6" != "-" ]]; then
    clean_old_uv_files=$6
 fi
 
+use_hdf5_files=1
+if [[ -n "$7" && "$7" != "-" ]]; then
+   use_hdf5_files=$7
+fi
+
 echo "#############################################"
 echo "PARAMETERS:"
 echo "#############################################"
@@ -40,6 +45,7 @@ echo "channel  = $channel"
 echo "generate_beams = $generate_beams"
 echo "cal_dir = $cal_dir"
 echo "clean_old_uv_files = $clean_old_uv_files"
+echo "use_hdf5_files = $use_hdf5_files"
 echo "#############################################"
 
 do_mfcal_object="sun" # use mfcal with proper solar flux scale (as in Randall's script to get SEFD and other proper flux scale)
@@ -86,18 +92,17 @@ echo "INFO : based on the first .uvfits file dtm = $dtm , dtm2 = $dtm2 , dtm_utc
 if [[ $generate_beams -gt 0 ]]; then
    # echo "~/Software/station_beam/scripts/beam_correct_latest_cal.sh ${station} ${dtm2}"
    # ~/Software/station_beam/scripts/beam_correct_latest_cal.sh ${station} ${dtm2}
-   echo "INFO : generation of beams on the Sun is required"
    hdf5_cnt=`ls *.hdf5 2>/dev/null | wc -l`
+   echo "INFO : generation of beams on the Sun is required (HDF5 file count = $hdf5_cnt)"
    path=`which fits_beam.py`
-
    
-   if [[ $hdf5_cnt -gt 0 ]]; then
+   if [[ $hdf5_cnt -gt 0 && $use_hdf5_files -gt 0 ]]; then
       echo "INFO : hdf5 files found -> calculating beam on sun based on HDF5"
       ls -tr *.hdf5 > hdf5_list   
       echo "python $path --infile_hdf5list=hdf5_list --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name}"
       python $path --infile_hdf5list=hdf5_list --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name}
    else
-      echo "INFO : HDF5 files not found -> using unix time of the first file"
+      echo "INFO : HDF5 files not found or not supposed to be used (use_hdf5_files=$use_hdf5_files) -> using unix time of the first file"
       
       echo "python $path --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name} --unix_time=${ux} --channel=${channel}"
       python $path --outfile_beam_on_sun=beam_on_sun.txt --station=${station_name} --unix_time=${ux} --channel=${channel}      
