@@ -163,6 +163,11 @@ do
        echo "rm -rf ${src}.uv ${src}_XX.uv ${src}_YY.uv"
        rm -rf ${src}.uv ${src}_XX.uv ${src}_YY.uv
        
+       if [[ $set_phase_centre_sun -gt 0 ]]; then
+          echo "python ~/aavs-calibration/setkey.py ${uvfitsfile}"
+          python ~/aavs-calibration/setkey.py ${uvfitsfile}
+       fi
+       
        echo "fits op=uvin in=\"$uvfitsfile\" out=\"${src}.uv\" options=compress"
        fits op=uvin in="$uvfitsfile" out="${src}.uv" options=compress
     else
@@ -322,11 +327,12 @@ if [[ -n "$last_uvfits" ]]; then
       rm -fr ${cal_dir}/OLD/*
    fi   
 
-   echo "mkdir -p ${cal_dir}/OLD/"
-   mkdir -p ${cal_dir}/OLD/
+   ux=`date +%s`
+   echo "mkdir -p ${cal_dir}/OLD/${ux}"
+   mkdir -p ${cal_dir}/OLD/${ux}
    
-   echo "mv ${cal_dir}/cal*uv ${cal_dir}/OLD/"
-   mv ${cal_dir}/cal*uv ${cal_dir}/OLD/
+   echo "mv ${cal_dir}/cal*uv ${cal_dir}/OLD/${ux}"
+   mv ${cal_dir}/cal*uv ${cal_dir}/OLD/${ux}
 
    echo "cp -a ${last_uvfits}.uv ${cal_dir}/cal.uv"
    cp -a ${last_uvfits}.uv ${cal_dir}/cal.uv
