@@ -45,6 +45,19 @@ if [[ -n "$8" && "$8" != "-" ]]; then
    set_phase_centre_sun=$8
 fi
 
+do_calibration=1
+if [[ -n "$9" && "$9" != "-" ]]; then
+   do_calibration=$9
+fi
+
+do_mfcal_object="sun" # use mfcal with proper solar flux scale (as in Randall's script to get SEFD and other proper flux scale)
+reference_antenna=3
+control_image=1
+save_calsolutions=1
+station_name=EDA
+if [[ $do_calibration -le 0 ]]; then
+   save_calsolutions=0
+fi
 
 echo "#############################################"
 echo "PARAMETERS:"
@@ -57,13 +70,9 @@ echo "cal_dir = $cal_dir"
 echo "clean_old_uv_files = $clean_old_uv_files"
 echo "use_hdf5_files = $use_hdf5_files"
 echo "set_phase_centre_sun = $set_phase_centre_sun"
+echo "do_calibration = $do_calibration"
+echo "save_calsolutions = $save_calsolutions"
 echo "#############################################"
-
-do_mfcal_object="sun" # use mfcal with proper solar flux scale (as in Randall's script to get SEFD and other proper flux scale)
-reference_antenna=3
-control_image=1
-save_calsolutions=1
-station_name=EDA
 
 export PATH=~/aavs-calibration:~/Software/station_beam/python/:$PATH
 
@@ -217,45 +226,49 @@ do
       fi
     fi
 
-    # MFCAL : 
-    if [[ $channel -gt 192 ]]; then # f > 150 MHz (192 *(400/512) = 150 MHz ) :
-       echo "Channel = $channel > 192 -> using the high-frequency power law:"
+    if [[ $do_calibration -gt 0 ]]; then
+       # MFCAL :     
+       if [[ $channel -gt 192 ]]; then # f > 150 MHz (192 *(400/512) = 150 MHz ) :
+          echo "Channel = $channel > 192 -> using the high-frequency power law:"
 
-       if [[ $do_xx_yy -gt 0 ]]; then
-          # mfcal on XX and YY or rather uvcat to split .uv -> _XX.uv and _YY.uv ?
-          # current way is a bit in-efficient, so I will change it later
-          echo "mfcal vis=${src}_XX.uv flux=${apparent_solar_flux_x},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"  
-          mfcal vis=${src}_XX.uv flux=${apparent_solar_flux_x},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
+          if [[ $do_xx_yy -gt 0 ]]; then
+             # mfcal on XX and YY or rather uvcat to split .uv -> _XX.uv and _YY.uv ?
+             # current way is a bit in-efficient, so I will change it later
+             echo "mfcal vis=${src}_XX.uv flux=${apparent_solar_flux_x},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"  
+             mfcal vis=${src}_XX.uv flux=${apparent_solar_flux_x},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz
 
-          echo "mfcal vis=${src}_YY.uv flux=${apparent_solar_flux_y},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"  
-          mfcal vis=${src}_YY.uv flux=${apparent_solar_flux_y},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz          
+             echo "mfcal vis=${src}_YY.uv flux=${apparent_solar_flux_y},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"  
+             mfcal vis=${src}_YY.uv flux=${apparent_solar_flux_y},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz          
+          else
+             echo "mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"
+             mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz          
+          fi
        else
-          echo "mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna}"
-          mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.6 select='uvrange(0.005,1)' refant=${reference_antenna} # f > 150 MHz          
+           # verifyed on 2020-04-23 :
+           # Lower limit of 0.005 kLambda means 10m at 150 MHz to make it 10 m everywhere use the following formula
+           #    It comes from B_min = 10m expressed in kLambda -> (B_min/Lambda[m])*Lambda[m] = (B_min/Lambda[m])*(kLambda/1000.00) as kLambda = Lambda[m]/1000.00
+           #    and Lambda[m] = 300 / ( (400/512)*ch ) [m] 
+           # below 150 MHz the uvrange has to be different as otherwise we can end up with 0 baselines 
+           # I set limit to B>10m and calculate 
+           min_klambda=`echo $channel | awk '{print ($1*(400.00/512.00))/30000.00;}'`
+
+           echo "Channel = $channel <= 192 -> using the low-frequency power law, lower uvrange limit = $min_klambda kLambda"
+
+           if [[ $do_xx_yy -gt 0 ]]; then
+              # mfcal on XX and YY or rather uvcat to split .uv -> _XX.uv and _YY.uv ?
+              # current way is a bit in-efficient, so I will change it later
+              echo "mfcal vis=${src}_XX.uv flux=${apparent_solar_flux_x},0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
+              mfcal vis=${src}_XX.uv flux=${apparent_solar_flux_x},0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
+
+              echo "mfcal vis=${src}_YY.uv flux=${apparent_solar_flux_y},0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
+              mfcal vis=${src}_YY.uv flux=${apparent_solar_flux_y},0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz                          
+           else
+              echo "mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
+              mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
+           fi
        fi
     else
-        # verifyed on 2020-04-23 :
-        # Lower limit of 0.005 kLambda means 10m at 150 MHz to make it 10 m everywhere use the following formula
-        #    It comes from B_min = 10m expressed in kLambda -> (B_min/Lambda[m])*Lambda[m] = (B_min/Lambda[m])*(kLambda/1000.00) as kLambda = Lambda[m]/1000.00
-        #    and Lambda[m] = 300 / ( (400/512)*ch ) [m] 
-        # below 150 MHz the uvrange has to be different as otherwise we can end up with 0 baselines 
-        # I set limit to B>10m and calculate 
-        min_klambda=`echo $channel | awk '{print ($1*(400.00/512.00))/30000.00;}'`
-
-        echo "Channel = $channel <= 192 -> using the low-frequency power law, lower uvrange limit = $min_klambda kLambda"
-
-        if [[ $do_xx_yy -gt 0 ]]; then
-           # mfcal on XX and YY or rather uvcat to split .uv -> _XX.uv and _YY.uv ?
-           # current way is a bit in-efficient, so I will change it later
-           echo "mfcal vis=${src}_XX.uv flux=${apparent_solar_flux_x},0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
-           mfcal vis=${src}_XX.uv flux=${apparent_solar_flux_x},0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
-
-           echo "mfcal vis=${src}_YY.uv flux=${apparent_solar_flux_y},0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
-           mfcal vis=${src}_YY.uv flux=${apparent_solar_flux_y},0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz                          
-        else
-           echo "mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.9 select=\"uvrange($min_klambda,1)\" refant=${reference_antenna}"
-           mfcal vis=${src}.uv flux=${apparent_solar_flux},0.15,1.9 select="uvrange($min_klambda,1)" refant=${reference_antenna} # f < 150 MHz
-        fi
+       echo "WARNNING : calibration is not required (only control imaging)"
     fi
     
     if [[ $do_xx_yy -gt 0 ]]; then
