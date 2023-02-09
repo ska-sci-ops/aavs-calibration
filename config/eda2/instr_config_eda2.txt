@@ -379,38 +379,38 @@
 349	174	Y	0	0		
 350	175	X	0	0		# Ant233
 351	175	Y	0	0		
-352	176	X	0	0		# Ant140
-353	176	Y	0	0		
-354	177	X	0	0		# Ant145
-355	177	Y	0	0		
-356	178	X	0	0		# Ant146
-357	178	Y	0	0		
-358	179	X	0	0		# Ant173
-359	179	Y	0	0		
-360	180	X	0	0		# Ant211 , unflagged on 2022-03-30
-361	180	Y	0	0		
-362	181	X	0	0		# Ant210
-363	181	Y	0	0		
-364	182	X	0	0		# Ant209
-365	182	Y	0	0		
-366	183	X	0	0		# Ant208
-367	183	Y	0	0		
-368	184	X	0	0		# Ant174
-369	184	Y	0	0		
-370	185	X	0	0		# Ant175
-371	185	Y	0	0		
-372	186	X	0	0		# Ant178
-373	186	Y	0	0		
-374	187	X	0	0		# Ant179
-375	187	Y	0	0		
-376	188	X	0	0		# Ant207
-377	188	Y	0	0		
-378	189	X	0	0		# Ant182
-379	189	Y	0	0		
-380	190	X	0	0		# Ant181
-381	190	Y	0	0		
-382	191	X	0	0		# Ant180
-383	191	Y	0	0		
+352	176	X	0	1		# Ant140 2023-02-09 - Tile12 is broken and turns off by itself
+353	176	Y	0	1		
+354	177	X	0	1		# Ant145 2023-02-09 - Tile12 is broken and turns off by itself
+355	177	Y	0	1		
+356	178	X	0	1		# Ant146 2023-02-09 - Tile12 is broken and turns off by itself
+357	178	Y	0	1		
+358	179	X	0	1		# Ant173 2023-02-09 - Tile12 is broken and turns off by itself
+359	179	Y	0	1		
+360	180	X	0	1		# Ant211 , unflagged on 2022-03-30 2023-02-09 - Tile12 is broken and turns off by itself
+361	180	Y	0	1		
+362	181	X	0	1		# Ant210 2023-02-09 - Tile12 is broken and turns off by itself
+363	181	Y	0	1		
+364	182	X	0	1		# Ant209 2023-02-09 - Tile12 is broken and turns off by itself
+365	182	Y	0	1		
+366	183	X	0	1		# Ant208 2023-02-09 - Tile12 is broken and turns off by itself
+367	183	Y	0	1		
+368	184	X	0	1		# Ant174 2023-02-09 - Tile12 is broken and turns off by itself
+369	184	Y	0	1		
+370	185	X	0	1		# Ant175 2023-02-09 - Tile12 is broken and turns off by itself
+371	185	Y	0	1		
+372	186	X	0	1		# Ant178 2023-02-09 - Tile12 is broken and turns off by itself
+373	186	Y	0	1		
+374	187	X	0	1		# Ant179 2023-02-09 - Tile12 is broken and turns off by itself
+375	187	Y	0	1		
+376	188	X	0	1		# Ant207 2023-02-09 - Tile12 is broken and turns off by itself
+377	188	Y	0	1		
+378	189	X	0	1		# Ant182 2023-02-09 - Tile12 is broken and turns off by itself
+379	189	Y	0	1		
+380	190	X	0	1		# Ant181 2023-02-09 - Tile12 is broken and turns off by itself
+381	190	Y	0	1		
+382	191	X	0	1		# Ant180 2023-02-09 - Tile12 is broken and turns off by itself
+383	191	Y	0	1		
 384	192	X	0	0		# Ant073
 385	192	Y	0	0		
 386	193	X	0	0		# Ant107
