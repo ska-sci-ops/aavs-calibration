@@ -346,6 +346,9 @@ if [[ -n "$last_uvfits" ]]; then
    echo "cp -a ${last_uvfits}*fits ${cal_dir}/"
    cp -a ${last_uvfits}*fits ${cal_dir}/
 
+   echo "cp -a ${last_uvfits}*uv ${cal_dir}/"
+   cp -a ${last_uvfits}*uv ${cal_dir}/
+
    # saving last Unix time :
    dtm=`echo ${last_uvfits} | cut -b 10-24`   
    dtm_utc=`echo ${dtm} | awk '{print substr($1,1,4)"-"substr($1,5,2)"-"substr($1,7,2)" "substr($1,10,2)":"substr($1,12,2)":"substr($1,14,2);}'`
