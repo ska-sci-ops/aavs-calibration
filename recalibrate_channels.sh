@@ -43,12 +43,15 @@ fi
 
 echo "backup_calibration.sh"
 backup_calibration.sh
+pwd
+echo "ls -al beam_on_sun.txt"
+ls -al beam_on_sun.txt
 
 if [[ ! -s beam_on_sun.txt ]]; then
    # temporary solution - until beam values are generated on the server :
    if [[ -s /tmp/msok/beam_on_sun.txt ]]; then     
-      echo "cp /tmp/msok/beam_on_sun.txt"
-      cp /tmp/msok/beam_on_sun.txt
+      echo "cp /tmp/msok/beam_on_sun.txt ."
+      cp /tmp/msok/beam_on_sun.txt .
    else
       echo "WARNING : file /tmp/msok/beam_on_sun.txt does not exist -> re-calibration will not be able to use correct beam-correction beam values"
 #      exit -1
