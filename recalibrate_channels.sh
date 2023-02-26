@@ -40,6 +40,17 @@ if [[ -n "$8" && "$8" != "-" ]]; then
    update_last_calibration=$8
 fi
 
+generate_beam_on_sun=""
+if [[ -n "$9" && "$9" != "-" ]]; then
+   generate_beam_on_sun=$9
+fi
+
+echo "#############################################"
+echo "PARAMETERS:"
+echo "#############################################"
+echo "generate_beam_on_sun = $generate_beam_on_sun"
+echo "#############################################"
+
 
 echo "backup_calibration.sh"
 backup_calibration.sh
@@ -53,8 +64,15 @@ if [[ ! -s beam_on_sun.txt ]]; then
       echo "cp /tmp/msok/beam_on_sun.txt ."
       cp /tmp/msok/beam_on_sun.txt .
    else
-      echo "WARNING : file /tmp/msok/beam_on_sun.txt does not exist -> re-calibration will not be able to use correct beam-correction beam values"
-#      exit -1
+      if [[ -n "$generate_beam_on_sun" && "$generate_beam_on_sun" != "-" ]]; then
+         echo "WARNING : file /tmp/msok/beam_on_sun.txt does not exist -> trying to re-generate beams"
+         export PATH=~/github/station_beam/scripts/:~/github/station_beam/python/:$PATH
+         
+         echo "generate_beam_on_sun_file.sh ${generate_beam_on_sun}"
+         generate_beam_on_sun_file.sh ${generate_beam_on_sun}
+      else
+         echo "WARNING : file /tmp/msok/beam_on_sun.txt does not exist -> re-calibration will not be able to use correct beam-correction beam values (generation of beams is not required - 9th parameter EDA or SKALA4)"
+      fi
    fi
 else
    echo "WARNING : local file beam_on_sun.txt found -> using existing one (not overwritting)"
