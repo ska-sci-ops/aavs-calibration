@@ -80,6 +80,7 @@ function generate_header_file
    
    echo "INVERT_FREQ 0   # 1 if the freq decreases with channel number" >> ${header_file}
 
+   # $station_name_upper   
    # MS : 2021-11-24 - this change is for the transition period when AAVS2 has new firmware with correct sign and EDA2 still old sign (wrong convention):
    # if [[ $station_name == "aavs2" || $station_name == "AAVS2" ]]; then
    #   echo "CONJUGATE 0     # conjugate the raw data to fix sign convention problem if necessary" >> ${header_file}
@@ -87,10 +88,24 @@ function generate_header_file
    #   echo "CONJUGATE 1     # conjugate the raw data to fix sign convention problem if necessary" >> ${header_file}
    #fi   
    # MS : 2022-11-23 : both EDA2 and AAVS2 use the same firmware now and it should be 0 for both:
-   echo "CONJUGATE 0     # conjugate the raw data to fix sign convention problem if necessary" >> ${header_file}
-
-   echo "GEOM_CORRECT 1  # apply geometric phase corrections when 1. Don't when 0" >> ${header_file}         
    
+   # Check the dates to work ok for old data !!!
+   new_firmware_start_ux=1637712000
+   if [[ $station_name_upper == "EDA2" ]]; then
+      # MS : 2022-11-23 : both EDA2 and AAVS2 use the same firmware now and it should be 0 for both:
+      new_firmware_start_ux=1669161600
+   fi
+
+   if [[ $tstart -gt $new_firmware_start_ux ]]; then
+      echo "DEBUG : NEW FIRMWARE (tstart = $tstart > $new_firmware_start_ux , $station_name_upper) -> CONJUGATE=0"
+      echo "CONJUGATE 0     # NEW FIRMWARE (tstart = $tstart > $new_firmware_start_ux , $station_name_upper) -> no need to conjugate visibilities" >> ${header_file}
+   else
+      echo "DEBUG : processing old data (OLD firmware) (tstart = $tstart <= $new_firmware_start_ux , $station_name_upper) -> CONJUGATE=1"
+      echo "CONJUGATE 1     # processing old data (OLD firmware) (tstart = $tstart <= $new_firmware_start_ux , $station_name_upper) -> have to conjugate visibilities" >> ${header_file}
+   fi
+
+   echo "GEOM_CORRECT 1  # apply geometric phase corrections when 1. Don't when 0" >> ${header_file}
+
    echo "TIME    ${tstart}.${frac_int}" >> ${header_file}
    echo "DATE    $dstart" >> ${header_file}
    echo "FREQCENT ${cent_freq}" >> ${header_file}
