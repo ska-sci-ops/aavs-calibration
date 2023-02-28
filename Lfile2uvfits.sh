@@ -84,6 +84,7 @@ if [ $# -gt 3 ] ; then
 fi
 
 # 
+echo "DEBUG : number of parameters = $# , parameter 5 = $5"
 if [ $# -gt 5 ] ; then
    station_name_upper=$5
 fi
