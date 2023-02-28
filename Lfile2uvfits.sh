@@ -20,7 +20,7 @@ function print_usage {
   echo "    -n n_chunks   Default: $nchunks"
   echo "    -R ra_hours   Default: use zenith"
   echo "    -D dec_degs   Default: use zenith"
-  echo "    -s STATION_NAME , in capitals , Default : $station_name_upper"
+  echo "    -S STATION_NAME , in capitals , Default : $station_name_upper"
   exit
 }
 
@@ -50,6 +50,7 @@ while getopts "hi:R:D:n:" opt; do
         ;;
     S)
         station_name_upper=$OPTARG
+        echo "DEBUG : -S option station_name_upper = $station_name_upper"
         ;;
     \?)
       echo "Invalid option: -$OPTARG" 1>&2
