@@ -11,6 +11,7 @@ lc_chunksize=$((512*511*8/2))
 nchunks=5
 useradec=0
 inttime=9.90903
+station_name_upper=EDA2
 
 function print_usage {
   echo "Usage: "
@@ -19,6 +20,7 @@ function print_usage {
   echo "    -n n_chunks   Default: $nchunks"
   echo "    -R ra_hours   Default: use zenith"
   echo "    -D dec_degs   Default: use zenith"
+  echo "    -s STATION_NAME , in capitals , Default : $station_name_upper"
   exit
 }
 
@@ -45,6 +47,9 @@ while getopts "hi:R:D:n:" opt; do
     D)
         dec_degs=$OPTARG
         useradec=1
+        ;;
+    S)
+        station_name_upper=$OPTARG
         ;;
     \?)
       echo "Invalid option: -$OPTARG" 1>&2
@@ -79,6 +84,24 @@ fi
 
 timeinc=`echo $nchunks ${inttime} | awk '{ printf "%f\n",$1*$2 }'`
 
+# New vs. old firmware and sign flip :
+# Check the dates to work ok for old data !!!
+new_firmware_start_ux=1637712000
+if [[ $station_name_upper == "EDA2" ]]; then
+   # MS : 2022-11-23 : both EDA2 and AAVS2 use the same firmware now and it should be 0 for both:
+   new_firmware_start_ux=1669161600
+fi
+
+
+echo "############################"
+echo "PARAMETERS:"
+echo "############################"
+echo "chan    = $chan"
+echo "inttime = $inttime"
+echo "new_firmware_start_ux = $new_firmware_start_ux"
+echo "station_name_upper = $station_name_upper"
+echo "############################"
+
 bname=`basename $hdffile .hdf5`
 # extract start unix time for data:
 startunix=`cat ${bname}_ts_unix.txt`
@@ -88,6 +111,16 @@ lacsize=`stat -L --printf="%s" $bname.LACSPC`
 ntimes=$((lacsize/la_chunksize/nchunks))
 echo "INFO : ntimes = $ntimes, lacsize = $lacsize , la_chunksize = $la_chunksize , nchunks = $nchunks , inttime = $inttime , timeinc = $timeinc"
 if [ $ntimes -lt 1 ] ; then ntimes=1 ; fi
+
+# header.txt : CONJUGATE base on the date of the data :
+echo "DEBUG : comparing startunix=$startunix vs. new_firmware_start_ux = $new_firmware_start_ux"
+if [[ $startunix -gt $new_firmware_start_ux ]]; then
+   echo "INFO : $startunix > $new_firmware_start_ux -> stays CONJUGATE = 0"
+else
+   echo "INFO : $startunix <= $new_firmware_start_ux -> old data -> CONJUGATE set to 1 (sed)"       
+   sed -i 's/CONJUGATE 0/CONJUGATE 1/' header.txt
+fi
+
 echo "Processing file $hdffile. There are $ntimes times"
 for t in `seq 0 $((ntimes-1))` ; do
     # create a temporary header file for this dataset
@@ -111,6 +144,7 @@ for t in `seq 0 $((ntimes-1))` ; do
       echo "RA_HRS $ra_hrs" >> $header
       echo "DEC_DEGS $dec_degs" >> $header
     fi
+    
     # chop out relevant section of L-files
     dd bs=${la_chunksize} skip=$((nchunks*t)) count=$nchunks if=$bname.LACSPC > $lacspc
     dd bs=${lc_chunksize} skip=$((nchunks*t)) count=$nchunks if=$bname.LCCSPC > $lccspc

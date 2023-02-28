@@ -156,6 +156,7 @@ echo "Apparent solar flux x / y / mean = $apparent_solar_flux_x / $apparent_sola
 echo "######################################################################################################"
 
 
+# TODO : instead of copying ~/aavs-calibration/header_eda2_cal.txt - same generation function should be used here and in Lfile2uvfits_eda.sh and Lfile2uvfits.sh
 # MS : 20191204 - I changed symbolic links to copies to keep track of what we used at the time of calibration
 #      with symbolic link if the target changes, we don't know what was used at the time
 # Link some configuration files
@@ -199,8 +200,10 @@ if [[ $convert_hdf5_files -gt 0 ]]; then
       echo "python ~/aavs-calibration/sunpos.py $unixtime"
       radec=`python ~/aavs-calibration/sunpos.py $unixtime`
 
-      echo "Lfile2uvfits.sh \"$hdffile\" $int_time $radec"
-      Lfile2uvfits.sh "$hdffile" $int_time $radec
+      # MSOK : WARNING/TODO : Lfile2uvfits.sh should really be changed to Lfile2uvfits_eda.sh as there are currently 2 scripts for conversion ...
+      station_name_upper=`echo $station_name | awk '{print toupper($1);}'`      
+      echo "Lfile2uvfits.sh \"$hdffile\" $int_time $radec -S $station_name_upper"
+      Lfile2uvfits.sh "$hdffile" $int_time $radec -S $station_name_upper
    done
 else
    echo "WARNING : convert_hdf5_files=$convert_hdf5_files -> not executing conversion from hdf5 files to uvfits"

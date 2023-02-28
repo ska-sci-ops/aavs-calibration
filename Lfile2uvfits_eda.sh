@@ -48,6 +48,7 @@ function generate_header_file
    ra_hrs=$7
    dec_degs=$8
    frac=$9
+   start_ux=${10}
    frac_int=`echo $frac | awk '{printf("%02d",($1*100));}'`
    
    station_name_upper=`echo ${station_name} | awk '{print toupper($1)}'`
@@ -96,12 +97,13 @@ function generate_header_file
       new_firmware_start_ux=1669161600
    fi
 
-   if [[ $tstart -gt $new_firmware_start_ux ]]; then
-      echo "DEBUG : NEW FIRMWARE (tstart = $tstart > $new_firmware_start_ux , $station_name_upper) -> CONJUGATE=0"
-      echo "CONJUGATE 0     # NEW FIRMWARE (tstart = $tstart > $new_firmware_start_ux , $station_name_upper) -> no need to conjugate visibilities" >> ${header_file}
+   echo "DEBUG : comparing tstart=$start_ux vs. new_firmware_start_ux = $new_firmware_start_ux"
+   if [[ $start_ux -gt $new_firmware_start_ux ]]; then
+      echo "DEBUG : NEW FIRMWARE (start_ux = $start_ux > $new_firmware_start_ux , $station_name_upper) -> CONJUGATE=0"
+      echo "CONJUGATE 0     # NEW FIRMWARE (start_ux = $start_ux > $new_firmware_start_ux , $station_name_upper) -> no need to conjugate visibilities" >> ${header_file}
    else
-      echo "DEBUG : processing old data (OLD firmware) (tstart = $tstart <= $new_firmware_start_ux , $station_name_upper) -> CONJUGATE=1"
-      echo "CONJUGATE 1     # processing old data (OLD firmware) (tstart = $tstart <= $new_firmware_start_ux , $station_name_upper) -> have to conjugate visibilities" >> ${header_file}
+      echo "DEBUG : processing old data (OLD firmware) (start_ux = $start_ux <= $new_firmware_start_ux , $station_name_upper) -> CONJUGATE=1"
+      echo "CONJUGATE 1     # processing old data (OLD firmware) (start_ux = $start_ux <= $new_firmware_start_ux , $station_name_upper) -> have to conjugate visibilities" >> ${header_file}
    fi
 
    echo "GEOM_CORRECT 1  # apply geometric phase corrections when 1. Don't when 0" >> ${header_file}
@@ -225,8 +227,8 @@ for t in `seq 0 $((ntimes-1))` ; do
     dstart=`date -u --date="@$start" +"%Y%m%d"`
     echo "Making header for chunk $t. Time offset: $offset. Fraction: $frac Start time: $dstart $tstart"
     
-    echo "generate_header_file $header $tstart $dstart ${cent_freq} $inttime $useradec $ra_hrs $dec_degs $frac"
-    generate_header_file $header $tstart $dstart ${cent_freq} $inttime $useradec $ra_hrs $dec_degs $frac
+    echo "generate_header_file $header $tstart $dstart ${cent_freq} $inttime $useradec $ra_hrs $dec_degs $frac $start"
+    generate_header_file $header $tstart $dstart ${cent_freq} $inttime $useradec $ra_hrs $dec_degs $frac $start
         
     # chop out relevant section of L-files
     skip_bytes=$((nchunks*t))
