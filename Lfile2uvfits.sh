@@ -30,7 +30,7 @@ fi
 
 # parse command-line args
 if [ $# -lt 1 ] ; then print_usage ; fi
-while getopts "hi:R:D:n:" opt; do
+while getopts "hi:R:D:n:S:" opt; do
   case $opt in
     h)
         print_usage
