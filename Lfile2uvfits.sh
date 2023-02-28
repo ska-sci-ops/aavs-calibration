@@ -85,8 +85,9 @@ fi
 
 # 
 echo "DEBUG : number of parameters = $# , parameter 5 = $5"
-if [ $# -gt 5 ] ; then
+if [ $# -ge 5 ] ; then
    station_name_upper=$5
+   echo "DEBUG : station name parameter detected = $station_name_upper"
 fi
 
 
