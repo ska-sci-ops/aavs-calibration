@@ -83,6 +83,13 @@ if [ $# -gt 3 ] ; then
   useradec=1
 fi
 
+# 
+if [ $# -gt 5 ] ; then
+   station_name_upper=$5
+fi
+
+
+
 timeinc=`echo $nchunks ${inttime} | awk '{ printf "%f\n",$1*$2 }'`
 
 # New vs. old firmware and sign flip :
