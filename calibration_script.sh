@@ -202,8 +202,8 @@ if [[ $convert_hdf5_files -gt 0 ]]; then
 
       # MSOK : WARNING/TODO : Lfile2uvfits.sh should really be changed to Lfile2uvfits_eda.sh as there are currently 2 scripts for conversion ...
       station_name_upper=`echo $station_name | awk '{print toupper($1);}'`      
-      echo "Lfile2uvfits.sh \"$hdffile\" $int_time $radec -S $station_name_upper"
-      Lfile2uvfits.sh "$hdffile" $int_time $radec -S $station_name_upper
+      echo "Lfile2uvfits.sh \"$hdffile\" $int_time $radec $station_name_upper"
+      Lfile2uvfits.sh "$hdffile" $int_time $radec $station_name_upper
    done
 else
    echo "WARNING : convert_hdf5_files=$convert_hdf5_files -> not executing conversion from hdf5 files to uvfits"
