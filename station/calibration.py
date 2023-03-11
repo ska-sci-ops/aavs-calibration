@@ -516,7 +516,7 @@ if __name__ == '__main__':
        
        if options.save_channels_per_ant <= 1 :
           save_calcoeff_to_text_file( calibration_coef , options.out_db_calfile, start_freq_channel=options.start_freq_channel, n_channels=1 )
-       else
+       else :
           save_calcoeff_to_text_files_per_ant( calibration_coef , options.out_db_calfile, start_freq_channel=options.start_freq_channel, n_channels=options.save_channels_per_ant )
     else :    
        if options.test_pickle_file is not None :
