@@ -373,6 +373,7 @@ def parse_options(idx=0):
    # options of saving calibration solutions to text file :
    parser.add_option('--start_freq_channel','--start_freq_ch',dest="start_freq_channel",default=204, help="Start frequency channel [default %]",type="int")
    parser.add_option('--get_cal_from_db','--get_db_cal','--save_db_cal','--save_db_cal_file',dest="out_db_calfile",default=None, help="Save MCCS calibration to text file [default %]")
+   parser.add_option('--save_n_channels_per_ant','--save_cal_per_ant','--save_n_channels',dest="save_channels_per_ant", default=1, help="Works with --save_db_cal_file and saves calibration solutions in specified number of channels per antenna [default %]")
    parser.add_option("--station_id", '--station', dest="station_id", default=2, help="Station ID (as in the station configuratio file) [default: %]", type=int )
    parser.add_option('--invamp','--ampinv',action="store_true",dest="invamp",default=False, help="Invert amplitudes [default %]")
 
@@ -444,6 +445,10 @@ def test_calibration( pickle_file , sign_value=1 ) :
                  
     print("No difference ???")             
 
+def save_calcoeff_to_text_files_per_ant( calibration_coef, out_text_file, start_freq_channel, n_channels ) :
+   print("ERROR : not yet implemented !")
+   return    
+
 def save_calcoeff_to_text_file( calibration_coef, out_text_file, start_freq_channel, n_channels=1 ) :
    for freq_channel in range(start_freq_channel,start_freq_channel+n_channels) :
       channel_index = freq_channel - start_freq_channel
@@ -451,7 +456,7 @@ def save_calcoeff_to_text_file( calibration_coef, out_text_file, start_freq_chan
       out_f = open( out_text_file_final , "w" )
 
       ant_count = calibration_coef.shape[0]
-      print("Saving calibration coefficients for frequency channel %d to output file %s , number of antennas = %d" % (freq_channel,out_text_file,ant_count))
+      print("Saving calibration coefficients for frequency channel %d to output file %s , number of antennas = %d" % (freq_channel,out_text_file_final,ant_count))
 
       out_f.write("# frequency channel %d = %.4f MHz\n" % (freq_channel,freq_channel*(400.00/512.00)))
 
@@ -507,9 +512,12 @@ if __name__ == '__main__':
        
        # def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True, apply_amplitudes=False, 
        #                            x_amp_par=None, y_amp_par=None, flag_antennas_list=None , sign_value=1 , invert_amplitudes=False ) : # use database    
-       ( calibration_coef ) = get_calibration_coeff_from_db( options.start_freq_channel, options.station_id, swap_pols=False, n_channels=1, apply_amplitudes=True, invert_amplitudes=options.invamp )
+       ( calibration_coef ) = get_calibration_coeff_from_db( options.start_freq_channel, options.station_id, swap_pols=False, n_channels=options.save_channels_per_ant, apply_amplitudes=True, invert_amplitudes=options.invamp )
        
-       save_calcoeff_to_text_file( calibration_coef , options.out_db_calfile, start_freq_channel=options.start_freq_channel, n_channels=1 )
+       if options.save_channels_per_ant <= 1 :
+          save_calcoeff_to_text_file( calibration_coef , options.out_db_calfile, start_freq_channel=options.start_freq_channel, n_channels=1 )
+       else
+          save_calcoeff_to_text_files_per_ant( calibration_coef , options.out_db_calfile, start_freq_channel=options.start_freq_channel, n_channels=options.save_channels_per_ant )
     else :    
        if options.test_pickle_file is not None :
            test_calibration( options.test_pickle_file , sign_value=options.sign_value )
