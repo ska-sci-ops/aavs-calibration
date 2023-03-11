@@ -446,7 +446,37 @@ def test_calibration( pickle_file , sign_value=1 ) :
     print("No difference ???")             
 
 def save_calcoeff_to_text_files_per_ant( calibration_coef, out_text_file, start_freq_channel, n_channels ) :
-   print("ERROR : saving multiple channel to separate per-antenna text files is not yet implemented !")
+   # print("ERROR : saving multiple channel to separate per-antenna text files is not yet implemented !")   
+   ant_count = calibration_coef.shape[0]
+   print("Saving calibration coefficients for frequency channel %d to output file %s , number of antennas = %d, channel range %d - %d" % (freq_channel,out_text_file_final,ant_count,start_freq_channel,start_freq_channel+n_channels))
+
+   for ant in range(0,ant_count) :
+      out_text_file_final = ( "calsol_ant%03d.txt" % ant )
+      out_f = open( out_text_file_final , "w" )
+      out_f.write("# Antenna %d = %d\n" % (ant))
+      line = "# FREQ_CH AMP_X PHASE_X AMP_Y PHASE_Y AMP_XY PHASE_XY AMP_YX PHASE_YX\n"
+      out_f.write( line )
+      
+      for freq_channel in range(start_freq_channel,start_freq_channel+n_channels) :
+         channel_index = freq_channel - start_freq_channel
+
+         amp_x = numpy.abs( calibration_coef[ant,channel_index,0] ) 
+         phase_x = numpy.angle( calibration_coef[ant,channel_index,0] )*(180.00/numpy.pi)
+
+         amp_xy = numpy.abs( calibration_coef[ant,channel_index,1] ) 
+         phase_xy = numpy.angle( calibration_coef[ant,channel_index,1] )*(180.00/numpy.pi)
+
+         amp_yx = numpy.abs( calibration_coef[ant,channel_index,2] ) 
+         phase_yx = numpy.angle( calibration_coef[ant,channel_index,2] )*(180.00/numpy.pi)
+
+         amp_y = numpy.abs( calibration_coef[ant,channel_index,3] ) 
+         phase_y = numpy.angle( calibration_coef[ant,channel_index,3] )*(180.00/numpy.pi)
+
+         line = "%d %.8f %.4f %.8f %.4f %.8f %.4f %.8f %.4f\n" % (freq_channel,amp_x,phase_x,amp_y,phase_y,amp_xy,phase_xy,amp_yx,phase_yx)
+         out_f.write( line )
+
+      out_f.close()
+   
    return    
 
 def save_calcoeff_to_text_file( calibration_coef, out_text_file, start_freq_channel, n_channels=1 ) :
