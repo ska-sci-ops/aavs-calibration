@@ -445,7 +445,7 @@ def test_calibration( pickle_file , sign_value=1 ) :
     print("No difference ???")             
 
 def save_calcoeff_to_text_file( calibration_coef, out_text_file, start_freq_channel, n_channels=1 ) :
-   for freq_channel in range(start_freq_channel,n_channels) :
+   for freq_channel in range(start_freq_channel,start_freq_channel+n_channels) :
       channel_index = freq_channel - start_freq_channel
       out_text_file_final = ( out_text_file % freq_channel )
       out_f = open( out_text_file , "w" )
