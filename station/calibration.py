@@ -448,7 +448,7 @@ def test_calibration( pickle_file , sign_value=1 ) :
 def save_calcoeff_to_text_files_per_ant( calibration_coef, out_text_file, start_freq_channel, n_channels ) :
    # print("ERROR : saving multiple channel to separate per-antenna text files is not yet implemented !")   
    ant_count = calibration_coef.shape[0]
-   print("Saving calibration coefficients for frequency channel %d to output file %s , number of antennas = %d, channel range %d - %d" % (freq_channel,out_text_file_final,ant_count,start_freq_channel,start_freq_channel+n_channels))
+   print("Saving calibration coefficients to output file %s , number of antennas = %d, channel range %d - %d" % (out_text_file,ant_count,start_freq_channel,start_freq_channel+n_channels))
 
    for ant in range(0,ant_count) :
       out_text_file_final = ( "calsol_ant%03d.txt" % ant )
