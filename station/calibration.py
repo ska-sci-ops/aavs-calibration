@@ -444,34 +444,37 @@ def test_calibration( pickle_file , sign_value=1 ) :
                  
     print("No difference ???")             
 
-def save_calcoeff_to_text_file( calibration_coef, out_text_file, freq_channel ) :
-   out_f = open( out_text_file , "w" )
+def save_calcoeff_to_text_file( calibration_coef, out_text_file, start_freq_channel, n_channels=1 ) :
+   for freq_channel in range(start_freq_channel,n_channels) :
+      channel_index = freq_channel - start_freq_channel
+      out_text_file_final = ( out_text_file % freq_channel )
+      out_f = open( out_text_file , "w" )
 
-   ant_count = calibration_coef.shape[0]
-   print("Saving calibration coefficients for frequency channel %d to output file %s , number of antennas = %d" % (freq_channel,out_text_file,ant_count))
+      ant_count = calibration_coef.shape[0]
+      print("Saving calibration coefficients for frequency channel %d to output file %s , number of antennas = %d" % (freq_channel,out_text_file,ant_count))
 
-   out_f.write("# frequency channel %d = %.4f MHz\n" % (freq_channel,freq_channel*(400.00/512.00)))
+      out_f.write("# frequency channel %d = %.4f MHz\n" % (freq_channel,freq_channel*(400.00/512.00)))
 
-   line = "# ANT AMP_X PHASE_X AMP_Y PHASE_Y AMP_XY PHASE_XY AMP_YX PHASE_YX\n"
-   out_f.write( line )
-   
-   for ant in range(0,ant_count) :
-      amp_x = numpy.abs( calibration_coef[ant,0,0] ) 
-      phase_x = numpy.angle( calibration_coef[ant,0,0] )*(180.00/numpy.pi)
-      
-      amp_xy = numpy.abs( calibration_coef[ant,0,1] ) 
-      phase_xy = numpy.angle( calibration_coef[ant,0,1] )*(180.00/numpy.pi)
-      
-      amp_yx = numpy.abs( calibration_coef[ant,0,2] ) 
-      phase_yx = numpy.angle( calibration_coef[ant,0,2] )*(180.00/numpy.pi)
-      
-      amp_y = numpy.abs( calibration_coef[ant,0,3] ) 
-      phase_y = numpy.angle( calibration_coef[ant,0,3] )*(180.00/numpy.pi)
-           
-      line = "%d %.8f %.4f %.8f %.4f %.8f %.4f %.8f %.4f\n" % (ant,amp_x,phase_x,amp_y,phase_y,amp_xy,phase_xy,amp_yx,phase_yx)
+      line = "# ANT AMP_X PHASE_X AMP_Y PHASE_Y AMP_XY PHASE_XY AMP_YX PHASE_YX\n"
       out_f.write( line )
    
-   out_f.close()
+      for ant in range(0,ant_count) :
+         amp_x = numpy.abs( calibration_coef[ant,channel_index,0] ) 
+         phase_x = numpy.angle( calibration_coef[ant,channel_index,0] )*(180.00/numpy.pi)
+      
+         amp_xy = numpy.abs( calibration_coef[ant,channel_index,1] ) 
+         phase_xy = numpy.angle( calibration_coef[ant,channel_index,1] )*(180.00/numpy.pi)
+      
+         amp_yx = numpy.abs( calibration_coef[ant,channel_index,2] ) 
+         phase_yx = numpy.angle( calibration_coef[ant,channel_index,2] )*(180.00/numpy.pi)
+      
+         amp_y = numpy.abs( calibration_coef[ant,channel_index,3] ) 
+         phase_y = numpy.angle( calibration_coef[ant,channel_index,3] )*(180.00/numpy.pi)
+           
+         line = "%d %.8f %.4f %.8f %.4f %.8f %.4f %.8f %.4f\n" % (ant,amp_x,phase_x,amp_y,phase_y,amp_xy,phase_xy,amp_yx,phase_yx)
+         out_f.write( line )
+   
+      out_f.close()
                  
 if __name__ == '__main__':
 
@@ -506,7 +509,7 @@ if __name__ == '__main__':
        #                            x_amp_par=None, y_amp_par=None, flag_antennas_list=None , sign_value=1 , invert_amplitudes=False ) : # use database    
        ( calibration_coef ) = get_calibration_coeff_from_db( options.start_freq_channel, options.station_id, swap_pols=False, n_channels=1, apply_amplitudes=True, invert_amplitudes=options.invamp )
        
-       save_calcoeff_to_text_file( calibration_coef , options.out_db_calfile, options.start_freq_channel )
+       save_calcoeff_to_text_file( calibration_coef , options.out_db_calfile, start_freq_channel=options.start_freq_channel, n_channels=1 )
     else :    
        if options.test_pickle_file is not None :
            test_calibration( options.test_pickle_file , sign_value=options.sign_value )
