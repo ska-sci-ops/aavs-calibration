@@ -448,7 +448,7 @@ def save_calcoeff_to_text_file( calibration_coef, out_text_file, start_freq_chan
    for freq_channel in range(start_freq_channel,start_freq_channel+n_channels) :
       channel_index = freq_channel - start_freq_channel
       out_text_file_final = ( out_text_file % freq_channel )
-      out_f = open( out_text_file , "w" )
+      out_f = open( out_text_file_final , "w" )
 
       ant_count = calibration_coef.shape[0]
       print("Saving calibration coefficients for frequency channel %d to output file %s , number of antennas = %d" % (freq_channel,out_text_file,ant_count))
