@@ -373,7 +373,7 @@ def parse_options(idx=0):
    # options of saving calibration solutions to text file :
    parser.add_option('--start_freq_channel','--start_freq_ch',dest="start_freq_channel",default=204, help="Start frequency channel [default %]",type="int")
    parser.add_option('--get_cal_from_db','--get_db_cal','--save_db_cal','--save_db_cal_file',dest="out_db_calfile",default=None, help="Save MCCS calibration to text file [default %]")
-   parser.add_option("--station_id", '--station', dest="station_id", default=0, help="Station ID (as in the station configuratio file) [default: %]", type=int )
+   parser.add_option("--station_id", '--station', dest="station_id", default=2, help="Station ID (as in the station configuratio file) [default: %]", type=int )
    parser.add_option('--invamp','--ampinv',action="store_true",dest="invamp",default=False, help="Invert amplitudes [default %]")
 
 #   parser.add_option('-c','--cal','--calibrator',dest="calibrator",default="HerA", help="Calibrator name [default %]")
