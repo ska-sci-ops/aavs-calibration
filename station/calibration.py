@@ -446,7 +446,7 @@ def test_calibration( pickle_file , sign_value=1 ) :
     print("No difference ???")             
 
 def save_calcoeff_to_text_files_per_ant( calibration_coef, out_text_file, start_freq_channel, n_channels ) :
-   print("ERROR : not yet implemented !")
+   print("ERROR : saving multiple channel to separate per-antenna text files is not yet implemented !")
    return    
 
 def save_calcoeff_to_text_file( calibration_coef, out_text_file, start_freq_channel, n_channels=1 ) :
