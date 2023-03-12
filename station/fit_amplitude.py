@@ -116,7 +116,7 @@ def interpolate_amplitude( interpol_channel, freq_ch_arr, freq_mhz_arr, amp_arr,
 
    return ( ret , x_axis , out_amp_arr , fit_in_mhz, interpol_function )
   
-def interpolate_and_save( input_file, fit_channel , fit_start_channel, fit_end_channel, outfile  ) :     
+def interpolate_and_save( input_file, fit_channel , fit_start_channel, fit_end_channel, outfile, fit_in_mhz=False  ) :     
     (antenna_id,freq_ch_arr,amp_x_arr,amp_y_arr,count) = read_amplitudes( input_file ) 
     print("INFO : antenna %d - read %d points from the input file %s" % (antenna_id,len(freq_ch_arr),input_file))
     
@@ -126,8 +126,8 @@ def interpolate_and_save( input_file, fit_channel , fit_start_channel, fit_end_c
        freq_mhz_arr.append( freq_mhz )
    
     # interpolate value at specified channel :    
-    ( channel_value_x , x_axis_x , out_amp_arr_x , fit_in_mhz_x , interpol_function_x ) = interpolate_amplitude( fit_channel, freq_ch_arr, freq_mhz_arr, amp_x_arr, fit_in_mhz=False, start_channel=fit_start_channel, end_channel=fit_end_channel )
-    ( channel_value_y , x_axis_y , out_amp_arr_y , fit_in_mhz_y , interpol_function_y ) = interpolate_amplitude( fit_channel, freq_ch_arr, freq_mhz_arr, amp_y_arr, fit_in_mhz=False, start_channel=fit_start_channel, end_channel=fit_end_channel )
+    ( channel_value_x , x_axis_x , out_amp_arr_x , fit_in_mhz_x , interpol_function_x ) = interpolate_amplitude( fit_channel, freq_ch_arr, freq_mhz_arr, amp_x_arr, fit_in_mhz=fit_in_mhz, start_channel=fit_start_channel, end_channel=fit_end_channel )
+    ( channel_value_y , x_axis_y , out_amp_arr_y , fit_in_mhz_y , interpol_function_y ) = interpolate_amplitude( fit_channel, freq_ch_arr, freq_mhz_arr, amp_y_arr, fit_in_mhz=fit_in_mhz, start_channel=fit_start_channel, end_channel=fit_end_channel )
     print("DEBUG : fitted value for channel %d is AMP_X = %.6f , AMP_Y = %.6f vs. recalculated %.6f / %.6f" % (fit_channel,channel_value_x,channel_value_y,interpol_function_x(fit_channel),interpol_function_y(fit_channel)))
     
 
@@ -184,4 +184,5 @@ if __name__ == "__main__":
     print("Channel range used for fit : %d - %d" % (options.fit_start_channel,options.fit_end_channel))    
     print("####################################")
     
-    interpolate_and_save( input_file, fit_channel=options.fit_channel , fit_start_channel=options.fit_start_channel, fit_end_channel=options.fit_end_channel, outfile=options.outfile  ) 
+    interpolate_and_save( input_file, fit_channel=options.fit_channel , fit_start_channel=options.fit_start_channel, fit_end_channel=options.fit_end_channel, outfile=options.outfile, fit_in_mhz=options.fit_in_mhz  ) 
+    
