@@ -27,8 +27,8 @@ start_freq_channel=$(($freq_channel-$channel_fit_range))
 end_freq_channel=$(($freq_channel+$channel_fit_range))
 total_n_channels=$((2*$channel_fit_range))
 
-echo "python ~/aavs-calibration/station/calibration.py --station_id=${station_id} --start_freq_channel=${start_freq_channel} --save_n_channels=${total_n_channels}"
-python ~/aavs-calibration/station/calibration.py --station_id=${station_id} --start_freq_channel=${start_freq_channel} --save_n_channels=${total_n_channels}
+echo "python ~/aavs-calibration/station/calibration.py --save_db_cal_file=calsol_ant%03d.txt --station_id=${station_id} --start_freq_channel=${start_freq_channel} --save_n_channels=${total_n_channels}"
+python ~/aavs-calibration/station/calibration.py --save_db_cal_file=calsol_ant%03d.txt --station_id=${station_id} --start_freq_channel=${start_freq_channel} --save_n_channels=${total_n_channels}
 
 
 
