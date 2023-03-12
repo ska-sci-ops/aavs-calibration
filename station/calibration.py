@@ -205,7 +205,7 @@ def read_calibration_phase_offsets( phase_offset_file_X=None, phase_offset_file_
 
 # TODO : frequency_channel - should be central channel and 8 channels should start from -4 channels :
 def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True, apply_amplitudes=False, 
-                                   x_amp_par=None, y_amp_par=None, flag_antennas_list=None , sign_value=1 , invert_amplitudes=False ) : # use database 
+                                   x_amp_par=None, y_amp_par=None, flag_antennas_list=None , sign_value=1 , invert_amplitudes=False, fittime=None ) : # use database 
 
     if sign_value < 1 :
        if sign_value < 0 :
@@ -216,7 +216,7 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
           debug = True
 
     # not yet implemented 
-    (x_delays,y_delays) = calibration_db.get_latest_delays( station_id=station_id, nof_antennas=nof_antennas )
+    (x_delays,y_delays) = calibration_db.get_latest_delays( station_id=station_id, nof_antennas=nof_antennas, fittime=fittime )
 
     print("get_calibration_coeff_from_db( start_frequency_channel=%d , station_id=%d )" % (start_frequency_channel,station_id))
     if debug : 
@@ -235,7 +235,7 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
        
           if x_amp is None or y_amp is None :
              print("DEBUG : reading amplitudes from MCCS database ...")
-             (x_amp,y_amp) = calibration_db.get_latest_amps( station_id=station_id, freq_channel=frequency_channel )
+             (x_amp,y_amp) = calibration_db.get_latest_amps( station_id=station_id, freq_channel=frequency_channel, fittime=fittime )
           
           if x_amp is not None and y_amp is not None :
              if len(x_amp) != len(x_delays) or len(y_amp) != len(y_delays) :
@@ -376,6 +376,8 @@ def parse_options(idx=0):
    parser.add_option('--save_n_channels_per_ant','--save_cal_per_ant','--save_n_channels',dest="save_channels_per_ant", default=1, help="Works with --save_db_cal_file and saves calibration solutions in specified number of channels per antenna [default %]", type=int)
    parser.add_option("--station_id", '--station', dest="station_id", default=2, help="Station ID (as in the station configuratio file) [default: %]", type=int )
    parser.add_option('--invamp','--ampinv',action="store_true",dest="invamp",default=False, help="Invert amplitudes [default %]")
+   
+   parser.add_option('--fittime','--calsol_fittime','--fittime_db',dest='fittime',default=None, help="Fittime of calibration solutions to be used [default None]. Default None means that the latest set of calibration solutions in DB will be used")
 
 #   parser.add_option('-c','--cal','--calibrator',dest="calibrator",default="HerA", help="Calibrator name [default %]")
 #   parser.add_option('--meta_fits','--metafits',dest="metafits",default=None, help="Metafits file [default %]")
@@ -542,7 +544,8 @@ if __name__ == '__main__':
        
        # def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True, apply_amplitudes=False, 
        #                            x_amp_par=None, y_amp_par=None, flag_antennas_list=None , sign_value=1 , invert_amplitudes=False ) : # use database    
-       ( calibration_coef ) = get_calibration_coeff_from_db( options.start_freq_channel, options.station_id, swap_pols=False, n_channels=options.save_channels_per_ant, apply_amplitudes=True, invert_amplitudes=options.invamp )
+       ( calibration_coef ) = get_calibration_coeff_from_db( options.start_freq_channel, options.station_id, swap_pols=False, n_channels=options.save_channels_per_ant, apply_amplitudes=True, 
+                                                             invert_amplitudes=options.invamp, fittime=options.fittime )
        
        if options.save_channels_per_ant <= 1 :
           save_calcoeff_to_text_file( calibration_coef , options.out_db_calfile, start_freq_channel=options.start_freq_channel, n_channels=1 )

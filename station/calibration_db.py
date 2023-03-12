@@ -10,7 +10,7 @@ import logging
 import time
 
 
-def get_latest_delays( station_id, nof_antennas=256, debug=True ):
+def get_latest_delays( station_id, nof_antennas=256, debug=True, fittime=None ):
     """ Read latest coefficients from database """
 
     # Create connection to the calibration database.
@@ -18,12 +18,17 @@ def get_latest_delays( station_id, nof_antennas=256, debug=True ):
     cur = conn.cursor()
 
 #    szSQL = "SELECT MAX(calibration_fit.fit_time) FROM calibration_fit,calibration_solution WHERE calibration_fit.fit_time=calibration_solution.fit_time and x_delay IS NOT NULL"
-    szSQL = "SELECT MAX(fit_time) FROM calibration_solution WHERE x_delay IS NOT NULL AND station_id={}".format(station_id)
-    if debug :
-       print("DEBUG : %s" % (szSQL))
-    cur.execute( szSQL )
-    fittime = cur.fetchone()[0]
-    print("Latest calibration was at %s" % (fittime))
+    if fittime is None :
+       print("DEBUG : unspecified fittime -> calculating the latest calsol fittime")
+       szSQL = "SELECT MAX(fit_time) FROM calibration_solution WHERE x_delay IS NOT NULL AND station_id={}".format(station_id)
+       if debug :
+          print("DEBUG : %s" % (szSQL))
+       cur.execute( szSQL )
+       fittime = cur.fetchone()[0]
+       print("Latest calibration was at %s" % (fittime))
+    else :
+       print("DEBUG : calsolutuons fit time specified : %s" % (fittime))
+       
 
     # Compute the required delays for the station beam channels
 
@@ -54,20 +59,24 @@ def get_latest_delays( station_id, nof_antennas=256, debug=True ):
     # Return values
     return (x_delays,y_delays)
 
-def get_latest_amps( station_id, freq_channel, nof_antennas=256, debug=True, max_amplitude=10.00 ):
+def get_latest_amps( station_id, freq_channel, nof_antennas=256, debug=True, max_amplitude=10.00, fittime=None ):
     """ Read latest coefficients from database """
 
     # Create connection to the calibration database.
     conn = psycopg2.connect(database='aavs')
     cur = conn.cursor()
 
+    if fittime is None :
+       print("DEBUG : unspecified fittime -> calculating the latest calsol fittime")
 #    szSQL = "SELECT MAX(calibration_fit.fit_time) FROM calibration_fit,calibration_solution WHERE calibration_fit.fit_time=calibration_solution.fit_time and x_delay IS NOT NULL"
-    szSQL = "SELECT MAX(fit_time) FROM calibration_solution WHERE x_delay IS NOT NULL AND station_id={}".format(station_id)
-    if debug :
-       print("DEBUG : %s" % (szSQL))
-    cur.execute( szSQL )
-    fittime = cur.fetchone()[0]
-    print("Latest calibration was at %s" % (fittime))
+       szSQL = "SELECT MAX(fit_time) FROM calibration_solution WHERE x_delay IS NOT NULL AND station_id={}".format(station_id)
+       if debug :
+          print("DEBUG : %s" % (szSQL))
+       cur.execute( szSQL )
+       fittime = cur.fetchone()[0]
+       print("Latest calibration was at %s" % (fittime))
+    else :
+       print("DEBUG : calsolutuons fit time specified : %s" % (fittime))
 
     # Compute the required delays for the station beam channels
 
