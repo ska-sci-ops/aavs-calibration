@@ -20,6 +20,7 @@ import pickle
 import copy
 
 import calibration_db
+import fit_amplitude
 
 from optparse import OptionParser,OptionGroup
 
@@ -500,7 +501,7 @@ def save_calcoeff_to_text_files_per_ant( calibration_coef, out_text_file, start_
          print("DEBUG : fitting amplitude around channel %d" % (options.fit_channel))
          
          out_fitted_file=out_text_file_final.replace(".txt","_fitted.txt")
-         interpolate_and_save( out_text_file_final, fit_channel=options.fit_channel , fit_start_channel=options.fit_start_channel, fit_end_channel=options.fit_end_channel, outfile=out_fitted_file, fit_in_mhz=False  )
+         fit_amplitude.interpolate_and_save( out_text_file_final, fit_channel=options.fit_channel , fit_start_channel=options.fit_start_channel, fit_end_channel=options.fit_end_channel, outfile=out_fitted_file, fit_in_mhz=False  )
          print("DEBUG : saved fitted bandpass to output file %s" % (out_text_file_final))
    
    return    
