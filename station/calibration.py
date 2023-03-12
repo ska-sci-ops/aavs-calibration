@@ -500,7 +500,7 @@ def save_calcoeff_to_text_files_per_ant( calibration_coef, out_text_file, start_
          print("DEBUG : fitting amplitude around channel %d" % (options.fit_channel))
          
          out_fitted_file=out_text_file_final.replace(".txt","_fitted.txt")
-         interpolate_and_save( out_text_file_final, fit_channel=options.fit_channel , fit_start_channel=options.fit_start_channel, fit_end_channel=options.fit_end_channel, outfile=out_fitted_file  )
+         interpolate_and_save( out_text_file_final, fit_channel=options.fit_channel , fit_start_channel=options.fit_start_channel, fit_end_channel=options.fit_end_channel, outfile=out_fitted_file, fit_in_mhz=False  )
          print("DEBUG : saved fitted bandpass to output file %s" % (out_text_file_final))
    
    return    
@@ -574,7 +574,7 @@ if __name__ == '__main__':
        if options.save_channels_per_ant <= 1 :
           save_calcoeff_to_text_file( calibration_coef , options.out_db_calfile, start_freq_channel=options.start_freq_channel, n_channels=1 )
        else :
-          save_calcoeff_to_text_files_per_ant( calibration_coef , options.out_db_calfile, start_freq_channel=options.start_freq_channel, n_channels=options.save_channels_per_ant, options )
+          save_calcoeff_to_text_files_per_ant( calibration_coef , options.out_db_calfile, start_freq_channel=options.start_freq_channel, n_channels=options.save_channels_per_ant, options=options )
     else :    
        if options.test_pickle_file is not None :
            test_calibration( options.test_pickle_file , sign_value=options.sign_value )
