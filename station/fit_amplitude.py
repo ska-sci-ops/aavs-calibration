@@ -93,6 +93,7 @@ def interpolate_amplitude( interpol_channel, freq_ch_arr, freq_mhz_arr, amp_arr,
             if fit_in_mhz :
                x_axis.append( freq_mhz_arr[i] )
             else :
+               print("DEBUG : interpolate_amplitude - added channel %d (compared to %d - %d)" % (freq_ch_arr[i],start_channel,end_channel))
                x_axis.append( freq_ch_arr[i] )
    
    
