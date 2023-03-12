@@ -116,7 +116,53 @@ def interpolate_amplitude( interpol_channel, freq_ch_arr, freq_mhz_arr, amp_arr,
 
    return ( ret , x_axis , out_amp_arr , fit_in_mhz, interpol_function )
   
-     
+def interpolate_and_save( input_file, fit_channel , fit_start_channel, fit_end_channel, outfile  ) :     
+    (antenna_id,freq_ch_arr,amp_x_arr,amp_y_arr,count) = read_amplitudes( input_file ) 
+    print("INFO : antenna %d - read %d points from the input file %s" % (antenna_id,len(freq_ch_arr),input_file))
+    
+    freq_mhz_arr=[]
+    for channel in freq_ch_arr :
+       freq_mhz = channel*channel2freq
+       freq_mhz_arr.append( freq_mhz )
+   
+    # interpolate value at specified channel :    
+    ( channel_value_x , x_axis_x , out_amp_arr_x , fit_in_mhz_x , interpol_function_x ) = interpolate_amplitude( fit_channel, freq_ch_arr, freq_mhz_arr, amp_x_arr, fit_in_mhz=False, start_channel=fit_start_channel, end_channel=fit_end_channel )
+    ( channel_value_y , x_axis_y , out_amp_arr_y , fit_in_mhz_y , interpol_function_y ) = interpolate_amplitude( fit_channel, freq_ch_arr, freq_mhz_arr, amp_y_arr, fit_in_mhz=False, start_channel=fit_start_channel, end_channel=fit_end_channel )
+    print("DEBUG : fitted value for channel %d is AMP_X = %.6f , AMP_Y = %.6f vs. recalculated %.6f / %.6f" % (fit_channel,channel_value_x,channel_value_y,interpol_function_x(fit_channel),interpol_function_y(fit_channel)))
+    
+
+    out_f = open( outfile, "w" )
+    line = "# Freq_channel AMP_X AMP_Y\n" 
+    line2 = ("# Fitted in channels\n")
+    if fit_in_mhz_x :
+       line = "# Freq[MHz] AMP_X AMP_Y\n"       
+       line2 = ("# Fitted in frequency [MHz]\n")
+
+    out_f.write( line2 )
+    out_f.write( line )    
+    
+    for i in range(0,len( freq_ch_arr )) :
+       channel = freq_ch_arr[i]
+       x_value = freq_ch_arr[i]
+       if fit_in_mhz_x :
+          x_value = freq_mhz_arr[i]
+
+       y_value_x = None
+       y_value_y = None
+       
+       if channel >= fit_start_channel and channel <= fit_end_channel :              
+          y_value_x = interpol_function_x(x_value)
+          y_value_y = interpol_function_y(x_value)
+       else :
+          y_value_x = amp_x_arr[i]
+          y_value_y = amp_y_arr[i]
+         
+          
+       line = ("%.3f %.6f %.6f\n" % (x_value,y_value_x,y_value_y))   
+       out_f.write( line )   
+
+    out_f.close()    
+
 
 # main program
 if __name__ == "__main__":
@@ -138,49 +184,4 @@ if __name__ == "__main__":
     print("Channel range used for fit : %d - %d" % (options.fit_start_channel,options.fit_end_channel))    
     print("####################################")
     
-    (antenna_id,freq_ch_arr,amp_x_arr,amp_y_arr,count) = read_amplitudes( input_file ) 
-    print("INFO : antenna %d - read %d points from the input file %s" % (antenna_id,len(freq_ch_arr),input_file))
-    
-    freq_mhz_arr=[]
-    for channel in freq_ch_arr :
-       freq_mhz = channel*channel2freq
-       freq_mhz_arr.append( freq_mhz )
-   
-    # interpolate value at specified channel :    
-    ( channel_value_x , x_axis_x , out_amp_arr_x , fit_in_mhz_x , interpol_function_x ) = interpolate_amplitude( options.fit_channel, freq_ch_arr, freq_mhz_arr, amp_x_arr, fit_in_mhz=False, start_channel=options.fit_start_channel, end_channel=options.fit_end_channel )
-    ( channel_value_y , x_axis_y , out_amp_arr_y , fit_in_mhz_y , interpol_function_y ) = interpolate_amplitude( options.fit_channel, freq_ch_arr, freq_mhz_arr, amp_y_arr, fit_in_mhz=False, start_channel=options.fit_start_channel, end_channel=options.fit_end_channel )
-    print("DEBUG : fitted value for channel %d is AMP_X = %.6f , AMP_Y = %.6f vs. recalculated %.6f / %.6f" % (options.fit_channel,channel_value_x,channel_value_y,interpol_function_x(options.fit_channel),interpol_function_y(options.fit_channel)))
-    
-
-    out_f = open( options.outfile, "w" )
-    line = "# Freq_channel AMP_X AMP_Y\n" 
-    line2 = ("# Fitted in channels\n")
-    if fit_in_mhz_x :
-       line = "# Freq[MHz] AMP_X AMP_Y\n"       
-       line2 = ("# Fitted in frequency [MHz]\n")
-
-    out_f.write( line2 )
-    out_f.write( line )    
-    
-    for i in range(0,len( freq_ch_arr )) :
-       channel = freq_ch_arr[i]
-       x_value = freq_ch_arr[i]
-       if fit_in_mhz_x :
-          x_value = freq_mhz_arr[i]
-
-       y_value_x = None
-       y_value_y = None
-       
-       if channel >= options.fit_start_channel and channel <= options.fit_end_channel :              
-          y_value_x = interpol_function_x(x_value)
-          y_value_y = interpol_function_y(x_value)
-       else :
-          y_value_x = amp_x_arr[i]
-          y_value_y = amp_y_arr[i]
-         
-          
-       line = ("%.3f %.6f %.6f\n" % (x_value,y_value_x,y_value_y))   
-       out_f.write( line )   
-
-    out_f.close()    
-    
+    interpolate_and_save( input_file, fit_channel=options.fit_channel , fit_start_channel=options.fit_start_channel, fit_end_channel=options.fit_end_channel, outfile=options.outfile  ) 
