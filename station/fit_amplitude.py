@@ -9,6 +9,7 @@ from scipy.optimize import least_squares
 from scipy.interpolate import interp1d
 
 channel2freq = (400.00/512.00)
+debug=False
 
 def parse_options(idx=0):
    usage="Usage: %prog [options]\n"
@@ -72,6 +73,7 @@ def read_amplitudes( filename="calsol_ant000.txt" ) :
     return (antenna_id,freq_ch_arr,amp_x_arr,amp_y_arr,count)
 
 def interpolate_amplitude( interpol_channel, freq_ch_arr, freq_mhz_arr, amp_arr, fit_in_mhz=False, start_channel=None, end_channel=None ) :
+   global debug
    x_axis=[]
    y_axis=[]
    
@@ -93,7 +95,8 @@ def interpolate_amplitude( interpol_channel, freq_ch_arr, freq_mhz_arr, amp_arr,
             if fit_in_mhz :
                x_axis.append( freq_mhz_arr[i] )
             else :
-               print("DEBUG : interpolate_amplitude - added channel %d (compared to %d - %d)" % (freq_ch_arr[i],start_channel,end_channel))
+               if debug :
+                  print("DEBUG : interpolate_amplitude - added channel %d (compared to %d - %d)" % (freq_ch_arr[i],start_channel,end_channel))
                x_axis.append( freq_ch_arr[i] )
    
    
@@ -112,7 +115,8 @@ def interpolate_amplitude( interpol_channel, freq_ch_arr, freq_mhz_arr, amp_arr,
    if fit_in_mhz :
       ret = interpol_function( interpol_freq_mhz )
    else :
-      print("DEBUG : interpolation range : %.3f - %.3f , vs. channel = %d" % (min(x_axis),max(x_axis),interpol_channel))
+      if debug :
+         print("DEBUG : interpolation range : %.3f - %.3f , vs. channel = %d" % (min(x_axis),max(x_axis),interpol_channel))
       ret = interpol_function( interpol_channel )
       
 
