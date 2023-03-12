@@ -378,11 +378,28 @@ def parse_options(idx=0):
    parser.add_option('--invamp','--ampinv',action="store_true",dest="invamp",default=False, help="Invert amplitudes [default %]")
    
    parser.add_option('--fittime','--calsol_fittime','--fittime_db',dest='fittime',default=None, help="Fittime of calibration solutions to be used [default None]. Default None means that the latest set of calibration solutions in DB will be used")
+      
+   # fitting :
+   parser.add_option('--fit_start_channel',dest="fit_start_channel",default=None, help="Start channel for the fit [default %]. Negative value -> first available channel", type=int )
+   parser.add_option('--fit_end_channel',dest="fit_end_channel",default=None, help="End channel for the fit [default %]. Negative value -> highest available channel", type=int )
+   parser.add_option('--fit_channel',dest="fit_channel",default=-1, help="Frequency channel to be fitted (excluded from the fit) [default %]. Negative value -> center channel", type=int )
+   parser.add_option('--delta_channels',dest="delta_channels",default=-1,help="Number of channels around specific channel used to interpolat [default %]", type=int )
+
+   parser.add_option('--fit_in_mhz','--mhz',action="store_true",dest="fit_in_mhz",default=False, help="Convert channel number to MHz [default %]")
+
 
 #   parser.add_option('-c','--cal','--calibrator',dest="calibrator",default="HerA", help="Calibrator name [default %]")
 #   parser.add_option('--meta_fits','--metafits',dest="metafits",default=None, help="Metafits file [default %]")
 
    (options, args) = parser.parse_args(sys.argv[idx:])
+   
+   if options.delta_channels is not None :
+      if options.fit_start_channel is None :
+         options.fit_start_channel = options.fit_channel - options.delta_channels
+
+      if options.fit_end_channel is None :
+         options.fit_end_channel = options.fit_channel + options.delta_channels
+
 
    return (options, args)
 
@@ -447,7 +464,7 @@ def test_calibration( pickle_file , sign_value=1 ) :
                  
     print("No difference ???")             
 
-def save_calcoeff_to_text_files_per_ant( calibration_coef, out_text_file, start_freq_channel, n_channels ) :
+def save_calcoeff_to_text_files_per_ant( calibration_coef, out_text_file, start_freq_channel, n_channels, options ) :
    # print("ERROR : saving multiple channel to separate per-antenna text files is not yet implemented !")   
    ant_count = calibration_coef.shape[0]
    print("Saving calibration coefficients to output file %s , number of antennas = %d, channel range %d - %d" % (out_text_file,ant_count,start_freq_channel,start_freq_channel+n_channels))
@@ -478,6 +495,13 @@ def save_calcoeff_to_text_files_per_ant( calibration_coef, out_text_file, start_
          out_f.write( line )
 
       out_f.close()
+      
+      if options.fit_channel >= 0 :
+         print("DEBUG : fitting amplitude around channel %d" % (options.fit_channel))
+         
+         out_fitted_file=out_text_file_final.replace(".txt","_fitted.txt")
+         interpolate_and_save( out_text_file_final, fit_channel=options.fit_channel , fit_start_channel=options.fit_start_channel, fit_end_channel=options.fit_end_channel, outfile=out_fitted_file  )
+         print("DEBUG : saved fitted bandpass to output file %s" % (out_text_file_final))
    
    return    
 
@@ -550,7 +574,7 @@ if __name__ == '__main__':
        if options.save_channels_per_ant <= 1 :
           save_calcoeff_to_text_file( calibration_coef , options.out_db_calfile, start_freq_channel=options.start_freq_channel, n_channels=1 )
        else :
-          save_calcoeff_to_text_files_per_ant( calibration_coef , options.out_db_calfile, start_freq_channel=options.start_freq_channel, n_channels=options.save_channels_per_ant )
+          save_calcoeff_to_text_files_per_ant( calibration_coef , options.out_db_calfile, start_freq_channel=options.start_freq_channel, n_channels=options.save_channels_per_ant, options )
     else :    
        if options.test_pickle_file is not None :
            test_calibration( options.test_pickle_file , sign_value=options.sign_value )
