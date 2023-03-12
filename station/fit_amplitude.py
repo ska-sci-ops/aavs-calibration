@@ -111,6 +111,7 @@ def interpolate_amplitude( interpol_channel, freq_ch_arr, freq_mhz_arr, amp_arr,
    if fit_in_mhz :
       ret = interpol_function( interpol_freq_mhz )
    else :
+      print("DEBUG : interpolation range : %.3f - %.3f , vs. channel = %d" % (min(x_axis),max(x_axis),interpol_channel))
       ret = interpol_function( interpol_channel )
       
 
@@ -118,7 +119,7 @@ def interpolate_amplitude( interpol_channel, freq_ch_arr, freq_mhz_arr, amp_arr,
   
 def interpolate_and_save( input_file, fit_channel , fit_start_channel, fit_end_channel, outfile, fit_in_mhz=False  ) :     
     (antenna_id,freq_ch_arr,amp_x_arr,amp_y_arr,count) = read_amplitudes( input_file ) 
-    print("INFO : antenna %d - read %d points from the input file %s" % (antenna_id,len(freq_ch_arr),input_file))
+    print("INFO : antenna %d - read %d points from the input file %s. Interpolating channel %.3f in range %.3f - %.3f," % (antenna_id,len(freq_ch_arr),input_file,fit_channel,fit_start_channel,fit_end_channel))
     
     freq_mhz_arr=[]
     for channel in freq_ch_arr :
