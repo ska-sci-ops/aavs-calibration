@@ -47,6 +47,8 @@ def read_amplitudes( filename="calsol_ant000.txt" ) :
     freq_ch_arr=[]
     amp_x_arr=[]
     amp_y_arr=[]
+    phase_x_arr=[]
+    phase_y_arr=[]
     count=0
 
     for line in data : 
@@ -55,13 +57,18 @@ def read_amplitudes( filename="calsol_ant000.txt" ) :
         if line[0] != "#" :
             freq_ch = int(words[0+0])
             amp_x = float(words[1+0])
+            phase_x = float(words[2+0])
             amp_y = float(words[3+0])
+            phase_y = float(words[4+0])
             
             # print "DEBUG : Adding %d / %.2f" % (ant_idx,phase_offset)
             
             freq_ch_arr.append( freq_ch )
             amp_x_arr.append( amp_x )
             amp_y_arr.append( amp_y )
+            
+            phase_x_arr.append( phase_x )
+            phase_y_arr.append( phase_y )
             
             count += 1
         else :
@@ -70,7 +77,7 @@ def read_amplitudes( filename="calsol_ant000.txt" ) :
 
     file.close()
 
-    return (antenna_id,freq_ch_arr,amp_x_arr,amp_y_arr,count)
+    return (antenna_id,freq_ch_arr,amp_x_arr,amp_y_arr,phase_x_arr,phase_y_arr,count)
 
 def interpolate_amplitude( interpol_channel, freq_ch_arr, freq_mhz_arr, amp_arr, fit_in_mhz=False, start_channel=None, end_channel=None ) :
    global debug
@@ -123,7 +130,7 @@ def interpolate_amplitude( interpol_channel, freq_ch_arr, freq_mhz_arr, amp_arr,
    return ( ret , x_axis , out_amp_arr , fit_in_mhz, interpol_function )
   
 def interpolate_and_save( input_file, fit_channel , fit_start_channel, fit_end_channel, outfile, fit_in_mhz=False  ) :     
-    (antenna_id,freq_ch_arr,amp_x_arr,amp_y_arr,count) = read_amplitudes( input_file ) 
+    (antenna_id,freq_ch_arr,amp_x_arr,amp_y_arr,phase_x_arr,phase_y_arr,count) = read_amplitudes( input_file ) 
     print("INFO : antenna %d - read %d points from the input file %s. Interpolating channel %.3f in range %.3f - %.3f," % (antenna_id,len(freq_ch_arr),input_file,fit_channel,fit_start_channel,fit_end_channel))
     
     freq_mhz_arr=[]
@@ -138,10 +145,10 @@ def interpolate_and_save( input_file, fit_channel , fit_start_channel, fit_end_c
     
 
     out_f = open( outfile, "w" )
-    line = "# Freq_channel AMP_X AMP_Y\n" 
+    line = "# Freq_channel AMP_X PHASE_X AMP_Y PHASE_Y\n" 
     line2 = ("# Fitted in channels\n")
     if fit_in_mhz_x :
-       line = "# Freq[MHz] AMP_X AMP_Y\n"       
+       line = "# Freq[MHz] AMP_X PHASE_X AMP_Y PHASE_Y\n"
        line2 = ("# Fitted in frequency [MHz]\n")
 
     out_f.write( line2 )
@@ -164,7 +171,7 @@ def interpolate_and_save( input_file, fit_channel , fit_start_channel, fit_end_c
           y_value_y = amp_y_arr[i]
          
           
-       line = ("%.3f %.6f %.6f\n" % (x_value,y_value_x,y_value_y))   
+       line = ("%.3f %.6f %.6f %.6f %.6f\n" % (x_value,y_value_x,phase_x_arr[i],phase_y_arr[i],y_value_y))   
        out_f.write( line )   
 
     out_f.close()    
