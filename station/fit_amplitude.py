@@ -145,7 +145,7 @@ def interpolate_and_save( input_file, fit_channel , fit_start_channel, fit_end_c
     
 
     out_f = open( outfile, "w" )
-    line = "# Freq_channel AMP_X PHASE_X AMP_Y PHASE_Y\n" 
+    line = "# FREQ_CH AMP_X PHASE_X AMP_Y PHASE_Y\n" 
     line2 = ("# Fitted in channels\n")
     if fit_in_mhz_x :
        line = "# Freq[MHz] AMP_X PHASE_X AMP_Y PHASE_Y\n"
@@ -171,7 +171,7 @@ def interpolate_and_save( input_file, fit_channel , fit_start_channel, fit_end_c
           y_value_y = amp_y_arr[i]
          
           
-       line = ("%.3f %.6f %.6f %.6f %.6f\n" % (x_value,y_value_x,phase_x_arr[i],phase_y_arr[i],y_value_y))   
+       line = ("%.3f %.6f %.6f %.6f %.6f\n" % (x_value,y_value_x,phase_x_arr[i],y_value_y,phase_y_arr[i]))   
        out_f.write( line )   
 
     out_f.close()    
