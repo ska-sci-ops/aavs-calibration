@@ -14,5 +14,5 @@ do
    amp_x_list=`cat $fitted_file | awk -v amp_list="" '{if($1!="#"){if(length(amp_list)<=0){amp_list=$2;}else{amp_list=amp_list "," $2;}}}END{print amp_list;}'`
    amp_y_list=`cat $fitted_file | awk -v amp_list="" '{if($1!="#"){if(length(amp_list)<=0){amp_list=$4;}else{amp_list=amp_list "," $4;}}}END{print amp_list;}'`
    
-   echo "UPDATE calibration_solution set amp_fit_x=["$amp_x_list"],amp_fit_x=["$amp_y_list"] where fit_time='"$fit_time"';" >> ${sqlfile}
+   echo "UPDATE calibration_solution set x_amp_fit=["$amp_x_list"],y_amp_fit=["$amp_y_list"] where fit_time='"$fit_time"';" >> ${sqlfile}
 done
