@@ -23,6 +23,18 @@ fi
 polynomial_order=2
 channels_around=10
 
+echo "#########################################"
+echo "PARAMETERS:"
+echo "#########################################"
+echo "do_dump = $do_dump"
+echo "do_plot = $do_plot"
+echo "generate_sql = $generate_sql"
+echo "fit_time = $fit_time"
+echo "polynomial_order = $polynomial_order"
+echo "channels_around  = $channels_around"
+echo "#########################################"
+
+
 if [[ $do_dump -gt 0 ]]; then
    echo "python ~/aavs-calibration/station/calibration.py --save_db_cal_file=last_calibration_%03d.txt --station_id=2 --start_freq_channel=50 --save_n_channels=400"
    python ~/aavs-calibration/station/calibration.py --save_db_cal_file=last_calibration_%03d.txt --station_id=2 --start_freq_channel=50 --save_n_channels=400 
@@ -42,8 +54,14 @@ do
       mkdir -p images/
       pngfile_X=${infile%%.txt}_X
       pngfile_Y=${infile%%.txt}_Y
-      root -b -q -l "plotcalsol_vs_channel_2files.C(\"${infile}\",\"${fitfile}\",\"${pngfile_X}\")"
-      root -b -q -l "plotcalsol_vs_channel_2files.C(\"${infile}\",\"${fitfile}\",\"${pngfile_Y}\",0,3)"
+      
+      root_path=`which root`
+      if [[ -n $root_path ]]; then
+         root -b -q -l "plotcalsol_vs_channel_2files.C(\"${infile}\",\"${fitfile}\",\"${pngfile_X}\")"
+         root -b -q -l "plotcalsol_vs_channel_2files.C(\"${infile}\",\"${fitfile}\",\"${pngfile_Y}\",0,3)"
+      else
+         echo "WARNING : ROOT CERN package is not installed and no plotting alternative has been implemented yet ..."
+      fi
    else
       echo "WARNING : plotting is not required"
    fi
