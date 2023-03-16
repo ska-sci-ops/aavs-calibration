@@ -59,7 +59,7 @@ def get_latest_delays( station_id, nof_antennas=256, debug=True, fittime=None ):
     # Return values
     return (x_delays,y_delays)
 
-def get_latest_amps( station_id, freq_channel, nof_antennas=256, debug=True, max_amplitude=10.00, fittime=None ):
+def get_latest_amps( station_id, freq_channel, nof_antennas=256, debug=True, max_amplitude=10.00, fittime=None, db_field_postfix="_amp" ):
     """ Read latest coefficients from database """
 
     # Create connection to the calibration database.
@@ -75,6 +75,11 @@ def get_latest_amps( station_id, freq_channel, nof_antennas=256, debug=True, max
        cur.execute( szSQL )
        fittime = cur.fetchone()[0]
        print("Latest calibration was at %s" % (fittime))
+       
+       out_f=open("fittime.txt","w")
+       line = ("%s\n" % (fittime))
+       out_f.write(line)
+       out_f.close()
     else :
        print("DEBUG : calsolutuons fit time specified : %s" % (fittime))
 
@@ -83,7 +88,7 @@ def get_latest_amps( station_id, freq_channel, nof_antennas=256, debug=True, max
     # Grab antenna coefficients one by one (X pol)
     x_amp = numpy.zeros((nof_antennas), dtype=numpy.float)
     for ant_id in range(nof_antennas):
-        szSQL = "SELECT x_amp from calibration_solution WHERE station_id={} AND ant_id={} AND fit_time='''{}'''".format(station_id,ant_id,fittime)
+        szSQL = "SELECT x%s from calibration_solution WHERE station_id={} AND ant_id={} AND fit_time='''{}'''".format(db_field_postfix,station_id,ant_id,fittime)
         if debug :
            print("%d : %s" % (ant_id,szSQL))
            
@@ -98,7 +103,7 @@ def get_latest_amps( station_id, freq_channel, nof_antennas=256, debug=True, max
     # Grab antenna coefficients one by one (Y pol)
     y_amp = numpy.zeros((nof_antennas), dtype=numpy.float)
     for ant_id in range(nof_antennas):
-        szSQL = "SELECT y_amp from calibration_solution WHERE station_id={} AND ant_id={} AND fit_time='''{}'''".format( station_id,ant_id,fittime)
+        szSQL = "SELECT y%s from calibration_solution WHERE station_id={} AND ant_id={} AND fit_time='''{}'''".format(db_field_postfix,station_id,ant_id,fittime)
         if debug :
            print("%d : %s" % (ant_id,szSQL))
            

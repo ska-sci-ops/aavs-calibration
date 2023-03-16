@@ -20,24 +20,36 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    fit_time=$4
 fi
 
+station_id=2
+if [[ -n "$5" && "$5" != "-" ]]; then
+   station_id=$5
+fi
+
+db_field_postfix="_amp"
+if [[ -n "$6" && "$6" != "-" ]]; then
+   db_field_postfix=$6
+fi
+
 polynomial_order=2
 channels_around=10
 
 echo "#########################################"
 echo "PARAMETERS:"
 echo "#########################################"
+echo "station_id = $station_id"
 echo "do_dump = $do_dump"
 echo "do_plot = $do_plot"
 echo "generate_sql = $generate_sql"
 echo "fit_time = $fit_time"
+echo "db_field_postfix = $db_field_postfix"
 echo "polynomial_order = $polynomial_order"
 echo "channels_around  = $channels_around"
 echo "#########################################"
 
 
 if [[ $do_dump -gt 0 ]]; then
-   echo "python ~/aavs-calibration/station/calibration.py --save_db_cal_file=last_calibration_%03d.txt --station_id=2 --start_freq_channel=50 --save_n_channels=400"
-   python ~/aavs-calibration/station/calibration.py --save_db_cal_file=last_calibration_%03d.txt --station_id=2 --start_freq_channel=50 --save_n_channels=400 
+   echo "python ~/aavs-calibration/station/calibration.py --save_db_cal_file=last_calibration_%03d.txt --station_id=${station_id} --start_freq_channel=0 --save_n_channels=512 --db_field_postfix=${db_field_postfix}"
+   python ~/aavs-calibration/station/calibration.py --save_db_cal_file=last_calibration_%03d.txt --station_id=${station_id} --start_freq_channel=0 --save_n_channels=512 --db_field_postfix=${db_field_postfix}
 else
    echo "WARNING : dump of calibration soltuions from the database is not required"
    sleep 1

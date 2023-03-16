@@ -206,7 +206,7 @@ def read_calibration_phase_offsets( phase_offset_file_X=None, phase_offset_file_
 
 # TODO : frequency_channel - should be central channel and 8 channels should start from -4 channels :
 def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True, apply_amplitudes=False, 
-                                   x_amp_par=None, y_amp_par=None, flag_antennas_list=None , sign_value=1 , invert_amplitudes=False, fittime=None ) : # use database 
+                                   x_amp_par=None, y_amp_par=None, flag_antennas_list=None , sign_value=1 , invert_amplitudes=False, fittime=None, db_field_postfix="_amp" ) : # use database 
 
     if sign_value < 1 :
        if sign_value < 0 :
@@ -236,7 +236,7 @@ def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pol
        
           if x_amp is None or y_amp is None :
              print("DEBUG : reading amplitudes from MCCS database ...")
-             (x_amp,y_amp) = calibration_db.get_latest_amps( station_id=station_id, freq_channel=frequency_channel, fittime=fittime )
+             (x_amp,y_amp) = calibration_db.get_latest_amps( station_id=station_id, freq_channel=frequency_channel, fittime=fittime, db_field_postfix=db_field_postfix )
           
           if x_amp is not None and y_amp is not None :
              if len(x_amp) != len(x_delays) or len(y_amp) != len(y_delays) :
@@ -378,7 +378,9 @@ def parse_options(idx=0):
    parser.add_option("--station_id", '--station', dest="station_id", default=2, help="Station ID (as in the station configuratio file) [default: %]", type=int )
    parser.add_option('--invamp','--ampinv',action="store_true",dest="invamp",default=False, help="Invert amplitudes [default %]")
    
+   # DATABASE :
    parser.add_option('--fittime','--calsol_fittime','--fittime_db',dest='fittime',default=None, help="Fittime of calibration solutions to be used [default None]. Default None means that the latest set of calibration solutions in DB will be used")
+   parser.add_option('--db_field_postfix','--amp_field_postfix',dest='db_field_postfix',default="_amp", help="Postfix in amplitude field in the database [default %s]")
       
    # fitting :
    parser.add_option('--fit_start_channel',dest="fit_start_channel",default=None, help="Start channel for the fit [default %]. Negative value -> first available channel", type=int )
@@ -562,6 +564,7 @@ if __name__ == '__main__':
     print("Sign_value        = %d" % (options.sign_value))
     print("Save MCCS DB calfile = %s" % (options.out_db_calfile))
     print("\tinvamp = %s" % (options.invamp))
+    print("DB Amplitude field postfix = %s" % (options.db_field_postfix))
     print("####################################################")
     
     if options.out_db_calfile is not None :
@@ -570,7 +573,7 @@ if __name__ == '__main__':
        # def get_calibration_coeff_from_db( start_frequency_channel, station_id, swap_pols=False, nof_antennas=256, n_channels=8, n_pols=4 , debug=True, apply_amplitudes=False, 
        #                            x_amp_par=None, y_amp_par=None, flag_antennas_list=None , sign_value=1 , invert_amplitudes=False ) : # use database    
        ( calibration_coef ) = get_calibration_coeff_from_db( options.start_freq_channel, options.station_id, swap_pols=False, n_channels=options.save_channels_per_ant, apply_amplitudes=True, 
-                                                             invert_amplitudes=options.invamp, fittime=options.fittime )
+                                                             invert_amplitudes=options.invamp, fittime=options.fittime, db_field_postfix=options.db_field_postfix )
        
        if options.save_channels_per_ant <= 1 :
           save_calcoeff_to_text_file( calibration_coef , options.out_db_calfile, start_freq_channel=options.start_freq_channel, n_channels=1 )
