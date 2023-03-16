@@ -82,8 +82,8 @@ done
 if [[ $generate_sql -gt 0 && -n $fit_time ]]; then
    echo "INFO : generating sql file to update fitted amplitudes in the database for fit_time='$fit_time'"
 
-   echo "~/aavs-calibration/station/create_amp_fit_update_sql.sh $fit_time"
-   ~/aavs-calibration/station/create_amp_fit_update_sql.sh $fit_time
+   echo "~/aavs-calibration/station/create_amp_fit_update_sql.sh \"$fit_time\""
+   ~/aavs-calibration/station/create_amp_fit_update_sql.sh "$fit_time"
 else
    echo "WARNING : generation of SQL update file is not required or fit_time (4th parameter not specified)"
 fi   
