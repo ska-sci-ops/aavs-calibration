@@ -10,6 +10,16 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    do_plot=$2
 fi
 
+generate_sql=0
+if [[ -n "$3" && "$3" != "-" ]]; then
+   generate_sql=$3
+fi
+
+fit_time=""
+if [[ -n "$4" && "$4" != "-" ]]; then
+   fit_time=$4
+fi
+
 polynomial_order=2
 channels_around=10
 
@@ -38,4 +48,13 @@ do
       echo "WARNING : plotting is not required"
    fi
 done
-   
+
+if [[ $generate_sql -gt 0 && -n $fit_time ]]; then
+   echo "INFO : generating sql file to update fitted amplitudes in the database for fit_time='$fit_time'"
+
+   echo "~/aavs-calibration/station/create_amp_fit_update_sql.sh $fit_time"
+   ~/aavs-calibration/station/create_amp_fit_update_sql.sh $fit_time
+else
+   echo "WARNING : generation of SQL update file is not required or fit_time (4th parameter not specified)"
+fi   
+
