@@ -16,6 +16,9 @@ if [[ -n "$3" && "$3" != "-" ]]; then
 fi
 
 fit_time=""
+if [[ -s fittime.txt ]]; then
+   fit_time=`cat fittime.txt`
+fi
 if [[ -n "$4" && "$4" != "-" ]]; then
    fit_time=$4
 fi
