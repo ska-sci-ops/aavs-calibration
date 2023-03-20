@@ -88,7 +88,7 @@ def get_latest_amps( station_id, freq_channel, nof_antennas=256, debug=True, max
     # Grab antenna coefficients one by one (X pol)
     x_amp = numpy.zeros((nof_antennas), dtype=numpy.float)
     for ant_id in range(nof_antennas):
-        szSQL = "SELECT x%s from calibration_solution WHERE station_id={} AND ant_id={} AND fit_time='''{}'''".format(db_field_postfix,station_id,ant_id,fittime)
+        szSQL = "SELECT x{} from calibration_solution WHERE station_id={} AND ant_id={} AND fit_time='''{}'''".format(db_field_postfix,station_id,ant_id,fittime)
         if debug :
            print("%d : %s" % (ant_id,szSQL))
            
@@ -103,7 +103,7 @@ def get_latest_amps( station_id, freq_channel, nof_antennas=256, debug=True, max
     # Grab antenna coefficients one by one (Y pol)
     y_amp = numpy.zeros((nof_antennas), dtype=numpy.float)
     for ant_id in range(nof_antennas):
-        szSQL = "SELECT y%s from calibration_solution WHERE station_id={} AND ant_id={} AND fit_time='''{}'''".format(db_field_postfix,station_id,ant_id,fittime)
+        szSQL = "SELECT y{} from calibration_solution WHERE station_id={} AND ant_id={} AND fit_time='''{}'''".format(db_field_postfix,station_id,ant_id,fittime)
         if debug :
            print("%d : %s" % (ant_id,szSQL))
            
