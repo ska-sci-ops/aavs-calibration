@@ -53,6 +53,16 @@ echo "#########################################"
 if [[ $do_dump -gt 0 ]]; then
    echo "python ~/aavs-calibration/station/calibration.py --save_db_cal_file=last_calibration_%03d.txt --station_id=${station_id} --start_freq_channel=0 --save_n_channels=512 --db_field_postfix=${db_field_postfix}"
    python ~/aavs-calibration/station/calibration.py --save_db_cal_file=last_calibration_%03d.txt --station_id=${station_id} --start_freq_channel=0 --save_n_channels=512 --db_field_postfix=${db_field_postfix}
+   
+   if [[ -n "$fit_time" ]]; then
+      echo "DEBUG : fit_time externally set to $fit_time"
+   else
+     if [[ -s fittime.txt ]]; then
+        echo "DEBUG : trying to get fit_time from fittime.txt"
+        fit_time=`cat fittime.txt`
+     fi
+   fi
+   echo "DEBUG : final fit_time = $fit_time"
 else
    echo "WARNING : dump of calibration soltuions from the database is not required"
    sleep 1
