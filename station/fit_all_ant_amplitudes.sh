@@ -33,6 +33,12 @@ if [[ -n "$6" && "$6" != "-" ]]; then
    db_field_postfix=$6
 fi
 
+do_fit=1
+if [[ -n "$7" && "$7" != "-" ]]; then
+   do_fit=$7
+fi
+
+
 polynomial_order=2
 channels_around=10
 
@@ -47,6 +53,7 @@ echo "fit_time = $fit_time"
 echo "db_field_postfix = $db_field_postfix"
 echo "polynomial_order = $polynomial_order"
 echo "channels_around  = $channels_around"
+echo "do fit           = $do_fit"
 echo "#########################################"
 
 
@@ -75,8 +82,12 @@ do
    # python ~/aavs-calibration/station/fit_amplitude.py ${infile} --delta_channels=${channels_around} --polynomial_order=${polynomial_order} --do_not_exclude
    
    # NEW : see 20230321_test_fitting_and_removing_outliers.odt
-   echo "python ~/aavs-calibration/station/fit_amplitude.py ${infile} --delta_channels=${channels_around} --polynomial_order=${polynomial_order} --n_iterations=5 --do_not_exclude"
-   python ~/aavs-calibration/station/fit_amplitude.py ${infile} --delta_channels=${channels_around} --polynomial_order=${polynomial_order} --n_iterations=5 --do_not_exclude    
+   if [[ $do_fit -gt 0 ]]; then
+      echo "python ~/aavs-calibration/station/fit_amplitude.py ${infile} --delta_channels=${channels_around} --polynomial_order=${polynomial_order} --n_iterations=5 --do_not_exclude"
+      python ~/aavs-calibration/station/fit_amplitude.py ${infile} --delta_channels=${channels_around} --polynomial_order=${polynomial_order} --n_iterations=5 --do_not_exclude    
+   else
+      echo "WARNING : fitting is not required"
+   fi
    
    fitfile=${infile%%.txt}_fitted.txt
 
