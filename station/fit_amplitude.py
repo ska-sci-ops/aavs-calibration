@@ -2,11 +2,16 @@
 import logging
 import os
 import sys
+import copy
+import math
 from optparse import OptionParser,OptionGroup
 
 import numpy as np
 from scipy.optimize import least_squares
 from scipy.interpolate import interp1d
+
+# DEBUG :
+import pdb
 
 channel2freq = (400.00/512.00)
 debug=False
@@ -83,7 +88,7 @@ def read_amplitudes( filename="calsol_ant000.txt" ) :
     return (antenna_id,freq_ch_arr,amp_x_arr,amp_y_arr,phase_x_arr,phase_y_arr,count)
 
 def interpolate_amplitude( interpol_channel, freq_ch_arr, freq_mhz_arr, amp_arr, fit_in_mhz=False, start_channel=None, end_channel=None, include_all_channels=False,
-                           polynomial_order=-1, n_iterations=1 ) :
+                           polynomial_order=-1, n_iterations=1, max_chi2=1000000 ) :
    global debug
    x_axis=[] # without a point 
    x_axis_with=[] # with the channel itself 
@@ -124,13 +129,56 @@ def interpolate_amplitude( interpol_channel, freq_ch_arr, freq_mhz_arr, amp_arr,
    interpol_function = None
 
    if polynomial_order > 0 :   
+      iter=0
       # fitting polynomial :
-      poly_coeffs = np.polyfit(x_axis,y_axis, polynomial_order)
-      out_amp_arr = np.poly1d(poly_coeffs)(x_axis)
-      if fit_in_mhz :
-         ret = np.poly1d(poly_coeffs)( interpol_freq_mhz )
-      else :
-         ret = np.poly1d(poly_coeffs)( interpol_channel )
+      
+      poly_coeffs=None
+      x_axis_fit=copy.copy( x_axis )
+      y_axis_fit=copy.copy( y_axis )
+      
+      if interpol_channel == 227 :
+         print("TEST\n")
+      
+      while iter < n_iterations and len(x_axis_fit) > polynomial_order :
+         poly_coeffs = np.polyfit( x_axis_fit, y_axis_fit, polynomial_order )
+         out_amp_arr = np.poly1d(poly_coeffs)(x_axis_fit)
+         if fit_in_mhz :
+            ret = np.poly1d(poly_coeffs)( interpol_freq_mhz )
+         else :
+            ret = np.poly1d(poly_coeffs)( interpol_channel )
+
+         max_resid=-10000000
+         max_resid_i=-1         
+         for i in range(0,len(x_axis_fit)) :
+            resid = y_axis_fit[i] - out_amp_arr[i];
+            if math.fabs(resid) > max_resid :
+               max_resid = math.fabs(resid)
+               max_resid_i = i
+            
+            print("RESIDUALS (iter=%d) : %.3f %.6f" % (iter,x_axis_fit[i],resid))
+
+
+         if max_resid_i >= 0 :
+            print("DEBUG : iteration = %d -> excluding value %.6f at %d" % (iter,y_axis_fit[max_resid_i],max_resid_i))
+            x_axis_fit_new = []
+            y_axis_fit_new = []   
+            for i in range(0,len(x_axis_fit)) :
+               if i != max_resid_i :
+                  x_axis_fit_new.append(x_axis_fit[i])
+                  y_axis_fit_new.append(y_axis_fit[i])
+         
+            x_axis_fit=copy.copy( x_axis_fit_new )
+            y_axis_fit=copy.copy( y_axis_fit_new )
+         else :
+            # no outlier found -> exit the loop
+            print("DEBUG : iteration = %d no outlier found -> existing the loop" % (iter));
+            break
+               
+            
+         iter += 1
+
+      # output calculated for all the points         
+      out_amp_arr = np.poly1d(poly_coeffs)(x_axis)   
          
       return ( ret , x_axis , out_amp_arr , fit_in_mhz, poly_coeffs, poly_coeffs )       
    else :
@@ -154,7 +202,7 @@ def interpolate_amplitude( interpol_channel, freq_ch_arr, freq_mhz_arr, amp_arr,
 
       return ( ret , x_axis , out_amp_arr , fit_in_mhz, interpol_function, poly_coeffs )
   
-def interpolate_and_save( input_file, fit_channel , fit_start_channel, fit_end_channel, outfile, fit_in_mhz=False  ) :     
+def interpolate_and_save( input_file, fit_channel , fit_start_channel, fit_end_channel, outfile, fit_in_mhz=False, n_iterations=1, max_chi2=1000000  ) :     
     (antenna_id,freq_ch_arr,amp_x_arr,amp_y_arr,phase_x_arr,phase_y_arr,count) = read_amplitudes( input_file ) 
     print("INFO : antenna %d - read %d points from the input file %s. Interpolating channel %.3f in range %.3f - %.3f," % (antenna_id,len(freq_ch_arr),input_file,fit_channel,fit_start_channel,fit_end_channel))
     
@@ -164,8 +212,8 @@ def interpolate_and_save( input_file, fit_channel , fit_start_channel, fit_end_c
        freq_mhz_arr.append( freq_mhz )
    
     # interpolate value at specified channel :    
-    ( channel_value_x , x_axis_x , out_amp_arr_x , fit_in_mhz_x , interpol_function_x, poly_coeffs_x ) = interpolate_amplitude( fit_channel, freq_ch_arr, freq_mhz_arr, amp_x_arr, fit_in_mhz=fit_in_mhz, start_channel=fit_start_channel, end_channel=fit_end_channel )
-    ( channel_value_y , x_axis_y , out_amp_arr_y , fit_in_mhz_y , interpol_function_y, poly_coeffs_y ) = interpolate_amplitude( fit_channel, freq_ch_arr, freq_mhz_arr, amp_y_arr, fit_in_mhz=fit_in_mhz, start_channel=fit_start_channel, end_channel=fit_end_channel )
+    ( channel_value_x , x_axis_x , out_amp_arr_x , fit_in_mhz_x , interpol_function_x, poly_coeffs_x ) = interpolate_amplitude( fit_channel, freq_ch_arr, freq_mhz_arr, amp_x_arr, fit_in_mhz=fit_in_mhz, start_channel=fit_start_channel, end_channel=fit_end_channel, n_iterations=n_iterations, max_chi2=max_chi2 )
+    ( channel_value_y , x_axis_y , out_amp_arr_y , fit_in_mhz_y , interpol_function_y, poly_coeffs_y ) = interpolate_amplitude( fit_channel, freq_ch_arr, freq_mhz_arr, amp_y_arr, fit_in_mhz=fit_in_mhz, start_channel=fit_start_channel, end_channel=fit_end_channel, n_iterations=n_iterations, max_chi2=max_chi2 )
     print("DEBUG : fitted value for channel %d is AMP_X = %.6f , AMP_Y = %.6f vs. recalculated %.6f / %.6f" % (fit_channel,channel_value_x,channel_value_y,interpol_function_x(fit_channel),interpol_function_y(fit_channel)))
     
 
@@ -201,7 +249,7 @@ def interpolate_and_save( input_file, fit_channel , fit_start_channel, fit_end_c
 
     out_f.close()    
 
-def fit_all_channels( input_file, fit_in_mhz, polynomial_order, n_iterations , delta_channels, include_all_channels=False ):
+def fit_all_channels( input_file, fit_in_mhz, polynomial_order, delta_channels, include_all_channels=False, n_iterations=1, max_chi2=1000000 ):
     (antenna_id,freq_ch_arr,amp_x_arr,amp_y_arr,phase_x_arr,phase_y_arr,count) = read_amplitudes( input_file ) 
     print("INFO : fitting all channels for antenna %d - read %d points from the input file %s." % (antenna_id,len(freq_ch_arr),input_file))
     
@@ -216,12 +264,13 @@ def fit_all_channels( input_file, fit_in_mhz, polynomial_order, n_iterations , d
 
     for i in range(0,len(freq_ch_arr)) :    
        fit_channel = freq_ch_arr[i]
+       print("DEBUG : fitting channel %d" % (fit_channel))
        fit_start_channel = fit_channel - delta_channels
        fit_end_channel = fit_channel + delta_channels
     
        # interpolate value at specified channel :    
-       ( channel_value_x , x_axis_x , out_amp_arr_x , fit_in_mhz_x , interpol_function_x, poly_coeffs_x ) = interpolate_amplitude( fit_channel, freq_ch_arr, freq_mhz_arr, amp_x_arr, fit_in_mhz=fit_in_mhz, start_channel=fit_start_channel, end_channel=fit_end_channel, include_all_channels=include_all_channels, polynomial_order=polynomial_order )
-       ( channel_value_y , x_axis_y , out_amp_arr_y , fit_in_mhz_y , interpol_function_y, poly_coeffs_y ) = interpolate_amplitude( fit_channel, freq_ch_arr, freq_mhz_arr, amp_y_arr, fit_in_mhz=fit_in_mhz, start_channel=fit_start_channel, end_channel=fit_end_channel, include_all_channels=include_all_channels, polynomial_order=polynomial_order )
+       ( channel_value_x , x_axis_x , out_amp_arr_x , fit_in_mhz_x , interpol_function_x, poly_coeffs_x ) = interpolate_amplitude( fit_channel, freq_ch_arr, freq_mhz_arr, amp_x_arr, fit_in_mhz=fit_in_mhz, start_channel=fit_start_channel, end_channel=fit_end_channel, include_all_channels=include_all_channels, polynomial_order=polynomial_order, n_iterations=n_iterations, max_chi2=max_chi2 )
+       ( channel_value_y , x_axis_y , out_amp_arr_y , fit_in_mhz_y , interpol_function_y, poly_coeffs_y ) = interpolate_amplitude( fit_channel, freq_ch_arr, freq_mhz_arr, amp_y_arr, fit_in_mhz=fit_in_mhz, start_channel=fit_start_channel, end_channel=fit_end_channel, include_all_channels=include_all_channels, polynomial_order=polynomial_order, n_iterations=n_iterations, max_chi2=max_chi2 )
        print("DEBUG : interpolated value for channel %d is AMP_X = %.6f , AMP_Y = %.6f vs. recalculated %.6f / %.6f" % (fit_channel,channel_value_x,channel_value_y,channel_value_x,channel_value_y))
        
        fitted_ch_values.append( fit_channel )
@@ -279,8 +328,9 @@ if __name__ == "__main__":
     print("####################################")
     
     if options.fit_channel is not None :
-       interpolate_and_save( input_file, fit_channel=options.fit_channel , fit_start_channel=options.fit_start_channel, fit_end_channel=options.fit_end_channel, outfile=options.outfile, fit_in_mhz=options.fit_in_mhz  ) 
+       interpolate_and_save( input_file, fit_channel=options.fit_channel , fit_start_channel=options.fit_start_channel, fit_end_channel=options.fit_end_channel, 
+                             outfile=options.outfile, fit_in_mhz=options.fit_in_mhz,  n_iterations=options.n_iterations  ) 
     else :
        # TODO : interpolate or fit all channels 
-       fit_all_channels( input_file, fit_in_mhz=options.fit_in_mhz, polynomial_order=options.polynomial_order, n_iterations=options.n_iterations, delta_channels=options.delta_channels, include_all_channels=options.include_all_channels ) 
+       fit_all_channels( input_file, fit_in_mhz=options.fit_in_mhz, polynomial_order=options.polynomial_order, delta_channels=options.delta_channels, include_all_channels=options.include_all_channels, n_iterations=options.n_iterations ) 
               

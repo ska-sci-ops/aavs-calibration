@@ -99,7 +99,8 @@ def run_observation_burst(config):
 
     cal_script = "/home/aavs/aavs-calibration/run_calibration.py"
     # # MS : testing call instead of check_call to avoid crash of the whole script due to crash on a single channel :
-    param_list = ["python", cal_script, "-D", directory, "--station_id", str(station_id), "--station_name", station_name , "--show-output" ] # , "--beam_x" , config.beam_x , "--beam_y" , config.beam_y ]
+    # 2023-03-21 : added --keep_uv_files to keep .uv files for the future calibration from the database to be inserted there (it has all the other metadata correct) :
+    param_list = ["python", cal_script, "-D", directory, "--station_id", str(station_id), "--station_name", station_name , "--show-output" , "--keep_uv_files" ] # , "--beam_x" , config.beam_x , "--beam_y" , config.beam_y ]
 
     if opts.no_db :
         param_list.append( "--nodb" )

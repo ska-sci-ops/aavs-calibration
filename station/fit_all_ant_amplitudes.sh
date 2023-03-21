@@ -70,8 +70,13 @@ fi
 
 for infile in `ls last_calibration_???.txt`
 do
-   echo "python ~/aavs-calibration/station/fit_amplitude.py ${infile} --delta_channels=${channels_around} --polynomial_order=${polynomial_order} --do_not_exclude"
-   python ~/aavs-calibration/station/fit_amplitude.py ${infile} --delta_channels=${channels_around} --polynomial_order=${polynomial_order} --do_not_exclude
+   # OLD - without iterations and excluding outliers :
+   # echo "python ~/aavs-calibration/station/fit_amplitude.py ${infile} --delta_channels=${channels_around} --polynomial_order=${polynomial_order} --do_not_exclude"
+   # python ~/aavs-calibration/station/fit_amplitude.py ${infile} --delta_channels=${channels_around} --polynomial_order=${polynomial_order} --do_not_exclude
+   
+   # NEW : see 20230321_test_fitting_and_removing_outliers.odt
+   echo "python ~/aavs-calibration/station/fit_amplitude.py ${infile} --delta_channels=${channels_around} --polynomial_order=${polynomial_order} --n_iterations=5 --do_not_exclude"
+   python ~/aavs-calibration/station/fit_amplitude.py ${infile} --delta_channels=${channels_around} --polynomial_order=${polynomial_order} --n_iterations=5 --do_not_exclude    
    
    fitfile=${infile%%.txt}_fitted.txt
 

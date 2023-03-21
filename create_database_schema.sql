@@ -15,6 +15,8 @@ CREATE TABLE calibration_solution
     station_id INTEGER NOT NULL,
     x_gains REAL[],
     y_gains REAL[],
+    x_gains_fit REAL[],
+    y_gains_fit REAL[],
     x_pha REAL[],
     y_pha REAL[],
     x_delay REAL,
@@ -38,3 +40,8 @@ ON calibration_solution(create_time);
 
 CREATE INDEX solution_ant_id
 ON calibration_solution(ant_id);
+
+# MS 2023-03-20 : apparently name of the column changed from x_amp -> x_gains and eda2/aavs1 database uses names x_amp and x_amp_fit etc.
+# ALTER TABLE calibration_solution ADD COLUMN x_amp_fit REAL[];
+# ALTER TABLE calibration_solution ADD COLUMN y_amp_fit REAL[];
+
