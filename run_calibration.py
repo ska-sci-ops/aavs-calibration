@@ -144,7 +144,7 @@ def calibrate_channel(channel) : # ,station_name="EDA2"): - parameters do not wo
             subprocess.call(command, stdout=output, stderr=subprocess.STDOUT)
 
 
-def run_calibration(directory, nof_channels, threads, station_name="EDA2", update_last_calibration=True ):
+def run_calibration(directory, nof_channels, threads, station_name="EDA2", update_last_calibration=True, post_calibration=True ):
     """ Calibrate channels """
     global g_station_name
     global conf
@@ -171,6 +171,11 @@ def run_calibration(directory, nof_channels, threads, station_name="EDA2", updat
        subprocess.check_call(['update_last_calibration.sh',station_name])
     else :
        logging.info('Do not updating last calibration')
+
+    # post calibration actions :
+    if post_calibration :
+       post_cal_parameters = ['post_calibration_actions.sh',station_name]
+       subprocess.check_call( post_cal_parameters )       
     
     # then cleanup up temporary files
     cleanup_parameters = ['cleanup_temp_files.sh', '-D', directory]

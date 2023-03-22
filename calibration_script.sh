@@ -335,8 +335,9 @@ done
 rm -r $tmpcal
 
 # getting recent cal.sol. amplitudes from DB, fitting them with a low-order polynomial and updating fields x_amp_fit, y_amp_fit in DB :
-mkdir -p fit2db
-cd fit2db/
-export PATH=~/aavs-calibration/station/:$PATH
-echo "~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - ${station_id} _amp > fit.out 2>&1"
-~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - ${station_id} _amp > fit.out 2>&1
+# mkdir -p fit2db
+# cd fit2db/
+# export PATH=~/aavs-calibration/station/:$PATH
+# echo "~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - ${station_id} _amp > fit.out 2>&1"
+# ~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - ${station_id} _amp > fit.out 2>&1
+
