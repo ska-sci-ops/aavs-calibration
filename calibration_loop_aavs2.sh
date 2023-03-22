@@ -33,6 +33,6 @@ fi
 echo "python ~/aavs-calibration/calibration_loop.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 -d /data/ ${options}"
 python ~/aavs-calibration/calibration_loop.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 -d /data/ ${options}
 
-export PATH=~/aavs-calibration/station/:$PATH
-echo "~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - 3 _amp > fit.out 2>&1"
-~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - 3 _amp > fit.out 2>&1
+# export PATH=~/aavs-calibration/station/:$PATH
+# echo "~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - 3 _amp > fit.out 2>&1"
+# ~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - 3 _amp > fit.out 2>&1

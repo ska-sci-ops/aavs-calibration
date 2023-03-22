@@ -160,6 +160,7 @@ echo "##########################################################################
 # MS : 20191204 - I changed symbolic links to copies to keep track of what we used at the time of calibration
 #      with symbolic link if the target changes, we don't know what was used at the time
 # Link some configuration files
+station_id=2
 echo "Creating links to config files for a default station (station name = $station_name)"
 if [[ $station_name == "eda2" || $station_name == "EDA2" ]]; then
    echo "Creating links to config files for station $station_name"
@@ -168,6 +169,7 @@ if [[ $station_name == "eda2" || $station_name == "EDA2" ]]; then
    cp ~/aavs-calibration/instr_config_eda2.txt instr_config.txt
    cp ~/aavs-calibration/antenna_locations_eda2.txt antenna_locations.txt
    cp ~/aavs-calibration/header_eda2_cal.txt header.txt
+   station_id=2
 else
    if [[ $station_name == "aavs2" || $station_name == "AAVS2" ]]; then
       echo "Creating links to config files for station AAVS2"
@@ -177,12 +179,14 @@ else
       cp ~/aavs-calibration/config/aavs2/instr_config.txt instr_config.txt
       cp ~/aavs-calibration/config/aavs2/antenna_locations_20191202.txt antenna_locations.txt
       cp ~/aavs-calibration/header_cal.txt header.txt 
+      station_id=3
    else
       echo "Creating links to config files for default station (AAVS1)"
       
       cp ~/aavs-calibration/instr_config.txt .
       cp ~/aavs-calibration/antenna_locations.txt .
       cp ~/aavs-calibration/header_cal.txt header.txt .
+      station_id=1
    fi
 fi   
 
@@ -329,3 +333,10 @@ for hdffile in `ls -tr *_${channel}_*.hdf5` ; do
   rm -fr ${bname}.LACSPC ${bname}.LCCSPC 
 done
 rm -r $tmpcal
+
+# getting recent cal.sol. amplitudes from DB, fitting them with a low-order polynomial and updating fields x_amp_fit, y_amp_fit in DB :
+mkdir -p fit2db
+cd fit2db/
+export PATH=~/aavs-calibration/station/:$PATH
+echo "~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - ${station_id} _amp > fit.out 2>&1"
+~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - ${station_id} _amp > fit.out 2>&1
