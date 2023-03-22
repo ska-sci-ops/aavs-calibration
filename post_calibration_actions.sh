@@ -2,17 +2,15 @@
 
 export PATH=~/aavs-calibration/station/:$PATH
 
+# DEFAULT IS EDA2 :
 station_name=eda2
 station_id=2
 if [[ -n "$1" && "$1" != "-" ]]; then
    station_name=$1
 fi
 
-
 if [[ $station_name == "aavs2" || $station_name == "AAVS2" ]]; then
    station_id=3
-else
-   station_id=1
 fi
 
 last_cal_dir=`pwd`
