@@ -9,7 +9,7 @@ if [[ -n "$1" && "$1" != "-" ]]; then
 fi
 
 
-if [[ $station_name == "aavs2" ]]; then
+if [[ $station_name == "aavs2" || $station_name == "AAVS2" ]]; then
    station_id=3
 else
    station_id=1
