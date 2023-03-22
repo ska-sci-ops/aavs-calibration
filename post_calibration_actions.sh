@@ -15,13 +15,26 @@ else
    station_id=1
 fi
 
+last_cal_dir=`pwd`
+if [[ ! -s chan_204_selfcal_pha_XX.txt ]]; then
+   # checking a single file to check if this is folder with calibration solutions from MIRIAD (Randall's calibration loop format) :
+   echo "INFO : no calibration in local directory : $last_cal_dir -> looking for last calibration automatically in $cal_path ..."
+   
+   last_cal_dir=`ls -dtr /data/real_time_calibration/2???_??_??-??:??/ |tail -1`   
+fi
+
 
 echo "########################################"
 echo "PARAMETERS:"
 echo "########################################"
 echo "Station name = $station_name (id = $station_id)"
+echo "Last cal dir = $last_cal_dir"
 echo "########################################"
 
+
+pwd
+cd $last_cal_dir
+pwd
 
 mkdir -p fit2db
 cd fit2db/
