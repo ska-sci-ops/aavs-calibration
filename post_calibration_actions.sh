@@ -39,3 +39,5 @@ cd fit2db/
 echo "~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - ${station_id} _amp > fit.out 2>&1"
 ~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - ${station_id} _amp > fit.out 2>&1
 
+echo "psql aavs -f amp_fitted.sql"
+psql aavs -f amp_fitted.sql
