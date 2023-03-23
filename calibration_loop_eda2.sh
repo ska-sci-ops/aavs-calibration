@@ -27,6 +27,5 @@ fi
 echo "python /home/aavs/aavs-calibration/calibration_loop.py --config=/opt/aavs/config/eda2.yml -i enp216s0f0 -d /data/ ${options}"
 python /home/aavs/aavs-calibration/calibration_loop.py --config=/opt/aavs/config/eda2.yml -i enp216s0f0 -d /data/ ${options} 
 
-# export PATH=~/aavs-calibration/station/:$PATH
-# echo "~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - 2 _amp > fit.out 2>&1"
-# ~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - 2 _amp > fit.out 2>&1
+echo "post_calibration_actions.sh EDA2"
+post_calibration_actions.sh EDA2 

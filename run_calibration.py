@@ -173,9 +173,9 @@ def run_calibration(directory, nof_channels, threads, station_name="EDA2", updat
        logging.info('Do not updating last calibration')
 
     # post calibration actions :
-    if post_calibration :
-       post_cal_parameters = ['post_calibration_actions.sh',station_name]
-       subprocess.check_call( post_cal_parameters )       
+#    if post_calibration :
+#       post_cal_parameters = ['post_calibration_actions.sh',station_name]
+#       subprocess.check_call( post_cal_parameters )       
     
     # then cleanup up temporary files
     cleanup_parameters = ['cleanup_temp_files.sh', '-D', directory]
