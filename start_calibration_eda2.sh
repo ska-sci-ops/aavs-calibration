@@ -5,6 +5,8 @@
 # environment :
 source /opt/aavs/python/bin/activate
 export PATH=~/aavs-calibration/:~/aavs-calibration/station:$PATH
+source /home/aavs/Software/miriad/miriad/MIRRC.sh
+export PATH=${PATH}:${MIRBIN}
 
 dt=`date +%Y%m%d`
 
