@@ -3,10 +3,7 @@
 # Script which can be put into CRONTAB 
 
 # environment :
-source /opt/aavs/python/bin/activate
-export PATH=~/aavs-calibration/:~/aavs-calibration/station:$PATH
-source /home/aavs/Software/miriad/miriad/MIRRC.sh
-export PATH=${PATH}:${MIRBIN}
+source ~/aavs-calibration/runtime_eda2.sh
 
 dt=`date +%Y%m%d`
 
