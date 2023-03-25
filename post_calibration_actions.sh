@@ -5,12 +5,14 @@ export PATH=~/aavs-calibration/station/:$PATH
 # DEFAULT IS EDA2 :
 station_name=eda2
 station_id=2
+pghost=10.128.16.52
 if [[ -n "$1" && "$1" != "-" ]]; then
    station_name=$1
 fi
 
 if [[ $station_name == "aavs2" || $station_name == "AAVS2" ]]; then
    station_id=3
+   pghost=10.0.10.200
 fi
 
 last_cal_dir=`pwd`
@@ -39,5 +41,5 @@ cd fit2db/
 echo "~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - ${station_id} _amp > fit.out 2>&1"
 ~/aavs-calibration/station/fit_all_ant_amplitudes.sh 1 1 1 - ${station_id} _amp > fit.out 2>&1
 
-echo "psql aavs -f amp_fitted.sql"
-psql aavs -f amp_fitted.sql
+echo "psql aavs -h ${pghost} -f amp_fitted.sql"
+psql aavs -h ${pghost} -f amp_fitted.sql
