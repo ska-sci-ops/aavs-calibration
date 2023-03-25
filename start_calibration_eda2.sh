@@ -2,6 +2,8 @@
 
 # Script which can be put into CRONTAB 
 
+# environment :
+source /opt/aavs/python/bin/activate
 export PATH=~/aavs-calibration/:~/aavs-calibration/station:$PATH
 
 dt=`date +%Y%m%d`
