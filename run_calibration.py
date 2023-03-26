@@ -226,6 +226,7 @@ def get_acquisition_time(conf):
     return datetime.utcnow()
 
 def save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay, y_delay, station_id, db_host_ip="10.0.10.200" ):
+    global username
     # Create connection to the calibration database.
     # Do not have to use password here since DB is set up to recognise aavs user
     logging.info('Connecting to PostgreSQL database aavs/aavs at {}'.format(db_host_ip))
@@ -236,7 +237,7 @@ def save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay
     fit_time = get_acquisition_time(conf)
     
     # 
-    if username is None or len(username) :
+    if username is None or len(username)<=0 :
        print("WARNING : username not set (probably a CRONTAB job) -> setting to aavs")
        username="aavs"
 
