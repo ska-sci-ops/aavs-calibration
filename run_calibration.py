@@ -234,6 +234,11 @@ def save_coefficients_postgres(conf, xx_amp, xx_phase, yy_amp, yy_phase, x_delay
 
     # Get acqusition time
     fit_time = get_acquisition_time(conf)
+    
+    # 
+    if username is None or len(username) :
+       print("WARNING : username not set (probably a CRONTAB job) -> setting to aavs")
+       username="aavs"
 
     logging.info('Creating solutions for fit_time {}'.format(fit_time))
     create_time = datetime.utcnow()
