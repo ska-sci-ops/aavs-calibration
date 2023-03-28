@@ -43,6 +43,7 @@ if __name__ == "__main__":
     parser.add_option('--apply_amplitudes','--apply_amps','--amplitudes',action="store_true",dest="apply_amplitudes",default=False, help="Apply calibration amplitudes [default %]")
     parser.add_option('--invert_amplitudes','--invert_amps','--one_over_amp',action="store_true",dest="invert_amplitudes",default=False, help="Invert calibration amplitudes (use 1/ampplitude) [default %]")
     parser.add_option('--enable_antenna','--debug_antenna', action="store", dest="enable_antenna",   default=None,  help="Enable single antenna [default: %]",type="int")
+    parser.add_option('--fitted_amplitudes','--use_amp_fit', '--use_fitted_amplitudes', action="store_true", dest="fitted_amplitudes", default=False,  help="If fitted amplitudes should be used rather than raw values of cal. solutions [default: %]")
     
     # antenna flagging :
     parser.add_option('--flag_antennas','--flag_ant_list','--flagants', '--flagant', action="store", dest="flag_antennas_list",   default=None,  help="Flag antenna list [default: %]")
@@ -57,6 +58,10 @@ if __name__ == "__main__":
     station.load_configuration_file(conf.config)
     station = station.Station(station.configuration)
     nof_antennas = station.configuration['station']['number_of_antennas']
+    
+    db_field_postfix="_amp"
+    if conf.fitted_amplitudes :
+       db_field_postfix="_amp_fit"
 
     
     print("##############################################################################################")
@@ -70,6 +75,7 @@ if __name__ == "__main__":
     print("Use MCCS database = %s" % (conf.use_mccs_db))
     print("Frequency channel = %d" % (conf.freq_channel))
     print("Apply calibration amplitudes = %s" % (conf.apply_amplitudes))
+    print("\tuse fitted amplitudes = %s (DB field postfix %s)" % (conf.fitted_amplitudes,db_field_postfix))
     print("Flag antennas     = %s" % (conf.flag_antennas_list))
     if conf.enable_antenna is not None :
        print("DEBUG MODE : enable antenna = %d" % (conf.enable_antenna))
@@ -110,7 +116,8 @@ if __name__ == "__main__":
 #                                                                                 apply_amplitudes=conf.apply_amplitudes, x_amp_par=x_amp, y_amp_par=y_amp, flag_antennas_list=flag_antennas_list, sign_value=conf.sign_value ) # n_channels=conf.n_channels
 # 2022-03-28 : looks like this version does not work correctly, station calibration does not throw error, but data look rubbish 
            calibration_coefficients = calibration.get_calibration_coeff_from_db( station_id=station.configuration['station']['id'], start_frequency_channel=conf.freq_channel, swap_pols=conf.polarisation_swap, nof_antennas=nof_antennas, 
-                                                                                 apply_amplitudes=conf.apply_amplitudes, x_amp_par=x_amp, y_amp_par=y_amp, flag_antennas_list=flag_antennas_list, sign_value=conf.sign_value, n_channels=conf.n_channels, invert_amplitudes=conf.invert_amplitudes )
+                                                                                 apply_amplitudes=conf.apply_amplitudes, x_amp_par=x_amp, y_amp_par=y_amp, flag_antennas_list=flag_antennas_list, sign_value=conf.sign_value, 
+                                                                                 n_channels=conf.n_channels, invert_amplitudes=conf.invert_amplitudes, db_field_postfix=db_field_postfix )
         else :
            print("INFO : station calibration using provided pkl file (%s)" % (conf.calibration_file))
            calibration_coefficients = calibration.get_calibration_coeff( calibration_file = conf.calibration_file , swap_pols=conf.polarisation_swap, sign_value=conf.sign_value )
