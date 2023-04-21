@@ -39,8 +39,10 @@ sunpixcrd = wcs2d.wcs_world2pix(sunpos.ra.degree,sunpos.dec.degree, 0)
 # make model sun blob
 imshape=skyimg.shape
 y,x = np.mgrid[0:(imshape[0]),0:(imshape[1])]
-sunscale=0.5/np.abs(wcs2d.wcs.cdelt)
-modelsun=models.Ellipse2D(1.0,sunpixcrd[0],sunpixcrd[1],sunscale[0],sunscale[1],0)
+# sun is roughly 1/2 deg in diam, a bit longer E-W
+sunradius=0.28
+sunscale=sunradius/np.abs(wcs2d.wcs.cdelt)
+modelsun=models.Ellipse2D(1.0,sunpixcrd[0],sunpixcrd[1],1.2*sunscale[0],sunscale[1],0)
 modelsunimg=modelsun(x,y)
 
 # scale total flux
