@@ -1,0 +1,14 @@
+#!/bin/bash
+
+
+export PATH=~/aavs-calibration/station/:~/aavs-calibration/station/pointing:$PATH
+source /opt/aavs/python38/python/bin/activate
+
+# VELA example : 
+observe_object_multifreq2.sh aavs2 J0835-4510 128.8360 -45.1760 900 /data/2023_05_05_pulsars_vela/J0835-4510_flagants_16ch_ch256/ 1683278887 "256" "--mccs_db --sign=-1 --flag_antennas=\"4,12,25,27,30,36,37,38,42,48,49,65,120,129,149,155,163,164,176,177,184,197,218,221,230,232\"" 16 "--start_channel 0 --nof_channels 16 --dada -I" -1 0 /data/2023_05_05_pulsars_vela/aavs2_16channels_ch256.yml 30 > vela_16channels_15min_flagants_sepdada_ch256.out 2>&1
+observe_object_multifreq2.sh aavs2 J0835-4510 128.8360 -45.1760 900 /data/2023_05_05_pulsars_vela/J0835-4510_flagants_16ch_ch410/ 1683280687 "410" "--mccs_db --sign=-1 --flag_antennas=\"4,12,25,27,30,36,37,38,42,48,49,65,120,129,149,155,163,164,176,177,184,197,218,221,230,232\"" 16 "--start_channel 0 --nof_channels 16 --dada -I" -1 0 /data/2023_05_05_pulsars_vela/aavs2_16channels_ch410.yml 30 > vela_16channels_15min_flagants_sepdada_ch410.out 2>&1
+
+# init station in normal mode without -IPB :
+~/bin/init_station.sh
+
+
