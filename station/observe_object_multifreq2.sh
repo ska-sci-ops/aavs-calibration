@@ -82,6 +82,11 @@ if [[ -n "${16}" && "${16}" != "-" ]]; then
    pointing_options=${16}
 fi
 
+start_recording_ux=-1
+if [[ -n "${17}" && "${17}" != "-" ]]; then
+   start_recording_ux=${17}
+fi
+
 echo "###################################################"
 echo "PARAMETERS:"
 echo "###################################################"
@@ -102,6 +107,7 @@ echo "use_config_per_freq = $use_config_per_freq"
 echo "configuration file  = $config_file"
 echo "repointing_resolution = $repointing_resolution"
 echo "pointing_options      = $pointing_options"
+echo "start_recording_ux    = $start_recording_ux (wait till this particular UNIX_TIME to start recording)" 
 echo "###################################################"
 
 
@@ -139,8 +145,8 @@ do
    fi
 
    pwd
-   echo "observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval ${start_uxtime} 1 - - $repointing_resolution $station $do_init_station - \"${calibration_options}\" - - $n_channels \"${daq_options}\" $use_config_per_freq $config_file ${pointing_options}"
-   observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval ${start_uxtime} 1 - - $repointing_resolution $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}" $use_config_per_freq $config_file ${pointing_options}
+   echo "observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval ${start_uxtime} 1 - - $repointing_resolution $station $do_init_station - \"${calibration_options}\" - - $n_channels \"${daq_options}\" $use_config_per_freq $config_file ${pointing_options} - ${start_recording_ux}"
+   observe_object.sh $ch ${data_dir}/${subdir}/ ${object} $ra $dec $interval ${start_uxtime} 1 - - $repointing_resolution $station $do_init_station - "${calibration_options}" - - $n_channels "${daq_options}" $use_config_per_freq $config_file ${pointing_options} - ${start_recording_ux}
    
    # just to make sure the internally changed variable does not propagate here, which seems to be the case
    data_dir=${data_dir_local}

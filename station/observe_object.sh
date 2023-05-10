@@ -177,6 +177,11 @@ if [[ -n "${23}" && "${23}" != "-" ]]; then
    start_daq=${23}   
 fi
 
+start_recording_ux=-1
+if [[ -n "${24}" && "${24}" != "-" ]]; then
+   start_recording_ux=${24}
+fi
+
 
 
 # RW/Chris Lee : I'm 99% sure the offset is 3 channels. (not 4). And that confirms the 3-channel offset also.
@@ -213,6 +218,7 @@ echo "configuration file    = $config_file"
 echo "current ux            = $ux"
 echo "pointing_options      = $pointing_options"
 echo "start_daq             = $start_daq"
+echo "start_recording_ux    = $start_recording_ux (wait till this particular UNIX_TIME to start recording)" 
 echo "###################################################"
 
 if [[ $start_uxtime_int -gt $ux ]]; then
@@ -357,6 +363,12 @@ do
    # WAS : /home/aavs/Software/aavs-system/src/build_new/acquire_station_beam
 
    if [[ $start_daq -gt 0 ]]; then   
+      if [[ $start_recording_ux -gt 0 ]]; then
+         which wait_for_unixtime.sh
+         echo "wait_for_unixtime.sh $start_recording_ux"
+         wait_for_unixtime.sh $start_recording_ux
+      fi
+   
       if [[ $full_time_resolution -gt 0 ]]; then
          # set maximum file of 10 GB to avoid merging:
          echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} --max_file_size 10 ${daq_options} >> daq.out 2>&1"
