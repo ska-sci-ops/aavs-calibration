@@ -7,6 +7,7 @@ unixtime=-1
 beamtype="SKALA2"
 backgroundscale=1
 addsun=1
+imgsize=512
 
 function print_usage {
   echo "Usage:"
@@ -16,11 +17,12 @@ function print_usage {
   echo -e "\t-L LST\t(hours). No default. Overridden by unix time. Implies not adding sun."
   echo -e "\t-B type\tBeam type: EDA, SKALA2 or SKALA4. Default: $beamtype"
   echo -e "\t-S scale\tScale the background sky by a factor. Default: $backgroundscale"
+  echo -e "\t-I size \tSize (of a side) of output images. Default: $imgsize"
   echo -e "\t-N \tDon't add the sun"
 }
 
 # parse command-line options
-while getopts ":f:L:T:B:S:N" opt; do
+while getopts ":f:L:T:B:S:N:I:" opt; do
   case ${opt} in
     f)
       freq_mhz=${OPTARG}
@@ -43,6 +45,10 @@ while getopts ":f:L:T:B:S:N" opt; do
     S)
       backgroundscale=${OPTARG}
       echo "Using scaling factor for background sky: $backgroundscale"
+      ;;
+    I)
+      imgsize=${OPTARG}
+      echo "Using image size: $imgsize"
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -86,7 +92,8 @@ if [ -e ${unixtime}_Xsky.xy ] ; then
 fi
 
 # make a template sky model for this LST
-fits op=xyin in=${skymodel_basedir}/pixscale_SIN_512x512.fits out=template.xy
+fits op=xyin in=${skymodel_basedir}/pixscale_SIN_${imgsize}x${imgsize}.fits out=template.xy
+#fits op=xyin in=${skymodel_basedir}/pixscale_SIN_1024x1024.fits out=template.xy
 lst_rad=`echo $lst | awk '{print $1*3.14159/12}'`
 puthd in=template.xy/crval1 value=${lst_rad}
 
@@ -151,9 +158,21 @@ fi
 echo "Applying beam patterns"
 echo "Beam X: $beamxfits"
 echo "Beam Y: $beamyfits"
-fits op=xyin in=skywt_sun.fits out=skywt_sun.xy
 fits op=xyin in="$beamyfits" out=beamy.xy
 fits op=xyin in="$beamxfits" out=beamx.xy
+
+# if necessary, regrid the beams to the right size
+if [ $imgsize -ne 512 ] ; then
+    regrid in=beamx.xy out=beamx_regrid.xy tin=template.xy tol=0 axes=1,2
+    rm -r beamx.xy
+    mv beamx_regrid.xy beamx.xy
+    regrid in=beamy.xy out=beamy_regrid.xy tin=template.xy tol=0 axes=1,2
+    rm -r beamy.xy
+    mv beamy_regrid.xy beamy.xy
+fi
+
+
+fits op=xyin in=skywt_sun.fits out=skywt_sun.xy
 maths exp="skywt_sun.xy*beamx.xy" out=Xsky.xy
 maths exp="skywt_sun.xy*beamy.xy" out=Ysky.xy
 
