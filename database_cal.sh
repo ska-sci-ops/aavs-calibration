@@ -101,8 +101,19 @@ if [[ -s ${uvfilename} ]]; then
     fi
         
 
-    uvcat vis=${mirfilename} stokes=xx out=${uv_x} options=nocal,nopol,nopass
-    uvcat vis=${mirfilename} stokes=yy out=${uv_y} options=nocal,nopol,nopass
+    if [[ ! -s ${uv_x} ]]; then
+       echo "uvcat vis=${mirfilename} stokes=xx out=${uv_x} options=nocal,nopol,nopass"
+       uvcat vis=${mirfilename} stokes=xx out=${uv_x} options=nocal,nopol,nopass
+    else
+       echo "INFO : file ${uv_x} already exists -> re-using"
+    fi   
+    
+    if [[ ! -s ${uv_y} ]]; then
+       echo "uvcat vis=${mirfilename} stokes=yy out=${uv_y} options=nocal,nopol,nopass"
+       uvcat vis=${mirfilename} stokes=yy out=${uv_y} options=nocal,nopol,nopass
+    else
+       echo "INFO : file ${uv_y} already exists -> re-using"
+    fi
     
     mfcal "vis=${mirfilename}" "refant=3" "flux=44372"
     mfcal "vis=${uv_x}" "refant=3" "flux=44372" 

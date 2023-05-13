@@ -39,12 +39,15 @@ if [ $? -ne 0 ] ; then
 fi
 
 # Remove all generated files
-rm -fr *.uvfits *ts_unix.txt 
+echo "rm -fr *ts_unix.txt"
+rm -fr *ts_unix.txt 
+
+echo "rm -fr *.LACSPC *.LCCSPC"
 rm -fr *.LACSPC *.LCCSPC 
 
 if [[ $remove_uv_files -gt 0 ]]; then 
-   echo "rm -fr *.uv"
-   rm -fr *.uv
+   echo "rm -fr *.uv *.uvfits"
+   rm -fr *.uv *.uvfits
 else
    echo "WARNING : do not removing .uv files (may take some space...)"
 fi
