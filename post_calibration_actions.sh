@@ -46,14 +46,14 @@ psql aavs -h ${pghost} -f amp_fitted.sql
 
 # add fitted calibration solutions to .uv files so that they are ready to use in any future calibration :
 # only copy .uvfits files in 50 - 350 MHz range :
-echo "cp ../chan_4[0-4]?_20230512T042717.uvfits ."
-cp ../chan_4[0-4]?_20230512T042717.uvfits .
+echo "cp ../chan_4[0-4]?_*.uvfits ."
+cp ../chan_4[0-4]?_*.uvfits .
 
-echo "cp ../chan_[1-3]??_20230512T042717.uvfits ."
-cp ../chan_[1-3]??_20230512T042717.uvfits .
+echo "cp ../chan_[1-3]??_*.uvfits ."
+cp ../chan_[1-3]??_*.uvfits .
 
-echo "cp ../chan_[6-9]?_20230512T042717.uvfits ."
-cp ../chan_[6-9]?_20230512T042717.uvfits .
+echo "cp ../chan_[6-9]?_*.uvfits ."
+cp ../chan_[6-9]?_*.uvfits .
 
 # adding calibration to .uv files in XX and YY :
 for uvfits in `ls *.uvfits`

@@ -16,8 +16,10 @@ if [[ -n "$3" && "$3" != "-" ]]; then
    outfile="$3"
 fi
 
-echo "mv ${outfile} ${outfile}.backup"
-mv ${outfile} ${outfile}.backup
+if [[ -s ${outfile} ]]; then
+   echo "mv ${outfile} ${outfile}.backup"
+   mv ${outfile} ${outfile}.backup
+fi   
 
 # frequency channel 204 = 159.3750 MHz
 echo "# frequency channel ${channel} = ${freq_mhz} MHz" > ${outfile}
