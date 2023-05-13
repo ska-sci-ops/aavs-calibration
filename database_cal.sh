@@ -19,6 +19,11 @@ if [[ -n "$3" && "$3" != "-" ]]; then
    do_median_filter=$3
 fi
 
+clean_all=1
+if [[ -n "$4" && "$4" != "-" ]]; then
+   clean_all=$4
+fi
+
 
 echo "####################################"
 echo "PARAMETERS:"
@@ -26,6 +31,7 @@ echo "####################################"
 echo "uvfilename       = $uvfilename"
 echo "do_control_image = $do_control_image"
 echo "do_median_filter = $do_median_filter"
+echo "clean_all        = $clean_all"
 echo "####################################"
 
 
@@ -34,11 +40,17 @@ CODE_PATH=~/aavs-calibration/
 CALFILE_PATH=${DATA_PATH}
 
 cd $DATA_PATH
-rm -rf *.mir
-rm -rf *.imap
-rm -rf *.csv
-rm -rf *.fits
-rm -rf *.uv
+
+if [[ $clean_all -gt 0 ]]; then
+   echo "Removing all files : *.mir *.imap *.csv *.fits *.uv"
+   rm -rf *.mir
+   rm -rf *.imap
+   rm -rf *.csv
+   rm -rf *.fits
+   rm -rf *.uv
+else
+   echo "WARNING : no removing required"
+fi
 
 imdim=512
 cellres=10

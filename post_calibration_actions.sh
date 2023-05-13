@@ -64,8 +64,8 @@ for uvfits in `ls *.uvfits`
 do
    logfile=${uvfits%%uvfits}log
    
-   echo "database_cal.sh ${uvfits} > ${logfile} 2>&1"
-   database_cal.sh ${uvfits} > ${logfile} 2>&1
+   echo "database_cal.sh ${uvfits} - - 0 > ${logfile} 2>&1"
+   database_cal.sh ${uvfits} - - 0 > ${logfile} 2>&1
 done
 
 # create calibration files per frequency channel :
