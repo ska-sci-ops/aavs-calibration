@@ -182,6 +182,17 @@ if [[ -n "${24}" && "${24}" != "-" ]]; then
    start_recording_ux=${24}
 fi
 
+# 2023-06-07 (MS) : this code is to enable a different version of the acquisition program to be used:
+#                   for example the new version with start time parameter (-C) compiled in : /home/amagro/station_beam_start_acq_time/aavs-system/src/build/
+#                    !!! REMEMBER TO ALSO SET export LD_LIBRARY_PATH=/home/amagro/station_beam_start_acq_time/aavs-system/src/build/:$LD_LIBRARY_PATH
+# ACQUIRE_STATION_BEAM_PATH=/opt/aavs/bin/acquire_station_beam
+if [[ -n $ACQUIRE_STATION_BEAM_PATH ]]; then
+   echo "INFO : Already defined : ACQUIRE_STATION_BEAM_PATH = $ACQUIRE_STATION_BEAM_PATH - using it"
+else
+   echo "WARNING : ACQUIRE_STATION_BEAM_PATH not defined -> setting now to:"
+   export ACQUIRE_STATION_BEAM_PATH=/opt/aavs/bin/acquire_station_beam
+   echo "ACQUIRE_STATION_BEAM_PATH = $ACQUIRE_STATION_BEAM_PATH"
+fi
 
 
 # RW/Chris Lee : I'm 99% sure the offset is 3 channels. (not 4). And that confirms the 3-channel offset also.
@@ -219,6 +230,7 @@ echo "current ux            = $ux"
 echo "pointing_options      = $pointing_options"
 echo "start_daq             = $start_daq"
 echo "start_recording_ux    = $start_recording_ux (wait till this particular UNIX_TIME to start recording)" 
+echo "ACQUIRE_STATION_BEAM_PATH = $ACQUIRE_STATION_BEAM_PATH"
 echo "###################################################"
 
 if [[ $start_uxtime_int -gt $ux ]]; then
@@ -371,8 +383,8 @@ do
    
       if [[ $full_time_resolution -gt 0 ]]; then
          # set maximum file of 10 GB to avoid merging:
-         echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} --max_file_size 10 ${daq_options} >> daq.out 2>&1"
-         /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} --max_file_size 10 ${daq_options} >> daq.out 2>&1
+         echo "$ACQUIRE_STATION_BEAM_PATH -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} --max_file_size 10 ${daq_options} >> daq.out 2>&1"
+         $ACQUIRE_STATION_BEAM_PATH -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} --max_file_size 10 ${daq_options} >> daq.out 2>&1
       else
          echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -SX --channel_samples=262144 --continuous_period=300 --beam_channels=8 --station_samples=1048576 --description=\"DAQ acquisition channel $freq_channel voltages and station beam\" --station-config=$config_file --acquisition_duration=${interval} ${daq_options}"
          python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -SX --channel_samples=262144 --continuous_period=300 --beam_channels=8 --station_samples=1048576 --description="DAQ acquisition channel $freq_channel voltages and station beam" --station-config=$config_file --acquisition_duration=${interval} ${daq_options}
