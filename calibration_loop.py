@@ -84,32 +84,34 @@ def run_observation_burst(config):
     except Exception as e:
         logging.error("Failed to stop DAQ cleanly: {}".format(e))
 
-    # Run calibration on dumped data
-    logging.info("Calibrating data")
+    if config.do_calibration :
+       # Run calibration on dumped data
+       logging.info("Calibrating data")
     
-    if opts.beam_correct :
-       logging.info("Calculating beam values in the direction of the Sun (for now it's just Sun)")
-       dtm=os.path.basename(directory)
-       dirpath=os.path.dirname(directory)
-       cmdline = ("/home/aavs/Software/station_beam/scripts/beam_correct_latest_cal.sh %s %s %s" % (station_name,dtm,dirpath))
-       logging.info("Executing command : %s" % cmdline )
+       if opts.beam_correct :
+          logging.info("Calculating beam values in the direction of the Sun (for now it's just Sun)")
+          dtm=os.path.basename(directory)
+          dirpath=os.path.dirname(directory)
+          cmdline = ("/home/aavs/Software/station_beam/scripts/beam_correct_latest_cal.sh %s %s %s" % (station_name,dtm,dirpath))
+          logging.info("Executing command : %s" % cmdline )
        
-       # subprocess.call( cmdline )
-       os.system( cmdline )
+          # subprocess.call( cmdline )
+          os.system( cmdline )
 
-    cal_script = "/home/aavs/aavs-calibration/run_calibration.py"
-    # # MS : testing call instead of check_call to avoid crash of the whole script due to crash on a single channel :
-    # 2023-03-21 : added --keep_uv_files to keep .uv files for the future calibration from the database to be inserted there (it has all the other metadata correct) :
-    param_list = ["python", cal_script, "-D", directory, "--station_id", str(station_id), "--station_name", station_name , "--show-output" , "--keep_uv_files" ] # , "--beam_x" , config.beam_x , "--beam_y" , config.beam_y ]
+       cal_script = "/home/aavs/aavs-calibration/run_calibration.py"
+       # # MS : testing call instead of check_call to avoid crash of the whole script due to crash on a single channel :
+       # 2023-03-21 : added --keep_uv_files to keep .uv files for the future calibration from the database to be inserted there (it has all the other metadata correct) :
+       param_list = ["python", cal_script, "-D", directory, "--station_id", str(station_id), "--station_name", station_name , "--show-output" , "--keep_uv_files" ] # , "--beam_x" , config.beam_x , "--beam_y" , config.beam_y ]
 
-    if opts.no_db :
-        param_list.append( "--nodb" )
+       if opts.no_db :
+           param_list.append( "--nodb" )
         
-    if not opts.save_to_mongo_db :
-        param_list.append( "--nomongo" )
+       if not opts.save_to_mongo_db :
+           param_list.append( "--nomongo" )
         
-    subprocess.call( param_list )
-
+       subprocess.call( param_list )
+    else:
+       print("WARNING : execution of calibration is not required")
 
 if __name__ == "__main__":
     from optparse import OptionParser
@@ -144,6 +146,10 @@ if __name__ == "__main__":
                  
     p.add_option("--no_mongo", "--no_mongodb", "--nomongo", action="store_false", dest="save_to_mongo_db", default=True,
                  help="Turn off saving calibration solutions to Mongo DB too [default: %s]")
+                 
+    p.add_option("-n", "--do_not_calibrate", action="store_false", dest="do_calibration",
+                 default=True, help="Perform calibation after getting the correlated data")
+                 
                  
                  
     # beam in the direction of Sun :
