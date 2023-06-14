@@ -84,7 +84,7 @@ def run_observation_burst(config):
     except Exception as e:
         logging.error("Failed to stop DAQ cleanly: {}".format(e))
 
-    if config.do_calibration :
+    if opts.do_calibration :
        # Run calibration on dumped data
        logging.info("Calibrating data")
     
