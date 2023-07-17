@@ -127,7 +127,7 @@ if __name__ == "__main__":
                  default="10.0.10.200", help="IP [default: 10.0.10.200]")
     p.add_option("-P", "--program", action="store_true", dest="program",
                  default=False, help="Program and initialise station")
-    p.add_option('-d', '--directory', dest='directory', action='store', default="/storage",
+    p.add_option('-d', '--directory', dest='directory', action='store', default=None,
                  help="Data directory (default: '/storage')")
     p.add_option("-i", "--receiver_interface", action="store", dest="receiver_interface",
                  default="eth3:1", help="Receiver interface [default: eth3:1]")
@@ -170,14 +170,15 @@ if __name__ == "__main__":
         exit()
 
     # Check if directory exists
-    if not (os.path.exists(opts.directory) and os.path.isdir(opts.directory)):
-        logging.error("Specified directory (%s) does not exist or is not a directory" % opts.directory)
-        exit(0)
+    #if not (os.path.exists(opts.directory) and os.path.isdir(opts.directory)):
+    #    logging.error("Specified directory (%s) does not exist or is not a directory" % opts.directory)
+    #    exit(0)
 
     # Expand directory path for station
     station.load_configuration_file(opts.config)
     station_name = station.configuration['station']['name']
-    opts.directory = os.path.join(opts.directory, station_name.lower(), 'real_time_calibration')
+    if opts.directory is None :
+       opts.directory = os.path.join(opts.directory, station_name.lower(), 'real_time_calibration')
     if not (os.path.exists(opts.directory) and os.path.isdir(opts.directory)):
         logging.error("Full data directory (%s) does not exist or is not a directory" % opts.directory)
         exit(0)
