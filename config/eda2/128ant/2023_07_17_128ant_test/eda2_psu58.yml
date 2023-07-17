@@ -1,0 +1,104 @@
+# Observation-related configuration, specifying the channel region
+# for the station beamformer
+# setup start_frequency_channel 4 channels (400/512) MHz separation below central 204-4, 294-4 etc ...
+observation:
+    start_frequency_channel: 156.25e6 # 4 channels below central channel 204
+#    start_frequency_channel: 113.28125e6
+#    start_frequency_channel: 96.09375e6
+#    start_frequency_channel: 226.5625e6 # 4 channels below central channel 294
+#    start_frequency_channel: 133.59375e6
+#    start_frequency_channel: 134.375e6
+#    start_frequency_channel: 107.03125e6 # 4 channels below central channel 141 ...
+#    start_frequency_channel: 67.1875e6 # 4 channels below central channel 90 (70.3125 MHz) -> 86 (67.1875 MHz)
+#    start_frequency_channel: 76.5625e6 # 4 channels below central channel 102
+#    start_frequency_channel: 51.5625e6 # 4 channels below central channel 70 (54.6875 MHz)  
+#    start_frequency_channel: 46.875e6 #  4 channels below central channel 64 
+#    start_frequency_channel: 317.1875e6 # 4 channels below central channel 410
+#    start_frequency_channel: 129.6875e6
+#    start_frequency_channel: 196.875e6
+#    start_frequency_channel: 117.1875e6 # ch=150 = 120 MHz - 4x(400/512) MHz 
+#    start_frequency_channel: 95.3125e6 # Bach observations 
+#    start_frequency_channel: 309.375e6 # ch=400 last calibrated  
+    bandwidth: 6.25e6
+#    bandwidth: 12.5e6
+
+# Station configuration parameters
+station:
+    id: 2
+    name: "EDA2"
+    number_of_antennas: 128
+    channel_truncation: 0
+    beam_integration_time: -1 # default -1 
+    channel_integration_time: 2
+    beamformer_scaling: 4
+    # OLD FIRMWARE WHICH WORKED ON EDA2 
+    # bitfile: "/opt/aavs/bitfiles/itpm_v1_1_tpm_test_wrap_sbf347.bit"
+    # NEW FIRMWARE SAME VERSION AS ON AAVS2 (2022-10-20): 
+    bitfile: "/opt/aavs/bitfiles/itpm_v1_1_tpm_test_wrap_sbf406.bit"
+    equalize_preadu: No
+    default_preadu_attenuation: 0
+#    pps_delays: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    pps_delays: [0, -1, -1, 1, 0, 2, 0, -4]
+#    pps_delays: [0, 0, 0, 0, 0, 0, 2, 1, 0, -1, -1, 1, 0, 2, 0, -4]
+
+# Network configuration parameters
+# Network configuration parameters
+network:
+    lmc:
+        lmc_mac: 0x98039b861596
+        lmc_ip: "10.0.10.190"
+        lmc_port: 4660
+        tpm_cpld_port: 10000
+        use_teng: True        
+        
+        # Integrated data configuration
+        integrated_data_port: 5000
+        integrated_data_ip: "10.128.16.52"
+        use_teng_integrated: False    
+        
+    csp_ingest:
+        dst_mac: 0x98039b861596
+        dst_ip: "10.0.10.190"
+        dst_port: 4660
+        src_mac: Null
+        src_ip: Null
+        src_port: Null 
+        
+# List of TPM IPs (or names) which will form station
+tiles:
+#    - tpm-1
+#    - tpm-2
+#    - tpm-3
+#    - tpm-4
+#    - tpm-5
+#    - tpm-6
+#    - tpm-7
+#    - tpm-8
+    - tpm-9
+    - tpm-10 # 2020-03-25 - changed by Andrea / Riccardo 
+    - tpm-11
+    - tpm-12
+    - tpm-13
+    - tpm-14
+    - tpm-15
+    - tpm-16 # 2020-03-25 - changed by Andrea / Riccardo
+
+# Time delay to apply to each antenna (one entry per TPM, optional)
+time_delays:
+#    - [  4,  4,  3,  3,  0,  0,  4,  4,  4,  4,  3,  3,  3,  3,  4,  4,  6,  6,  11,  11,  0,  0,  1,  1,  6,  6,  6,  6,  3,  3,  2,  2 ]
+#    - [  4,  4,  1,  1,  1,  1,  0,  0,  2,  2,  4,  4,  1,  1,  0,  0,  2,  2,  2,  2,  1,  1,  0,  0,  2,  2,  5,  5,  2,  2,  5,  5 ]
+#    - [  4,  4,  3,  3,  1,  1,  1,  1,  7,  7,  5,  5,  6,  6,  6,  6,  4,  4,  1,  1,  8,  8,  4,  4,  11,  11,  4,  4,  3,  3,  1,  1 ]
+#    - [  -25,  -25,  -29,  -29,  -31,  -31,  -31,  -31,  -28,  -28,  -30,  -30,  -30,  -30,  -30,  -30,  -27,  -27,  -28,  -28,  -30,  -30,  -30,  -30,  -27,  -27,  -26,  -26,  -30,  -30,  -26,  -26 ]
+#    - [  10,  10,  13,  13,  15,  15,  12,  12,  9,  9,  5,  5,  9,  9,  10,  10,  5,  5,  9,  9,  10,  10,  6,  6,  21,  21,  11,  11,  10,  10,  7,  7 ]
+#    - [  9,  9,  11,  11,  6,  6,  10,  10,  5,  5,  4,  4,  80,  80,  4,  4,  10,  10,  8,  8,  8,  8,  6,  6,  13,  13,  9,  9,  8,  8,  14,  14 ]
+#    - [  89,  89,  77,  77,  76,  76,  74,  74,  80,  80,  77,  77,  76,  76,  79,  79,  79,  79,  81,  81,  75,  75,  75,  75,  80,  80,  79,  79,  76,  76,  75,  75 ]
+#    - [  75,  75,  72,  72,  71,  71,  73,  73,  75,  75,  75,  75,  75,  75,  75,  75,  77,  77,  79,  79,  72,  72,  72,  72,  81,  81,  78,  78,  73,  73,  78,  78 ]
+#
+    - [  8,  8,  6,  6,  10,  10,  5,  5,  5,  5,  12,  12,  16,  16,  14,  14,  5,  5,  7,  7,  5,  5,  6,  6,  10,  10,  9,  9,  6,  6,  5,  5 ]
+    - [  12,  12,  11,  11,  15,  15,  10,  10,  15,  15,  12,  12,  12,  12,  15,  15,  10,  10,  11,  11,  10,  10,  12,  12,  14,  14,  14,  14,  11,  11,  11,  11 ]
+    - [  -35,  -35,  -33,  -33,  -39,  -39,  -34,  -34,  -36,  -36,  -40,  -40,  -36,  -36,  -35,  -35,  -35,  -35,  -36,  -36,  -36,  -36,  -38,  -38,  -23,  -23,  -35,  -35,  -38,  -38,  -36,  -36 ]
+    - [  -28,  -28,  -39,  -39,  -40,  -40,  -43,  -43,  -40,  -40,  -40,  -40,  -40,  -40,  -41,  -41,  -38,  -38,  -34,  -34,  -41,  -41,  -40,  -40,  -34,  -34,  -38,  -38,  -40,  -40,  -40,  -40 ]
+    - [  -29,  -29,  -36,  -36,  -38,  -38,  -36,  -36,  -40,  -40,  -40,  -40,  -34,  -34,  -37,  -37,  -32,  -32,  -32,  -32,  -38,  -38,  -38,  -38,  -35,  -35,  -32,  -32,  -36,  -36,  -35,  -35 ]
+    - [  -38,  -38,  -40,  -40,  -41,  -41,  -40,  -40,  -39, -39, -42, -42, -40, -40, -42, -42, -36, -36, -35, -35, -40, -40, -40, -40, -40, -40, -38, -38, -33, -33, -39, -39]
+    - [  -36,  -36,  -38,  -38,  -34,  -34,  -39,  -39,  -33,  -33,  -31,  -31,  -35,  -35,  -29,  -29,  -39,  -39,  -36,  -36,  -39,  -39,  -38,  -38,  -31,  -31,  -35,  -35,  -38,  -38,  -36,  -36 ]
+    - [  -15,  -15,  -11,  -11,  -9,  -9,  -11, -11,   -18, -18,   -16, -16,   -16, -16,   -15, -15, -19, -19, -16, -16, -15, -15, -18, -18, -15, -15, -13, -13, -15, -15, -16, -16]
