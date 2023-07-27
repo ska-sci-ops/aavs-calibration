@@ -55,7 +55,7 @@ def run_observation_burst(config):
     daq_config['nof_tiles'] = len(aavs_station.tiles)
     daq_config['directory'] = directory
     receiver.populate_configuration(daq_config)
-    receiver.initialise_daq()
+    receiver.initialise_daq(filepath=config.daq_library)
     receiver.start_correlator()
 
     # Wait for DAQ to initialise
@@ -150,7 +150,8 @@ if __name__ == "__main__":
     p.add_option("-n", "--do_not_calibrate", action="store_false", dest="do_calibration",
                  default=True, help="Perform calibation after getting the correlated data")
                  
-                 
+    p.add_option("--daq_library", action="store", dest="daq_library", default=None, help="Directly specify the AAVS DAQ library to use")                 
+                                  
                  
     # beam in the direction of Sun :
 #    parser.add_option("--beam_x", '--beamx', '--bx' , dest="beam_x", default=1.00, help="Beam power in X polarisation [default: %]", type=float )
