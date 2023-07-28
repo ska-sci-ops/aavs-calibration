@@ -55,7 +55,7 @@ def run_observation_burst(config,opts):
     daq_config['nof_tiles'] = len(aavs_station.tiles)
     daq_config['directory'] = directory
     receiver.populate_configuration(daq_config)
-    receiver.initialise_daq() # only for AAVS2 filepath=opts.daq_library
+    receiver.initialise_daq( filepath=opts.daq_library )
     receiver.start_correlator()
 
     # Wait for DAQ to initialise
