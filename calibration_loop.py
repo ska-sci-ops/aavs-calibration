@@ -67,7 +67,7 @@ def run_observation_burst(config):
 
     # Start sending data
     aavs_station.stop_data_transmission()
-    aavs_station.send_channelised_data(daq_config['nof_correlator_samples'])
+    aavs_station.send_channelised_data(daq_config['nof_correlator_samples'],first_channel=config.first_channel, last_channel=config.last_channel)
 
     # Wait for observation to finish
     logging.info("Observation started")
@@ -151,6 +151,8 @@ if __name__ == "__main__":
                  default=True, help="Perform calibation after getting the correlated data")
                  
     p.add_option("--daq_library", action="store", dest="daq_library", default=None, help="Directly specify the AAVS DAQ library to use")                 
+    p.add_option("--first_channel", "--start_channel", action="store", dest="first_channel", default=0, type="int", help="First channel [default %default]")
+    p.add_option("--last_channel", "--end_channel", action="store", dest="last_channel", default=511, type="int", help="Last channel [default %default]")
                                   
                  
     # beam in the direction of Sun :
