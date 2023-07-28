@@ -25,7 +25,7 @@ def stop_observation():
     stop = True
 
 
-def run_observation_burst(config):
+def run_observation_burst(config,opts):
     global stop
 
     # Load station configuration and change required parameters
@@ -55,7 +55,7 @@ def run_observation_burst(config):
     daq_config['nof_tiles'] = len(aavs_station.tiles)
     daq_config['directory'] = directory
     receiver.populate_configuration(daq_config)
-    receiver.initialise_daq(filepath=config.daq_library)
+    receiver.initialise_daq(filepath=opts.daq_library)
     receiver.start_correlator()
 
     # Wait for DAQ to initialise
@@ -67,7 +67,7 @@ def run_observation_burst(config):
 
     # Start sending data
     aavs_station.stop_data_transmission()
-    aavs_station.send_channelised_data(daq_config['nof_correlator_samples'],first_channel=config.first_channel, last_channel=config.last_channel)
+    aavs_station.send_channelised_data(daq_config['nof_correlator_samples'],first_channel=opts.first_channel, last_channel=opts.last_channel)
 
     # Wait for observation to finish
     logging.info("Observation started")
@@ -216,7 +216,7 @@ if __name__ == "__main__":
         logging.info("Setting scheduler to run at {}".format(start_time))
         s = sched.scheduler(time.time, time.sleep)
         curr_time = datetime.fromtimestamp(int(time.time()))
-        s.enter((start_time - curr_time).total_seconds(), 0, run_observation_burst, [opts.config, ])
+        s.enter((start_time - curr_time).total_seconds(), 0, run_observation_burst, [opts.config, opts, ])
         s.run()
 
         # Schedule next dump
