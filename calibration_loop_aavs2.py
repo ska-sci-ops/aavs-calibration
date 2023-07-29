@@ -61,8 +61,10 @@ def run_observation_burst(config,opts):
     # Wait for DAQ to initialise
     sleep(2)
 
-    logging.info("Setting timer to stop observation in %d" % (2 * 512))
-    timer = threading.Timer(2 * 512, stop_observation)
+    n_channels = opts.last_channel - opts.first_channel + 1
+    wait_time=round(float(opts.nof_samples)*float(n_channels)*1.08/1000000.00)+10 # expected execution time +2 seconds
+    logging.info("Setting timer to stop observation in %.4f [sec]" % (wait_time))
+    timer = threading.Timer( wait_time, stop_observation)
     timer.start()
 
     # Start sending data
