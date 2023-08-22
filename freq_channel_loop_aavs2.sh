@@ -40,8 +40,9 @@ do
 #   echo "python ~/aavs-calibration/calibration_loop.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 --do_not_calibrate --directory=$curr_dir"
 #   python ~/aavs-calibration/calibration_loop.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 --do_not_calibrate --directory=$curr_dir
 
-   echo "python ~/aavs-calibration/calibration_loop_aavs2.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 --do_not_calibrate --directory=/data/2023_07_28_test_nocalib_loop/ --daq_library=/opt/aavs/lib/libaavsdaq_fast_corr.so --samples=917504 --first_channel=64 --last_channel=448"
-   python ~/aavs-calibration/calibration_loop_aavs2.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 --do_not_calibrate --directory=/data/2023_07_28_test_nocalib_loop/ --daq_library=/opt/aavs/lib/libaavsdaq_fast_corr.so --samples=917504 --first_channel=64 --last_channel=448
+   # 
+   echo "python ~/aavs-calibration/calibration_loop_aavs2.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 --do_not_calibrate --directory=${curr_dir} --daq_library=/opt/aavs/lib/libaavsdaq_fast_corr.so --samples=917504 --first_channel=64 --last_channel=448"
+   python ~/aavs-calibration/calibration_loop_aavs2.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 --do_not_calibrate --directory=${curr_dir} --daq_library=/opt/aavs/lib/libaavsdaq_fast_corr.so --samples=917504 --first_channel=64 --last_channel=448
    
    loop_count=$(($loop_count+1))
 done
