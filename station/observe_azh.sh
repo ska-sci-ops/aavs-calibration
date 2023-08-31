@@ -183,8 +183,6 @@ cd ${data_dir}
 if [[ $do_init_station -gt 0 ]]; then
    echo "Initialising the station"
 
-   config_file=/opt/aavs/config/${station}.yml   
-   
    if [[ $use_config_per_freq -gt 0 ]]; then
       freq_config_file=/opt/aavs/config/freq/${station}_ch${freq_channel}.yml
                   
