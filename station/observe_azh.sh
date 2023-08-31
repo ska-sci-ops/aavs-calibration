@@ -2,28 +2,6 @@
 
 export PATH=~/aavs-calibration/station/pointing:$PATH
 
-object_radec()
-{
-   object=$1
-   
-   ret=""
-   if [[ $object == "B0950" || $object == "J0950" ]]; then
-      ra=148.28879042
-      dec=7.92659722
-   fi 
-   
-   if [[ $object == "VELA" || $object == "J0835" || $object == "0835" ]]; then
-      ra=128.83583333
-      dec=-45.17633333
-   fi
-
-   if [[ $object == "J1752" || $object == "1752" ]]; then
-      ra=268.1475
-      dec=23.99672222
-   fi
-}
-
-
 freq_channel=204
 if [[ -n "$1" && "$1" != "-" ]]; then
    freq_channel=$1
@@ -134,6 +112,25 @@ if [[ -n "${18}" && "${18}" != "-" ]]; then
    use_config_per_freq=${18}
 fi
 
+config_file=/opt/aavs/config/${station}.yml
+if [[ -n "${19}" && "${19}" != "-" ]]; then
+   config_file=${19}
+fi
+
+
+# 2023-08-31 (MS) : updated the code according to observe_radec.sh script 
+#                   this code is to enable a different version of the acquisition program to be used:
+#                   for example the new version with start time parameter (-C) compiled in : /home/amagro/station_beam_start_acq_time/aavs-system/src/build/
+#                    !!! REMEMBER TO ALSO SET export LD_LIBRARY_PATH=/home/amagro/station_beam_start_acq_time/aavs-system/src/build/:$LD_LIBRARY_PATH
+# ACQUIRE_STATION_BEAM_PATH=/opt/aavs/bin/acquire_station_beam
+if [[ -n $ACQUIRE_STATION_BEAM_PATH ]]; then
+   echo "INFO : Already defined : ACQUIRE_STATION_BEAM_PATH = $ACQUIRE_STATION_BEAM_PATH - using it"
+else
+   echo "WARNING : ACQUIRE_STATION_BEAM_PATH not defined -> setting now to:"
+   export ACQUIRE_STATION_BEAM_PATH=/opt/aavs/bin/acquire_station_beam
+   echo "ACQUIRE_STATION_BEAM_PATH = $ACQUIRE_STATION_BEAM_PATH"
+fi
+
 
 channel_from_start=4
 
@@ -157,6 +154,8 @@ echo "N channels = $n_channels -> end_channel = $end_channel"
 echo "calibrate_station    = $calibrate_station"
 echo "point_station        = $point_station"
 echo "use_config_per_freq  = $use_config_per_freq"
+echo "configuration file    = $config_file"
+echo "ACQUIRE_STATION_BEAM_PATH = $ACQUIRE_STATION_BEAM_PATH"
 echo "###################################################"
 
 ux=`date +%s`
@@ -268,8 +267,8 @@ do
 
    if [[ $full_time_resolution -gt 0 ]]; then   
       echo "INFO : running full resolution acquisition"
-      echo "/opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} ${daq_options} > daq.out 2>&1"
-      /opt/aavs/bin/acquire_station_beam -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} ${daq_options} > daq.out 2>&1
+      echo "$ACQUIRE_STATION_BEAM_PATH -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} --max_file_size 10 ${daq_options} > daq.out 2>&1"
+      $ACQUIRE_STATION_BEAM_PATH -d ./ -t ${interval} -s 1048576 -c ${channel_from_start}  -i enp216s0f0 -p ${ip} --max_file_size 10 ${daq_options} > daq.out 2>&1
    else
       echo "INFO : running normal station beam in very low time resolution"
       echo "python /opt/aavs/bin/daq_receiver.py -i enp216s0f0 -t 16  -d . -S --channel_samples=262144 --beam_channels=8 --station_samples=1048576 --acquisition_duration=${interval} ${daq_options}"
