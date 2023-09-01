@@ -88,7 +88,7 @@ if [[ -n "${14}" && "${14}" != "-" ]]; then
    n_channels=${14}
 fi
 end_channel=-1
-if [[ $n_channels -gt 0 ]]; then
+if [[ $n_channels -gt 0 && $full_time_resolution -gt 0 ]]; then # these extra options are only required for full-time resolution
    end_channel=$(($ch+$n_channels))
    daq_options="--start_channel 0 --nof_channels ${n_channels}"
 fi
