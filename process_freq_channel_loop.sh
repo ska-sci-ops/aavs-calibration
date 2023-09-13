@@ -10,7 +10,7 @@ fi
 station_id=3
 station_name="AAVS2"
 
-for dir in `ls ${template}`
+for dir in `ls -d ${template}`
 do
    cd ${dir}
    echo "python ~/aavs-calibration/run_calibration.py -D . --station_id ${station_id} --station_name ${station_name} --show-output --keep_uv_files"
