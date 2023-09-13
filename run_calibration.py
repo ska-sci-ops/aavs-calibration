@@ -125,6 +125,11 @@ def calibrate_channel(channel) : # ,station_name="EDA2"): - parameters do not wo
        command.append( options.calibration_object )
        logging.info("Added calibration object option -m {}".format(options.calibration_object))
        
+    if not options.do_calibration :
+       logging.info("Do not execute calibration")
+       command.append( "-c" )
+       command.append( "0" )
+       
     # WARNING : channel MUST GO LAST ADD PARAMETERS EARLIER BUT NOT AFTER !!!
     #           that's why I've moved it here to avoid coding errors :
     command.append( str(channel) )
@@ -339,6 +344,9 @@ if __name__ == "__main__":
 
     parser.add_option("--do_not_update", "--do_not_update_last_cal", action="store_false", dest="update_last_calibration", default=True,
                       help="Do not update last calibration [default: False]")
+  
+    parser.add_option("--do_not_calibrate", "--no_calibration", action="store_false", dest="do_calibration", default=True, help="Do not execute calibration (only conversion) [default: False]")
+                    
 
     parser.add_option("--no_mongo", "--no_mongodb", "--nomongo", action="store_false", dest="save_to_mongo_db", default=True,
                       help="Turn off saving calibration solutions to Mongo DB too [default: %s]")
