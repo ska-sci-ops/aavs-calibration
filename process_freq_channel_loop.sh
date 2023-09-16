@@ -20,21 +20,26 @@ do
    for uvfitsfile in `ls *.uvfits`
    do
       src=${uvfitsfile%%.uvfits}
+      uv=${uvfitsfile%%uvfits}uv
       
-      echo "fits op=uvin in=\"$uvfitsfile\" out="${src}.uv" options=compress"
-      fits op=uvin in="$uvfitsfile" out="${src}.uv" options=compress
+      if [[ -d ${src}.uv ]]; then      
+         echo "INFO : ${uvfitsfile} -> ${src}.uv alreadu done -> skipped"
+      else
+         echo "fits op=uvin in=\"$uvfitsfile\" out="${src}.uv" options=compress"
+         fits op=uvin in="$uvfitsfile" out="${src}.uv" options=compress
       
-      echo "puthd in=${src}.uv/jyperk value=1310.0"
-      puthd in=${src}.uv/jyperk value=1310.0
+         echo "puthd in=${src}.uv/jyperk value=1310.0"
+         puthd in=${src}.uv/jyperk value=1310.0
       
-      echo "puthd in=${src}.uv/systemp value=200.0"
-      puthd in=${src}.uv/systemp value=200.0
+         echo "puthd in=${src}.uv/systemp value=200.0"
+         puthd in=${src}.uv/systemp value=200.0
       
-      echo "uvcat vis=${src}.uv stokes=xx out=${src}_XX.uv"
-      uvcat vis=${src}.uv stokes=xx out=${src}_XX.uv
+         echo "uvcat vis=${src}.uv stokes=xx out=${src}_XX.uv"
+         uvcat vis=${src}.uv stokes=xx out=${src}_XX.uv
       
-      echo "uvcat vis=${src}.uv stokes=yy out=${src}_YY.uv"
-      uvcat vis=${src}.uv stokes=yy out=${src}_YY.uv
+         echo "uvcat vis=${src}.uv stokes=yy out=${src}_YY.uv"
+         uvcat vis=${src}.uv stokes=yy out=${src}_YY.uv
+     fi
    done
    
    cd ..
