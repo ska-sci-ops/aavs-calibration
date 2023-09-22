@@ -145,6 +145,10 @@ if __name__ == "__main__":
                  help="Skip saving coefficients to any database [default: False]")                                       
     p.add_option("--beam_correct", '--beam_corr', action="store_true", dest="beam_correct", default=False,
                  help="Beam correct and calculate apparent flux of the Sun or sky model in general [default: False]")                      
+
+    p.add_option("", "--correlator-channels", action="store", dest="nof_correlator_channels",
+                 type="int", default=512, help="Number of channels to channelise into before correlation. Only "
+                                              "used in correlator more [default: 1]")
                  
     p.add_option("--no_mongo", "--no_mongodb", "--nomongo", action="store_false", dest="save_to_mongo_db", default=True,
                  help="Turn off saving calibration solutions to Mongo DB too [default: %s]")
@@ -207,9 +211,9 @@ if __name__ == "__main__":
         logging.info("No start time defined, will start in 10 seconds")
 
     # Populate DAQ configuration
-    daq_config = {"nof_correlator_channels": 512,
-                  "nof_correlator_samples": opts.nof_samples,
-                  "receiver_interface": opts.receiver_interface,
+    daq_config = {"nof_correlator_channels": opts.nof_correlator_channels,
+                  "nof_correlator_samples":  opts.nof_samples,
+                  "receiver_interface":      opts.receiver_interface,
                   "receiver_frame_size": 9000}
 
     # Perform dump every required period
