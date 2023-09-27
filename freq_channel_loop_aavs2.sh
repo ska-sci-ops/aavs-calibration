@@ -11,6 +11,12 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    cd $curr_dir
 fi
 
+n_integrations_per_file=2
+if [[ -n "$3" && "$3" != "-" ]]; then
+   n_integrations_per_file=$3
+fi
+
+
 export PYTHONPATH=/home/amagro/multi_chan_station_acq/aavs-system/python/:$PYTHONPATH
 
 start_ux=`date +%s`
@@ -22,6 +28,7 @@ echo "##########################"
 echo "total_duration = $total_duration [sec]"
 echo "Start ux = $start_ux"
 echo "End   ux = $end_ux"
+echo "n_integrations_per_file = $n_integrations_per_file"
 echo "##########################"
 
 echo "Multiple calibration loops started at:"
@@ -41,8 +48,8 @@ do
 #   python ~/aavs-calibration/calibration_loop.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 --do_not_calibrate --directory=$curr_dir
 
    # 
-   echo "python ~/aavs-calibration/calibration_loop_aavs2.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 --do_not_calibrate --directory=${curr_dir} --daq_library=/opt/aavs/lib/libaavsdaq_fast_corr.so --samples=917504 --first_channel=64 --last_channel=448 --correlator-channels=1"
-   python ~/aavs-calibration/calibration_loop_aavs2.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 --do_not_calibrate --directory=${curr_dir} --daq_library=/opt/aavs/lib/libaavsdaq_fast_corr.so --samples=917504 --first_channel=64 --last_channel=448 --correlator-channels=1
+   echo "python ~/aavs-calibration/calibration_loop_aavs2.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 --do_not_calibrate --directory=${curr_dir} --daq_library=/opt/aavs/lib/libaavsdaq_fast_corr.so --samples=917504 --first_channel=64 --last_channel=448 --correlator-channels=1 --n_integrations_per_file=${n_integrations_per_file}"
+   python ~/aavs-calibration/calibration_loop_aavs2.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 --do_not_calibrate --directory=${curr_dir} --daq_library=/opt/aavs/lib/libaavsdaq_fast_corr.so --samples=917504 --first_channel=64 --last_channel=448 --correlator-channels=1 --n_integrations_per_file=${n_integrations_per_file}
    
    ux=`date +%s`
    loop_count=$(($loop_count+1))
