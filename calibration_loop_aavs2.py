@@ -68,8 +68,9 @@ def run_observation_burst(config,opts):
     timer.start()
 
     # Start sending data
-    aavs_station.stop_data_transmission()
-    aavs_station.send_channelised_data(daq_config['nof_correlator_samples'],first_channel=opts.first_channel, last_channel=opts.last_channel)
+    logging.info("Number of correlator samples will be %d * %d = %d" % (daq_config['nof_correlator_samples'],opts.n_integrations_per_file,(daq_config['nof_correlator_samples']*opts.n_integrations_per_file)))
+    aavs_station.stop_data_transmission()    
+    aavs_station.send_channelised_data(daq_config['nof_correlator_samples']*opts.n_integrations_per_file,first_channel=opts.first_channel, last_channel=opts.last_channel)
 
     # Wait for observation to finish
     logging.info("Observation started")
@@ -135,6 +136,7 @@ if __name__ == "__main__":
                  default="eth3:1", help="Receiver interface [default: eth3:1]")
     p.add_option("--samples", action="store", dest="nof_samples",
                  default=1835008, type="int", help="Number of samples to correlate. Default: 1835008")
+    p.add_option("--n_integrations_per_file", "--n_int_per_file", action="store", dest="n_integrations_per_file", default=1, type="int", help="Number of integrations per file [default %default]")
     p.add_option("--period", action="store", dest="period",
                  default=0, type="int", help="Dump period in seconds. Default: 0 (perform once)")
     p.add_option("-s", "--starttime", action="store", dest="starttime",
@@ -166,6 +168,12 @@ if __name__ == "__main__":
 #    parser.add_option("--beam_y", '--beamy', '--by' , dest="beam_y", default=1.00, help="Beam power in Y polarisation [default: %]", type=float )
                  
     opts, args = p.parse_args(sys.argv[1:])
+    
+    print("#################################")
+    print("PARAMETERS:")
+    print("#################################")
+    print("n_integrations_per_file = %d" % (opts.n_integrations_per_file))
+    print("#################################")
 
     # Set current thread name
     threading.currentThread().name = "Calibration Loop"
