@@ -21,7 +21,8 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    n_samples="$4"
 fi
 
-
+echo "~/bin/init_station.sh"
+~/bin/init_station.sh
 
 export PYTHONPATH=/home/amagro/multi_chan_station_acq/aavs-system/python/:$PYTHONPATH
 
