@@ -62,7 +62,11 @@ def run_observation_burst(config,opts):
     sleep(2)
 
     n_channels = opts.last_channel - opts.first_channel + 1
-    wait_time=round(float(opts.nof_samples)*float(n_channels)*1.08/1000000.00)+10 # expected execution time +2 seconds
+    wait_time=round(float(opts.nof_samples)*float(opts.n_integrations_per_file)*float(n_channels)*1.08/1000000.00)+10 # expected execution time +2 seconds
+#    integration_time=2
+#    observation_duration = integration_time*( opts.last_channel - opts.first_channel + 1) # in seconds
+    if opts.observation_duration > 0 :
+       wait_time = opts.observation_duration
     logging.info("Setting timer to stop observation in %.4f [sec]" % (wait_time))
     timer = threading.Timer( wait_time, stop_observation)
     timer.start()
@@ -137,6 +141,7 @@ if __name__ == "__main__":
     p.add_option("--samples", action="store", dest="nof_samples",
                  default=1835008, type="int", help="Number of samples to correlate. Default: 1835008")
     p.add_option("--n_integrations_per_file", "--n_int_per_file", action="store", dest="n_integrations_per_file", default=1, type="int", help="Number of integrations per file [default %default]")
+    p.add_option("--wait_time", "--observation_duration", action="store", dest="observation_duration", default=-1, type="int", help="Wait time [default %default]. Negative means that it is automatically calculated as number of channels times 2seconds")
     p.add_option("--period", action="store", dest="period",
                  default=0, type="int", help="Dump period in seconds. Default: 0 (perform once)")
     p.add_option("-s", "--starttime", action="store", dest="starttime",
