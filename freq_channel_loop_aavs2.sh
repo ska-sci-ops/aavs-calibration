@@ -57,9 +57,8 @@ do
 
    # 
    dtm_utc=`date --utc +%Y%m%d%H%M%S`
-   echo "python ~/aavs-calibration/calibration_loop_aavs2.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 --do_not_calibrate --directory=${curr_dir} --daq_library=/opt/aavs/lib/libaavsdaq_fast_corr.so --samples=${n_samples} --first_channel=64 --last_channel=448 --correlator-channels=1 --n_integrations_per_file=${n_integrations_per_file}"
-   python ~/aavs-calibration/calibration_loop_aavs2.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 --do_not_calibrate --directory=${curr_dir} --daq_library=/opt/aavs/lib/libaavsdaq_fast_corr.so --samples=${n_samples} --first_channel=64 --last_channel=448 --correlator-channels=1 --n_integrations_per_file=${n_integrations_per_file}
-   # > ${dtm_utc}.log 2>&1
+   echo "python ~/aavs-calibration/calibration_loop_aavs2.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 --do_not_calibrate --directory=${curr_dir} --daq_library=/opt/aavs/lib/libaavsdaq_fast_corr.so --samples=${n_samples} --first_channel=64 --last_channel=448 --correlator-channels=1 --n_integrations_per_file=${n_integrations_per_file} > ${dtm_utc}.log 2>&1"
+   python ~/aavs-calibration/calibration_loop_aavs2.py --config=/opt/aavs/config/aavs2.yml -i enp216s0f0 --do_not_calibrate --directory=${curr_dir} --daq_library=/opt/aavs/lib/libaavsdaq_fast_corr.so --samples=${n_samples} --first_channel=64 --last_channel=448 --correlator-channels=1 --n_integrations_per_file=${n_integrations_per_file} > ${dtm_utc}.log 2>&1
    
    ux=`date +%s`
    loop_count=$(($loop_count+1))
