@@ -59,7 +59,7 @@ for hdffile in `ls channel_cont_20*.hdf5` ; do
     echo "Skipping existing output for $f"
     continue
   fi
-  nice $AAVSCAL/h5rawdump_merged.py  -o $mypipe -i $hdffile &
+  nice python $AAVSCAL/h5rawdump_merged.py  -o $mypipe -i $hdffile &
   nice corr_multi_complex -c 32 -n 512 -w 10 -o $bname -t 2 -d -a 4096 -t 2 -i $mypipe
 done
 rm $mypipe
